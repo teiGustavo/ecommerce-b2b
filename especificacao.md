@@ -1,6 +1,6 @@
 # E-commerce B2B (Atacado)
 
-## Especificação do Trabalho
+## Minimundo
 
 ### Gestão de Clientes Corporativos e Representantes:
 
