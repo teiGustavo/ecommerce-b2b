@@ -2,6 +2,23 @@ import 'package:ecommerce_b2b/modules/shared_kernel/failures/validation_failure.
 
 /// Result/Either Pattern
 sealed class Result<S, F> {
+  bool get isSuccess => this is Success<S, F>;
+  bool get isFailure => this is Failure<S, F>;
+
+  S getOrThrow() {
+    return switch (this) {
+      Success(value: var v) => v,
+      Failure(error: var e) => throw Exception('Called getOrThrow on Failure: $e'),
+    };
+  }
+
+  F getFailureOrThrow() {
+    return switch (this) {
+      Success(value: var v) => throw Exception('Called getFailureOrThrow on Success: $v'),
+      Failure(error: var e) => e,
+    };
+  }
+
   /// Transforma os dois caminhos (Success e Failure) em um único resultado final
   T fold<T>(T Function(F error) onFailure, T Function(S value) onSuccess) {
     return switch (this) {
