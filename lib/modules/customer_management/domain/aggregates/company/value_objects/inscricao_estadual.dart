@@ -1,5 +1,6 @@
-import 'package:ecommerce_b2b/modules/customer_management/domain/errors/inscricao_estadual_errors.dart';
-import 'package:ecommerce_b2b/app/core/result.dart';
+import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/errors/inscricao_estadual_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/base/base_value_object.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
 import 'package:flutter/foundation.dart';
 
 /// Value Object para Inscrição Estadual (IE).
@@ -7,7 +8,7 @@ import 'package:flutter/foundation.dart';
 /// Representa o número de registro fiscal estadual. 
 /// A lógica de isenção deve ser tratada na Entidade que utiliza este objeto.
 @immutable
-class InscricaoEstadual {
+class InscricaoEstadual extends ValueObject {
   final String value;
 
   const InscricaoEstadual._(this.value);

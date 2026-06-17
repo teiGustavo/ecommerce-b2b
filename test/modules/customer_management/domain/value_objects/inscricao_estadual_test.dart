@@ -1,7 +1,7 @@
+import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/errors/inscricao_estadual_errors.dart';
+import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/value_objects/inscricao_estadual.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/value_objects/inscricao_estadual.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/errors/inscricao_estadual_errors.dart';
-import 'package:ecommerce_b2b/app/core/result.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
 
 void main() {
   group('InscricaoEstadual Value Object Tests', () {

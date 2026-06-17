@@ -63,3 +63,13 @@ lib/modules/
 ├── logistics/                # Picking, Packing, Etiquetas e Cálculo de Frete (Mock API)
 └── customer_portal/          # Portal do Cliente, Segunda Via de Boleto e RMA
 ```
+
+Ordem de Implementação: 
+
+1. customer_management
+2. sales_team
+3. catalog
+4. inventory
+5. order_flow
+6. logistics
+7. customer_portal

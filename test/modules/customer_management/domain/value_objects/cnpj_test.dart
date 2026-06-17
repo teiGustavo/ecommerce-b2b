@@ -1,7 +1,7 @@
+import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/errors/cnpj_errors.dart';
+import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/value_objects/cnpj.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/value_objects/cnpj.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/errors/cnpj_errors.dart';
-import 'package:ecommerce_b2b/app/core/result.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
 
 void main() {
   group('Cnpj Value Object Tests', () {

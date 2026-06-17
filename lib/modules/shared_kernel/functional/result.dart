@@ -1,4 +1,4 @@
-import 'package:ecommerce_b2b/app/core/validation_failure.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/failures/validation_failure.dart';
 
 /// Result/Either Pattern
 sealed class Result<S, F> {

@@ -1,0 +1,3 @@
+class CustomerCreditAccount {
+  const CustomerCreditAccount();
+}
