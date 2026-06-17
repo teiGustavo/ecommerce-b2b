@@ -23,11 +23,10 @@ class SalesRepresentative extends AggregateRoot<RepresentativeId> {
     required this.commissionRate,
     List<CustomerAssignment>? assignments,
     List<Commission>? commissions,
-    SalesHierarchyLink? supervisorLink,
+    this._supervisorLink,
     List<SalesHierarchyLink>? subordinateLinks,
   })  : _assignments = assignments ?? [],
         _commissions = commissions ?? [],
-        _supervisorLink = supervisorLink,
         _subordinateLinks = subordinateLinks ?? [],
         super(id);
 
