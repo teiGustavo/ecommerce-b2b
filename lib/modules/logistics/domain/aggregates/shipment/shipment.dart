@@ -14,11 +14,10 @@ class Shipment extends AggregateRoot<ShipmentId> {
   Shipment({
     required ShipmentId id,
     required this.trackingCode,
-    required ShipmentStatus status,
+    required this._status,
     required this.shippingLabel,
     List<TrackingEvent>? trackingEvents,
-  })  : _status = status,
-        _trackingEvents = trackingEvents ?? [],
+  })  : _trackingEvents = trackingEvents ?? [],
         super(id);
 
   ShipmentStatus get status => _status;

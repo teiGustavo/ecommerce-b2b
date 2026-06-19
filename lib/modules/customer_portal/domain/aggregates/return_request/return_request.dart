@@ -10,11 +10,10 @@ class ReturnRequest extends AggregateRoot<RmaId> {
 
   ReturnRequest({
     required RmaId id,
-    required RmaStatus status,
+    required this._status,
     required this.reason,
     List<ReturnRequestItem>? items,
-  })  : _status = status,
-        _items = items ?? [],
+  })  : _items = items ?? [],
         super(id);
 
   RmaStatus get status => _status;
