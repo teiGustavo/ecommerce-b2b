@@ -3,17 +3,23 @@ import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/phone_number.d
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('PhoneNumber', () {
-    test('should create valid phone number (11 digits)', () {
-      final result = PhoneNumber.create('(11) 99999-9999');
+  group('PhoneNumber (E.164)', () {
+    test('should create valid Brazilian mobile number with country code', () {
+      final result = PhoneNumber.create('+55 (11) 99999-9999');
       expect(result.isSuccess, isTrue);
-      expect(result.getOrThrow().value, '11999999999');
+      expect(result.getOrThrow().value, '+5511999999999');
     });
 
-    test('should create valid phone number (10 digits)', () {
-      final result = PhoneNumber.create('11 4444-4444');
+    test('should create valid international number', () {
+      final result = PhoneNumber.create('+1 555 123 4567');
       expect(result.isSuccess, isTrue);
-      expect(result.getOrThrow().value, '1144444444');
+      expect(result.getOrThrow().value, '+15551234567');
+    });
+
+    test('should add "+" prefix if missing but digits are provided', () {
+      final result = PhoneNumber.create('5511999998888');
+      expect(result.isSuccess, isTrue);
+      expect(result.getOrThrow().value, '+5511999998888');
     });
 
     test('should return PhoneEmptyError when input is empty', () {
@@ -22,10 +28,22 @@ void main() {
       expect(result.getFailureOrThrow(), isA<PhoneEmptyError>());
     });
 
-    test('should return PhoneInvalidError when input has invalid length', () {
-      final result = PhoneNumber.create('123');
+    test('should return PhoneInvalidError when number is too short (E.164 min 7 digits)', () {
+      final result = PhoneNumber.create('+123456');
       expect(result.isFailure, isTrue);
       expect(result.getFailureOrThrow(), isA<PhoneInvalidError>());
+    });
+
+    test('should return PhoneInvalidError when number is too long (E.164 max 15 digits)', () {
+      final result = PhoneNumber.create('+1234567890123456');
+      expect(result.isFailure, isTrue);
+      expect(result.getFailureOrThrow(), isA<PhoneInvalidError>());
+    });
+
+    test('should normalize by removing brackets, dashes and spaces', () {
+      final result = PhoneNumber.create(' +55-11-98888-7777 ');
+      expect(result.isSuccess, isTrue);
+      expect(result.getOrThrow().value, '+5511988887777');
     });
   });
 }
