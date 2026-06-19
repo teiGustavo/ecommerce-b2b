@@ -8,11 +8,13 @@ import 'package:flutter/foundation.dart';
 @immutable
 class Money extends ValueObject {
   final int amountInCents;
-  final String currency;
+  /// Código da moeda (ex: BRL, USD).
+  final Currency currency;
 
-  const Money._(this.amountInCents, {this.currency = 'BRL'});
+  const Money._(this.amountInCents, {this.currency = Currency.brazil});
 
   static Result<Money, MoneyError> create(double amount, {String currency = 'BRL'}) {
+  static Result<Money, MoneyError> create(double amount, {Currency currency = Currency.brazil}) {
     if (amount < 0) {
       return Failure(MoneyNegativeError());
     }
@@ -56,5 +58,5 @@ class Money extends ValueObject {
   int get hashCode => amountInCents.hashCode ^ currency.hashCode;
 
   @override
-  String toString() => '$currency ${amount.toStringAsFixed(2)}';
+  String toString() => '${currency.symbol} ${amount.toStringAsFixed(2)}';
 }

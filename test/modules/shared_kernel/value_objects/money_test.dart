@@ -1,3 +1,4 @@
+import 'package:ecommerce_b2b/modules/shared_kernel/enums/currency.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/errors/money_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/money.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -25,8 +26,8 @@ void main() {
     });
 
     test('should throw ArgumentError when adding different currencies', () {
-      final m1 = Money.create(50.0, currency: 'BRL').getOrThrow();
-      final m2 = Money.create(30.0, currency: 'USD').getOrThrow();
+      final m1 = Money.create(50.0, currency: Currency.brazil).getOrThrow();
+      final m2 = Money.create(30.0, currency: Currency.unitedStates).getOrThrow();
       expect(() => m1 + m2, throwsArgumentError);
     });
 
