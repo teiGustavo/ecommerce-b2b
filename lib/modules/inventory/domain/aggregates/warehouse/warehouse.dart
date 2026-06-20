@@ -2,11 +2,15 @@ import 'package:ecommerce_b2b/modules/shared_kernel/base/base_aggregate_root.dar
 import 'package:ecommerce_b2b/modules/shared_kernel/ids/warehouse_id.dart';
 import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/stock_item.dart';
 
+/// Raiz do Agregado que representa um Armazém/Depósito.
 class Warehouse extends AggregateRoot<WarehouseId> {
+  /// Código identificador interno do armazém.
   final String code;
+  /// Nome do armazém.
   final String name;
   final List<StockItem> _stockItems;
 
+  /// Construtor do Armazém.
   Warehouse({
     required WarehouseId id,
     required this.code,
@@ -15,8 +19,10 @@ class Warehouse extends AggregateRoot<WarehouseId> {
   })  : _stockItems = stockItems ?? [],
         super(id);
 
+  /// Lista de itens em estoque neste armazém.
   List<StockItem> get stockItems => List.unmodifiable(_stockItems);
 
+  /// Atualiza ou adiciona um item ao estoque do armazém.
   void updateStock(StockItem item) {
     final index = _stockItems.indexWhere((i) => i.productId == item.productId);
     if (index >= 0) {
@@ -26,6 +32,7 @@ class Warehouse extends AggregateRoot<WarehouseId> {
     }
   }
 
+  /// Recupera a informação de estoque de um produto específico.
   StockItem? getStockItem(dynamic productId) {
     try {
       return _stockItems.firstWhere((i) => i.productId == productId);

@@ -6,12 +6,14 @@ import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/order_item.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/finance_review.dart';
 
+/// Raiz do Agregado que representa um Pedido de Venda.
 class SalesOrder extends AggregateRoot<OrderId> {
   OrderStatus _status;
   CreditStatus _creditStatus;
   final List<OrderItem> _items;
   FinanceReview? _financeReview;
 
+  /// Construtor do Pedido de Venda.
   SalesOrder({
     required OrderId id,
     required this._status,
@@ -20,11 +22,19 @@ class SalesOrder extends AggregateRoot<OrderId> {
     this._financeReview,
   })  : super(id);
 
+  /// Status atual do pedido (ex: pendente aprovação, em trânsito).
   OrderStatus get status => _status;
+  
+  /// Status de crédito do pedido.
   CreditStatus get creditStatus => _creditStatus;
+  
+  /// Itens que compõem o pedido.
   List<OrderItem> get items => List.unmodifiable(_items);
+  
+  /// Revisão financeira associada ao pedido, se houver.
   FinanceReview? get financeReview => _financeReview;
 
+  /// Calcula o valor total do pedido somando os subtotais de cada item.
   Money get total {
     if (_items.isEmpty) return Money.create(0).getOrThrow();
     
@@ -35,14 +45,17 @@ class SalesOrder extends AggregateRoot<OrderId> {
     return sum;
   }
 
+  /// Atualiza o status do pedido.
   void updateStatus(OrderStatus newStatus) {
     _status = newStatus;
   }
 
+  /// Atualiza o status de crédito do pedido.
   void updateCreditStatus(CreditStatus newStatus) {
     _creditStatus = newStatus;
   }
 
+  /// Aplica uma decisão de revisão financeira ao pedido.
   void applyFinanceReview(FinanceReview review) {
     _financeReview = review;
   }

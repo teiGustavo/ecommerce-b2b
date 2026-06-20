@@ -1,6 +1,6 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_value_object.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/enums/state.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/money.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/state_code.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/quantity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -8,13 +8,13 @@ import 'package:flutter/foundation.dart';
 class PriceRule extends ValueObject {
   final Quantity minQuantity;
   final Quantity maxQuantity;
-  final StateCode stateCode;
+  final State state;
   final Money unitPrice;
 
   const PriceRule({
     required this.minQuantity,
     required this.maxQuantity,
-    required this.stateCode,
+    required this.state,
     required this.unitPrice,
   });
 
@@ -25,13 +25,13 @@ class PriceRule extends ValueObject {
           runtimeType == other.runtimeType &&
           minQuantity == other.minQuantity &&
           maxQuantity == other.maxQuantity &&
-          stateCode == other.stateCode &&
+          state == other.state &&
           unitPrice == other.unitPrice;
 
   @override
   int get hashCode =>
       minQuantity.hashCode ^
       maxQuantity.hashCode ^
-      stateCode.hashCode ^
+      state.hashCode ^
       unitPrice.hashCode;
 }

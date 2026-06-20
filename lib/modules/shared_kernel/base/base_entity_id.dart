@@ -1,3 +1,5 @@
+/// Classe base para identificadores de entidades.
+/// Garante tipagem forte para IDs em vez de usar apenas Strings.
 abstract class EntityId {
   final String value;
 

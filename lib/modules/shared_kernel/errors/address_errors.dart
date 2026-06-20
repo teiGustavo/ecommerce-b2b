@@ -9,6 +9,11 @@ class AddressRequiredFieldError extends AddressError {
   AddressRequiredFieldError(this.fieldName) : super('$fieldName is required.');
 }
 
+class AddressInvalidFieldError extends AddressError {
+  final String fieldName;
+  AddressInvalidFieldError(this.fieldName) : super('$fieldName is invalid.');
+}
+
 class AddressInvalidZipCodeError extends AddressError {
   AddressInvalidZipCodeError() : super('Invalid ZIP code format.');
 }

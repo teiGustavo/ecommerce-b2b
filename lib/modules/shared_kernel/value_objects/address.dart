@@ -1,8 +1,10 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_value_object.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/enums/state.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/errors/address_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
 import 'package:flutter/foundation.dart';
 
+/// Objeto de Valor que representa um endereço válido.
 @immutable
 class Address extends ValueObject {
   final String street;
@@ -10,7 +12,7 @@ class Address extends ValueObject {
   final String complement;
   final String neighborhood;
   final String city;
-  final String state;
+  final State state;
   final String zipCode;
 
   const Address._({
@@ -38,6 +40,11 @@ class Address extends ValueObject {
     if (city.trim().isEmpty) return Failure(AddressRequiredFieldError('City'));
     if (state.trim().isEmpty) return Failure(AddressRequiredFieldError('State'));
     
+    final stateResult = State.fromString(state);
+    if (stateResult.isFailure) {
+      return Failure(AddressInvalidFieldError('State'));
+    }
+    
     final cleanZip = zipCode.replaceAll(RegExp(r'\D'), '');
     if (cleanZip.length != 8) return Failure(AddressInvalidZipCodeError());
 
@@ -47,7 +54,7 @@ class Address extends ValueObject {
       complement: complement.trim(),
       neighborhood: neighborhood.trim(),
       city: city.trim(),
-      state: state.trim().toUpperCase(),
+      state: stateResult.getOrThrow(),
       zipCode: cleanZip,
     ));
   }

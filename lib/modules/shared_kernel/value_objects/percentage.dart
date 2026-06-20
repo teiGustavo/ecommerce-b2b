@@ -3,12 +3,15 @@ import 'package:ecommerce_b2b/modules/shared_kernel/errors/percentage_errors.dar
 import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
 import 'package:flutter/foundation.dart';
 
+/// Objeto de Valor que representa uma porcentagem válida.
 @immutable
 class Percentage extends ValueObject {
   final double value;
 
   const Percentage._(this.value);
 
+  /// Cria uma instância de [Percentage] a partir de um valor decimal.
+  /// Retorna [Failure] se o valor estiver fora do intervalo [0, 100].
   static Result<Percentage, PercentageError> create(double value) {
     if (value < 0 || value > 100) {
       return Failure(PercentageOutOfRangeError());
