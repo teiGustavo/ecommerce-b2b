@@ -1,5 +1,5 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/enums/state.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/state_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/state_errors.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

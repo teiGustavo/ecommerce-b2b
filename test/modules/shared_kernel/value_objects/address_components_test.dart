@@ -1,9 +1,13 @@
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address_number.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/city.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/neighborhood.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/street.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/zip_code.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/address_number_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/city_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/neighborhood_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/street_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/zip_code_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/address_number.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/city.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/neighborhood.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/street.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/zip_code.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -17,7 +21,13 @@ void main() {
     test('should return error for empty street', () {
       final result = Street.create('  ');
       expect(result.isFailure, isTrue);
-      expect(result.getFailureOrThrow(), isA<AddressRequiredFieldError>());
+      expect(result.getFailureOrThrow(), isA<StreetEmptyError>());
+    });
+
+    test('should return error for too long street', () {
+      final result = Street.create('a' * 101);
+      expect(result.isFailure, isTrue);
+      expect(result.getFailureOrThrow(), isA<StreetTooLongError>());
     });
   });
 
@@ -31,7 +41,13 @@ void main() {
     test('should return error for empty number', () {
       final result = AddressNumber.create('');
       expect(result.isFailure, isTrue);
-      expect(result.getFailureOrThrow(), isA<AddressRequiredFieldError>());
+      expect(result.getFailureOrThrow(), isA<AddressNumberEmptyError>());
+    });
+
+    test('should return error for too long number', () {
+      final result = AddressNumber.create('a' * 11);
+      expect(result.isFailure, isTrue);
+      expect(result.getFailureOrThrow(), isA<AddressNumberTooLongError>());
     });
   });
 
@@ -45,7 +61,13 @@ void main() {
     test('should return error for empty city', () {
       final result = City.create('');
       expect(result.isFailure, isTrue);
-      expect(result.getFailureOrThrow(), isA<AddressRequiredFieldError>());
+      expect(result.getFailureOrThrow(), isA<CityEmptyError>());
+    });
+
+    test('should return error for too long city', () {
+      final result = City.create('a' * 101);
+      expect(result.isFailure, isTrue);
+      expect(result.getFailureOrThrow(), isA<CityTooLongError>());
     });
   });
 
@@ -59,7 +81,13 @@ void main() {
     test('should return error for empty neighborhood', () {
       final result = Neighborhood.create('');
       expect(result.isFailure, isTrue);
-      expect(result.getFailureOrThrow(), isA<AddressRequiredFieldError>());
+      expect(result.getFailureOrThrow(), isA<NeighborhoodEmptyError>());
+    });
+
+    test('should return error for too long neighborhood', () {
+      final result = Neighborhood.create('a' * 71);
+      expect(result.isFailure, isTrue);
+      expect(result.getFailureOrThrow(), isA<NeighborhoodTooLongError>());
     });
   });
 
@@ -74,13 +102,13 @@ void main() {
     test('should return error for invalid zip code length', () {
       final result = ZipCode.create('12345');
       expect(result.isFailure, isTrue);
-      expect(result.getFailureOrThrow(), isA<AddressInvalidZipCodeError>());
+      expect(result.getFailureOrThrow(), isA<ZipCodeLengthError>());
     });
 
     test('should return error for empty zip code', () {
       final result = ZipCode.create('');
       expect(result.isFailure, isTrue);
-      expect(result.getFailureOrThrow(), isA<AddressRequiredFieldError>());
+      expect(result.getFailureOrThrow(), isA<ZipCodeEmptyError>());
     });
   });
 }

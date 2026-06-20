@@ -3,7 +3,7 @@ import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/comp
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_aggregate_root.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/enums/state.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/ids/company_id.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/address.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/email_address.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/money.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/phone_number.dart';

@@ -1,12 +1,12 @@
+import 'package:ecommerce_b2b/modules/shared_kernel/base/base_domain_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_value_object.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/enums/state.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address_number.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/city.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/neighborhood.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/street.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/zip_code.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/address_number.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/city.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/neighborhood.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/street.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/zip_code.dart';
 import 'package:flutter/foundation.dart';
 
 /// Objeto de Valor que representa um endereço válido.
@@ -30,7 +30,7 @@ class Address extends ValueObject {
     required this.zipCode,
   });
 
-  static Result<Address, AddressError> create({
+  static Result<Address, DomainError> create({
     required String street,
     required String number,
     String complement = '',
@@ -49,7 +49,7 @@ class Address extends ValueObject {
     if (streetResult.isFailure) return Failure(streetResult.getFailureOrThrow());
     if (numberResult.isFailure) return Failure(numberResult.getFailureOrThrow());
     if (cityResult.isFailure) return Failure(cityResult.getFailureOrThrow());
-    if (stateResult.isFailure) return Failure(AddressInvalidStateError());
+    if (stateResult.isFailure) return Failure(stateResult.getFailureOrThrow());
     if (zipResult.isFailure) return Failure(zipResult.getFailureOrThrow());
     if (neighborhoodResult.isFailure) return Failure(neighborhoodResult.getFailureOrThrow());
 

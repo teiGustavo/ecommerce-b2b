@@ -1,6 +1,11 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/enums/state.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/address_number_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/city_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/neighborhood_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/state_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/street_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/zip_code_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/address.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -34,7 +39,7 @@ void main() {
         zipCode: '01001-000',
       );
       expect(result.isFailure, isTrue);
-      expect(result.getFailureOrThrow(), isA<AddressInvalidStateError>());
+      expect(result.getFailureOrThrow(), isA<StateInvalidError>());
     });
 
     test('should return error for missing street', () {
@@ -47,7 +52,7 @@ void main() {
         zipCode: '01001-000',
       );
       expect(result.isFailure, isTrue);
-      expect(result.getFailureOrThrow(), isA<AddressRequiredFieldError>());
+      expect(result.getFailureOrThrow(), isA<StreetEmptyError>());
     });
 
     test('should return error for invalid zip code', () {
@@ -60,7 +65,59 @@ void main() {
         zipCode: '123',
       );
       expect(result.isFailure, isTrue);
-      expect(result.getFailureOrThrow(), isA<AddressInvalidZipCodeError>());
+      expect(result.getFailureOrThrow(), isA<ZipCodeLengthError>());
+    });
+
+    test('should return error for empty neighborhood', () {
+      final result = Address.create(
+        street: 'Rua A',
+        number: '123',
+        neighborhood: '',
+        city: 'São Paulo',
+        state: 'SP',
+        zipCode: '01001-000',
+      );
+      expect(result.isFailure, isTrue);
+      expect(result.getFailureOrThrow(), isA<NeighborhoodEmptyError>());
+    });
+
+    test('should return error for empty city', () {
+      final result = Address.create(
+        street: 'Rua A',
+        number: '123',
+        neighborhood: 'Centro',
+        city: '',
+        state: 'SP',
+        zipCode: '01001-000',
+      );
+      expect(result.isFailure, isTrue);
+      expect(result.getFailureOrThrow(), isA<CityEmptyError>());
+    });
+
+    test('should return error for empty number', () {
+      final result = Address.create(
+        street: 'Rua A',
+        number: '',
+        neighborhood: 'Centro',
+        city: 'São Paulo',
+        state: 'SP',
+        zipCode: '01001-000',
+      );
+      expect(result.isFailure, isTrue);
+      expect(result.getFailureOrThrow(), isA<AddressNumberEmptyError>());
+    });
+
+    test('should return error for too long street', () {
+      final result = Address.create(
+        street: 'a' * 101,
+        number: '123',
+        neighborhood: 'Centro',
+        city: 'São Paulo',
+        state: 'SP',
+        zipCode: '01001-000',
+      );
+      expect(result.isFailure, isTrue);
+      expect(result.getFailureOrThrow(), isA<StreetTooLongError>());
     });
   });
 }

@@ -1,4 +1,4 @@
-import 'package:ecommerce_b2b/modules/shared_kernel/base/base_domain_error.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/base/base_domain_errors.dart';
 
 sealed class MoneyError extends DomainError {
   MoneyError(super.message);

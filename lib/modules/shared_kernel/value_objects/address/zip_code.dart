@@ -1,7 +1,9 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_value_object.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/zip_code_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
 import 'package:flutter/foundation.dart';
+
+// TODO Tornar o ZIP Code compatível com todos os códigos postais do mundo, para endereços internacionais.
 
 @immutable
 class ZipCode extends ValueObject {
@@ -9,15 +11,15 @@ class ZipCode extends ValueObject {
 
   const ZipCode._(this.value);
 
-  static Result<ZipCode, AddressError> create(String input) {
+  static Result<ZipCode, ZipCodeError> create(String input) {
     final digits = input.replaceAll(RegExp(r'\D'), '');
 
     if (digits.isEmpty) {
-      return Failure(AddressRequiredFieldError('ZipCode'));
+      return Failure(ZipCodeEmptyError());
     }
 
     if (digits.length != 8) {
-      return Failure(AddressInvalidZipCodeError());
+      return Failure(ZipCodeLengthError());
     }
 
     return Success(ZipCode._(digits));
