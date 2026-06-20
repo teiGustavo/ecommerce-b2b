@@ -1,4 +1,5 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/enums/state.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/address_complement_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/address_number_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/city_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/neighborhood_errors.dart';
@@ -10,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Address', () {
-    test('should create valid address', () {
+    test('should create valid address without complement', () {
       final result = Address.create(
         street: 'Rua A',
         number: '123',
@@ -23,10 +24,42 @@ void main() {
       final address = result.getOrThrow();
       expect(address.street.value, 'Rua A');
       expect(address.number.value, '123');
+      expect(address.complement, isNull);
       expect(address.neighborhood.value, 'Centro');
       expect(address.city.value, 'São Paulo');
       expect(address.state, State.saoPaulo);
       expect(address.zipCode.value, '01001000');
+    });
+
+    test('should create valid address with complement', () {
+      final result = Address.create(
+        street: 'Rua A',
+        number: '123',
+        complement: 'Apto 101',
+        neighborhood: 'Centro',
+        city: 'São Paulo',
+        state: 'SP',
+        zipCode: '01001-000',
+      );
+      expect(result.isSuccess, isTrue);
+      final address = result.getOrThrow();
+      expect(address.complement?.value, 'Apto 101');
+    });
+
+    test('should create valid address with empty complement', (){
+      final result = Address.create(
+        street: 'Rua A',
+        number: '123',
+        complement: '',
+        neighborhood: 'Centro',
+        city: 'São Paulo',
+        state: 'SP',
+        zipCode: '01001-000',
+      );
+
+      expect(result.isSuccess, isTrue);
+      final address = result.getOrThrow();
+      expect(address.complement, isNull);
     });
 
     test('should return error for invalid state', () {
@@ -118,6 +151,20 @@ void main() {
       );
       expect(result.isFailure, isTrue);
       expect(result.getFailureOrThrow(), isA<StreetTooLongError>());
+    });
+
+    test('should return error for too long complement', () {
+      final result = Address.create(
+        street: 'Rua A',
+        number: '123',
+        complement: 'a' * 61,
+        neighborhood: 'Centro',
+        city: 'São Paulo',
+        state: 'SP',
+        zipCode: '01001-000',
+      );
+      expect(result.isFailure, isTrue);
+      expect(result.getFailureOrThrow(), isA<AddressComplementTooLongError>());
     });
   });
 }

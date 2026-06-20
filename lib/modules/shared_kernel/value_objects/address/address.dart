@@ -2,6 +2,7 @@ import 'package:ecommerce_b2b/modules/shared_kernel/base/base_domain_errors.dart
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_value_object.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/enums/state.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/address_complement.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/address_number.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/city.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/neighborhood.dart';
@@ -14,7 +15,7 @@ import 'package:flutter/foundation.dart';
 class Address extends ValueObject {
   final Street street;
   final AddressNumber number;
-  final String complement;
+  final AddressComplement? complement;
   final Neighborhood neighborhood;
   final City city;
   final State state;
@@ -33,7 +34,7 @@ class Address extends ValueObject {
   static Result<Address, DomainError> create({
     required String street,
     required String number,
-    String complement = '',
+    String? complement,
     required String neighborhood,
     required String city,
     required String state,
@@ -46,23 +47,53 @@ class Address extends ValueObject {
     final zipResult = ZipCode.create(zipCode);
     final neighborhoodResult = Neighborhood.create(neighborhood);
 
-    if (streetResult.isFailure) return Failure(streetResult.getFailureOrThrow());
-    if (numberResult.isFailure) return Failure(numberResult.getFailureOrThrow());
-    if (cityResult.isFailure) return Failure(cityResult.getFailureOrThrow());
-    if (stateResult.isFailure) return Failure(stateResult.getFailureOrThrow());
-    if (zipResult.isFailure) return Failure(zipResult.getFailureOrThrow());
-    if (neighborhoodResult.isFailure) return Failure(neighborhoodResult.getFailureOrThrow());
+    if (streetResult.isFailure) {
+      return Failure(streetResult.getFailureOrThrow());
+    }
 
-    return Success(Address._(
-      street: streetResult.getOrThrow(),
-      number: numberResult.getOrThrow(),
-      complement: complement.trim(),
-      neighborhood: neighborhoodResult.getOrThrow(),
-      city: cityResult.getOrThrow(),
-      state: stateResult.getOrThrow(),
-      zipCode: zipResult.getOrThrow(),
-    ));
+    if (numberResult.isFailure) {
+      return Failure(numberResult.getFailureOrThrow());
+    }
+
+    if (cityResult.isFailure) {
+      return Failure(cityResult.getFailureOrThrow());
+    }
+
+    if (stateResult.isFailure) {
+      return Failure(stateResult.getFailureOrThrow());
+    }
+
+    if (zipResult.isFailure) {
+      return Failure(zipResult.getFailureOrThrow());
+    }
+
+    if (neighborhoodResult.isFailure) {
+      return Failure(neighborhoodResult.getFailureOrThrow());
+    }
+
+    final Result<AddressComplement?, DomainError> complementResult =
+        complement == null || complement.trim().isEmpty
+        ? Success<AddressComplement?, DomainError>(null)
+        : AddressComplement.create(complement);
+
+    if (complementResult.isFailure) {
+      return Failure(complementResult.getFailureOrThrow());
+    }
+
+    return Success(
+      Address._(
+        street: streetResult.getOrThrow(),
+        number: numberResult.getOrThrow(),
+        complement: complementResult.getOrThrow(),
+        neighborhood: neighborhoodResult.getOrThrow(),
+        city: cityResult.getOrThrow(),
+        state: stateResult.getOrThrow(),
+        zipCode: zipResult.getOrThrow(),
+      ),
+    );
   }
+
+  bool get hasComplement => complement != null;
 
   @override
   bool operator ==(Object other) =>

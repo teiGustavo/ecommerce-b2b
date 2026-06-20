@@ -1,8 +1,10 @@
+import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/address_complement_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/address_number_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/city_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/neighborhood_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/street_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/zip_code_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/address_complement.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/address_number.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/city.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/neighborhood.dart';
@@ -48,6 +50,26 @@ void main() {
       final result = AddressNumber.create('a' * 11);
       expect(result.isFailure, isTrue);
       expect(result.getFailureOrThrow(), isA<AddressNumberTooLongError>());
+    });
+  });
+
+  group('AddressComplement', () {
+    test('should create valid complement', () {
+      final result = AddressComplement.create('Apto 101');
+      expect(result.isSuccess, isTrue);
+      expect(result.getOrThrow().value, 'Apto 101');
+    });
+
+    test('should return error for empty complement', () {
+      final result = AddressComplement.create('');
+      expect(result.isFailure, isTrue);
+      expect(result.getFailureOrThrow(), isA<AddressComplementEmptyError>());
+    });
+
+    test('should return error for too long complement', () {
+      final result = AddressComplement.create('a' * 61);
+      expect(result.isFailure, isTrue);
+      expect(result.getFailureOrThrow(), isA<AddressComplementTooLongError>());
     });
   });
 
