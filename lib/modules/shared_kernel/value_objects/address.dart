@@ -2,18 +2,23 @@ import 'package:ecommerce_b2b/modules/shared_kernel/base/base_value_object.dart'
 import 'package:ecommerce_b2b/modules/shared_kernel/enums/state.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/errors/address_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address_number.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/city.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/neighborhood.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/street.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/zip_code.dart';
 import 'package:flutter/foundation.dart';
 
 /// Objeto de Valor que representa um endereço válido.
 @immutable
 class Address extends ValueObject {
-  final String street;
-  final String number;
+  final Street street;
+  final AddressNumber number;
   final String complement;
-  final String neighborhood;
-  final String city;
+  final Neighborhood neighborhood;
+  final City city;
   final State state;
-  final String zipCode;
+  final ZipCode zipCode;
 
   const Address._({
     required this.street,
@@ -34,28 +39,28 @@ class Address extends ValueObject {
     required String state,
     required String zipCode,
   }) {
-    if (street.trim().isEmpty) return Failure(AddressRequiredFieldError('Street'));
-    if (number.trim().isEmpty) return Failure(AddressRequiredFieldError('Number'));
-    if (neighborhood.trim().isEmpty) return Failure(AddressRequiredFieldError('Neighborhood'));
-    if (city.trim().isEmpty) return Failure(AddressRequiredFieldError('City'));
-    if (state.trim().isEmpty) return Failure(AddressRequiredFieldError('State'));
-    
+    final streetResult = Street.create(street);
+    final numberResult = AddressNumber.create(number);
+    final cityResult = City.create(city);
     final stateResult = State.fromString(state);
-    if (stateResult.isFailure) {
-      return Failure(AddressInvalidFieldError('State'));
-    }
-    
-    final cleanZip = zipCode.replaceAll(RegExp(r'\D'), '');
-    if (cleanZip.length != 8) return Failure(AddressInvalidZipCodeError());
+    final zipResult = ZipCode.create(zipCode);
+    final neighborhoodResult = Neighborhood.create(neighborhood);
+
+    if (streetResult.isFailure) return Failure(streetResult.getFailureOrThrow());
+    if (numberResult.isFailure) return Failure(numberResult.getFailureOrThrow());
+    if (cityResult.isFailure) return Failure(cityResult.getFailureOrThrow());
+    if (stateResult.isFailure) return Failure(AddressInvalidStateError());
+    if (zipResult.isFailure) return Failure(zipResult.getFailureOrThrow());
+    if (neighborhoodResult.isFailure) return Failure(neighborhoodResult.getFailureOrThrow());
 
     return Success(Address._(
-      street: street.trim(),
-      number: number.trim(),
+      street: streetResult.getOrThrow(),
+      number: numberResult.getOrThrow(),
       complement: complement.trim(),
-      neighborhood: neighborhood.trim(),
-      city: city.trim(),
+      neighborhood: neighborhoodResult.getOrThrow(),
+      city: cityResult.getOrThrow(),
       state: stateResult.getOrThrow(),
-      zipCode: cleanZip,
+      zipCode: zipResult.getOrThrow(),
     ));
   }
 

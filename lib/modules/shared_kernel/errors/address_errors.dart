@@ -17,3 +17,7 @@ class AddressInvalidFieldError extends AddressError {
 class AddressInvalidZipCodeError extends AddressError {
   AddressInvalidZipCodeError() : super('Invalid ZIP code format.');
 }
+
+class AddressInvalidStateError extends AddressError {
+  AddressInvalidStateError() : super('Invalid state.');
+}

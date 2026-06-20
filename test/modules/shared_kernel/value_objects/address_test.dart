@@ -16,9 +16,12 @@ void main() {
       );
       expect(result.isSuccess, isTrue);
       final address = result.getOrThrow();
-      expect(address.street, 'Rua A');
+      expect(address.street.value, 'Rua A');
+      expect(address.number.value, '123');
+      expect(address.neighborhood.value, 'Centro');
+      expect(address.city.value, 'São Paulo');
       expect(address.state, State.saoPaulo);
-      expect(address.zipCode, '01001000');
+      expect(address.zipCode.value, '01001000');
     });
 
     test('should return error for invalid state', () {
@@ -31,7 +34,7 @@ void main() {
         zipCode: '01001-000',
       );
       expect(result.isFailure, isTrue);
-      expect(result.getFailureOrThrow(), isA<AddressRequiredFieldError>());
+      expect(result.getFailureOrThrow(), isA<AddressInvalidStateError>());
     });
 
     test('should return error for missing street', () {
