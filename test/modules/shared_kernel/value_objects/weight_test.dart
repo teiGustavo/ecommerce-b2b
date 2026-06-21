@@ -1,5 +1,5 @@
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/weight_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/weight.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/logistics/errors/weight_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/logistics/value_objects/weight.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

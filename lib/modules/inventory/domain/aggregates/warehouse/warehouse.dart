@@ -1,5 +1,5 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_aggregate_root.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/ids/warehouse_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/warehouse_id.dart';
 import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/stock_item.dart';
 
 /// Raiz do Agregado que representa um Armazém/Depósito.

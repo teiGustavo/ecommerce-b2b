@@ -1,5 +1,5 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_value_object.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/money.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 
 class CustomerCreditAccount extends ValueObject {
   final Money preApprovedLimit;

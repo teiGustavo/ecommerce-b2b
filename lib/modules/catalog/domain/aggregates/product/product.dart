@@ -1,5 +1,5 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_aggregate_root.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/ids/product_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
 import 'package:ecommerce_b2b/modules/catalog/domain/aggregates/product/product_variant.dart';
 
 /// Raiz do Agregado que representa um Produto no catálogo.

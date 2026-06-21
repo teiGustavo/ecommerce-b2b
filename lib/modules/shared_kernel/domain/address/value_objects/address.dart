@@ -1,13 +1,13 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_domain_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_value_object.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/enums/state.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/address_complement.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/address_number.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/city.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/neighborhood.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/street.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/zip_code.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/address_complement.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/address_number.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/city.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/neighborhood.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/street.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/zip_code.dart';
 import 'package:flutter/foundation.dart';
 
 /// Objeto de Valor que representa um endereço válido.

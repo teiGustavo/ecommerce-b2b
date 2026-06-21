@@ -1,6 +1,6 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_aggregate_root.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/ids/picking_list_id.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/ids/order_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/picking_list_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
 
 class PickingList extends AggregateRoot<PickingListId> {
   final OrderId orderId;

@@ -1,12 +1,12 @@
 import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/value_objects/cnpj.dart';
 import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/value_objects/inscricao_estadual.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_aggregate_root.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/enums/state.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/ids/company_id.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/address.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/email_address.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/money.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/phone_number.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/address.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/email_address.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/phone_number.dart';
 import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/authorized_buyer.dart';
 import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/customer_credit_account.dart';
 
@@ -49,11 +49,9 @@ class Company extends AggregateRoot<CompanyId> {
     required this.shippingAddress,
     required this.state,
     required this.creditLimit,
-    required List<AuthorizedBuyer> authorizedBuyers,
-    required CustomerCreditAccount creditAccount,
-  }) : _authorizedBuyers = authorizedBuyers,
-       _creditAccount = creditAccount,
-       super(id);
+    required this._authorizedBuyers,
+    required this._creditAccount,
+  }) : super(id);
 
   /// Lista de compradores autorizados para esta empresa.
   List<AuthorizedBuyer> get authorizedBuyers => List.unmodifiable(_authorizedBuyers);

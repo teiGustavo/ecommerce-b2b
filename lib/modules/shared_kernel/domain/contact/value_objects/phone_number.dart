@@ -1,5 +1,5 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_value_object.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/phone_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/errors/phone_number_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
 import 'package:flutter/foundation.dart';
 
@@ -15,10 +15,10 @@ class PhoneNumber extends ValueObject {
 
   /// Cria uma instância de [PhoneNumber] validando o padrão E.164.
   /// Aceita inputs com formatação variada, mas normaliza para +DDI...
-  static Result<PhoneNumber, PhoneError> create(String input) {
+  static Result<PhoneNumber, PhoneNumberError> create(String input) {
     final trimmed = input.trim();
     if (trimmed.isEmpty) {
-      return Failure(PhoneEmptyError());
+      return Failure(PhoneNumberEmptyError());
     }
 
     // Remove tudo que não for dígito (incluindo '+')
@@ -27,7 +27,7 @@ class PhoneNumber extends ValueObject {
     // O padrão E.164 recomenda: [+][código do país][assinante]
     // Mínimo costuma ser 7 (ex: países pequenos) e máximo 15.
     if (digits.length < 7 || digits.length > 15) {
-      return Failure(PhoneInvalidError());
+      return Failure(PhoneNumberInvalidError());
     }
 
     // Se não tinha '+', assume que deve ser adicionado (DDI deve estar incluso nos dígitos)

@@ -1,6 +1,6 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_aggregate_root.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/ids/quote_id.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/money.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/quote_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/quote_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/quote/quote_item.dart';
 

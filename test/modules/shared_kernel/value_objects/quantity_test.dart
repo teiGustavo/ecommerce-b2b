@@ -1,5 +1,5 @@
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/quantity_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/quantity.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/errors/quantity_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

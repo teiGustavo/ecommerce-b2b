@@ -1,12 +1,12 @@
-import 'package:ecommerce_b2b/modules/shared_kernel/enums/state.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/address_complement_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/address_number_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/city_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/neighborhood_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/state_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/street_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/zip_code_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/address.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/errors/state_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/errors/address_complement_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/errors/address_number_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/errors/city_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/errors/neighborhood_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/errors/street_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/errors/zip_code_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/address.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -1,4 +1,4 @@
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/state_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/errors/state_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
 
 /// Enum que representa as Unidades Federativas (UF) do Brasil.

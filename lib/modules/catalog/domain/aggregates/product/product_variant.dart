@@ -1,5 +1,5 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_entity.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/ids/product_variant_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_variant_id.dart';
 
 class ProductVariant extends Entity<ProductVariantId> {
   final String color;

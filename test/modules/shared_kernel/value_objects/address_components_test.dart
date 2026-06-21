@@ -1,15 +1,15 @@
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/address_complement_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/address_number_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/city_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/neighborhood_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/street_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/address/zip_code_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/address_complement.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/address_number.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/city.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/neighborhood.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/street.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/address/zip_code.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/errors/address_complement_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/errors/address_number_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/errors/city_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/errors/neighborhood_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/errors/street_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/errors/zip_code_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/address_complement.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/address_number.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/city.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/neighborhood.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/street.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/zip_code.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

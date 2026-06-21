@@ -1,6 +1,6 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_aggregate_root.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/ids/shipment_id.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/tracking_code.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/shipment_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/logistics/value_objects/tracking_code.dart';
 import 'package:ecommerce_b2b/modules/logistics/domain/enums/shipment_status.dart';
 import 'package:ecommerce_b2b/modules/logistics/domain/aggregates/shipment/shipping_label.dart';
 import 'package:ecommerce_b2b/modules/logistics/domain/aggregates/shipment/tracking_event.dart';

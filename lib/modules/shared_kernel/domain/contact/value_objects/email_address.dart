@@ -1,5 +1,5 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_value_object.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/email_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/errors/email_errors.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
 import 'package:flutter/foundation.dart';
 

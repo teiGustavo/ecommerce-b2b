@@ -1,5 +1,5 @@
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/phone_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/phone_number.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/errors/phone_number_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/phone_number.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -22,22 +22,22 @@ void main() {
       expect(result.getOrThrow().value, '+5511999998888');
     });
 
-    test('should return PhoneEmptyError when input is empty', () {
+    test('should return PhoneNumberEmptyError when input is empty', () {
       final result = PhoneNumber.create('');
       expect(result.isFailure, isTrue);
-      expect(result.getFailureOrThrow(), isA<PhoneEmptyError>());
+      expect(result.getFailureOrThrow(), isA<PhoneNumberEmptyError>());
     });
 
-    test('should return PhoneInvalidError when number is too short (E.164 min 7 digits)', () {
+    test('should return PhoneNumberInvalidError when number is too short (E.164 min 7 digits)', () {
       final result = PhoneNumber.create('+123456');
       expect(result.isFailure, isTrue);
-      expect(result.getFailureOrThrow(), isA<PhoneInvalidError>());
+      expect(result.getFailureOrThrow(), isA<PhoneNumberInvalidError>());
     });
 
-    test('should return PhoneInvalidError when number is too long (E.164 max 15 digits)', () {
+    test('should return PhoneNumberInvalidError when number is too long (E.164 max 15 digits)', () {
       final result = PhoneNumber.create('+1234567890123456');
       expect(result.isFailure, isTrue);
-      expect(result.getFailureOrThrow(), isA<PhoneInvalidError>());
+      expect(result.getFailureOrThrow(), isA<PhoneNumberInvalidError>());
     });
 
     test('should normalize by removing brackets, dashes and spaces', () {

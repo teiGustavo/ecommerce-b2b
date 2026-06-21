@@ -1,6 +1,6 @@
-import 'package:ecommerce_b2b/modules/shared_kernel/enums/currency.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/errors/money_errors.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/value_objects/money.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/enums/currency.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/errors/money_errors.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
