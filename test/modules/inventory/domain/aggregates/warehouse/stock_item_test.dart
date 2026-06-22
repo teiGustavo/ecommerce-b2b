@@ -1,5 +1,5 @@
-import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/stock_item.dart';
-import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/stock_reservation.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/stock_item.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/stock_reservation.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';

@@ -1,7 +1,7 @@
-import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/stock_item.dart';
-import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/warehouse.dart';
-import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/stock_reservation.dart';
-import 'package:ecommerce_b2b/modules/inventory/domain/services/inventory_allocator_domain_service.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/stock_item.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/stock_reservation.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/warehouse.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/services/inventory_allocator_domain_service.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/warehouse_id.dart';

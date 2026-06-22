@@ -1,6 +1,6 @@
-import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/stock_item.dart';
-import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/warehouse.dart';
-import 'package:ecommerce_b2b/modules/inventory/domain/services/inventory_allocator_domain_service.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/stock_item.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/warehouse.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/services/inventory_allocator_domain_service.dart';
 import 'package:ecommerce_b2b/modules/order_flow/application/process_finance_review/process_finance_review_use_case.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/finance_review.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/order_item.dart';

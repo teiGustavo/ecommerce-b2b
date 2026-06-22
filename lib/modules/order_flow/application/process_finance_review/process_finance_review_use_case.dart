@@ -1,5 +1,5 @@
-import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/warehouse.dart';
-import 'package:ecommerce_b2b/modules/inventory/domain/services/inventory_allocator_domain_service.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/warehouse.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/services/inventory_allocator_domain_service.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/finance_review.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/sales_order.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/finance_decision.dart';
