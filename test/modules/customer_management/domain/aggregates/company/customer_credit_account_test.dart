@@ -1,0 +1,27 @@
+import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/customer_credit_account.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  group('CustomerCreditAccount', () {
+    test('availableLimit should calculate correctly', () {
+      final account = CustomerCreditAccount(
+        preApprovedLimit: Money.create(5000).getOrThrow(),
+        openBalance: Money.create(1000).getOrThrow(),
+        pendingOrdersBalance: Money.create(500).getOrThrow(),
+      );
+
+      expect(account.availableLimit.amount, 3500);
+    });
+
+    test('availableLimit should return zero if debt exceeds limit', () {
+      final account = CustomerCreditAccount(
+        preApprovedLimit: Money.create(1000).getOrThrow(),
+        openBalance: Money.create(1200).getOrThrow(),
+        pendingOrdersBalance: Money.create(300).getOrThrow(),
+      );
+
+      expect(account.availableLimit.amount, 0);
+    });
+  });
+}
