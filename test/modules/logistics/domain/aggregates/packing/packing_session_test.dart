@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('PackingSession', () {
+    // Deve criar uma sessão de empacotamento corretamente.
     test('should create packing session', () {
       const id = PackingSessionId('ps1');
       final session = PackingSession(id: id);

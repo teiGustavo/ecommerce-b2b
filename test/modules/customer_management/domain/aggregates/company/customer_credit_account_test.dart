@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('CustomerCreditAccount', () {
+    // availableLimit deve calcular corretamente com base nas informações da conta.
     test('availableLimit should calculate correctly', () {
       final account = CustomerCreditAccount(
         preApprovedLimit: Money.create(5000).getOrThrow(),
@@ -14,6 +15,7 @@ void main() {
       expect(account.availableLimit.amount, 3500);
     });
 
+    // availableLimit deve retornar zero se a dívida exceder o limite.
     test('availableLimit should return zero if debt exceeds limit', () {
       final account = CustomerCreditAccount(
         preApprovedLimit: Money.create(1000).getOrThrow(),

@@ -23,6 +23,7 @@ void main() {
       );
     });
 
+    // Deve atribuir um cliente corretamente.
     test('should assign customer', () {
       final assignment = CustomerAssignment(const CompanyId('c1'));
       rep.assignCustomer(assignment);
@@ -30,6 +31,7 @@ void main() {
       expect(rep.assignments.first, assignment);
     });
 
+    // Deve adicionar uma comissão corretamente.
     test('should add commission', () {
       final commission = Commission(
         baseAmount: Money.create(1000).getOrThrow(),
@@ -42,6 +44,7 @@ void main() {
       expect(rep.commissions.first, commission);
     });
 
+    // Deve definir um supervisor e adicionar um subordinado.
     test('should set supervisor and add subordinate', () {
       const supervisorId = RepresentativeId('s1');
       const subordinateId = RepresentativeId('sub1');

@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Shipment', () {
+    // Deve criar um envio corretamente e atualizar o status.
     test('should create shipment and update status', () {
       const id = ShipmentId('s1');
       const trackingCode = TrackingCode('ABC123XYZ');

@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('PriceTable', () {
+    // Deve adicionar regras de preço corretamente.
     test('should add price rules', () {
       final priceTable = PriceTable(
         id: const PriceTableId('t1'),

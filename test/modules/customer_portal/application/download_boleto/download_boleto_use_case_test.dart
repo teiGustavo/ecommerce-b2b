@@ -23,6 +23,7 @@ void main() {
     useCase = DownloadBoletoUseCase(repository);
   });
 
+  // Deve retornar os dados do boleto para um pedido específico.
   test('should return boleto data for a given order', () async {
     const orderId = OrderId('o1');
     final result = await useCase.execute(orderId);

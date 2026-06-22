@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('SalesOrder', () {
+    // O total deve ser calculado corretamente com base nos itens do pedido.
     test('total should calculate correctly', () {
       final order = SalesOrder(
         id: const OrderId('o1'),
@@ -32,6 +33,7 @@ void main() {
       expect(order.total.amount, 250);
     });
 
+    // O total deve retornar 0 se não houver itens no pedido.
     test('total should return 0 if no items', () {
       final order = SalesOrder(
         id: const OrderId('o1'),

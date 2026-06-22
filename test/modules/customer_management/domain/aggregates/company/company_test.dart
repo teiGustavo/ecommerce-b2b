@@ -39,6 +39,7 @@ void main() {
       );
     });
 
+    // Deve adicionar e remover compradores autorizados corretamente.
     test('should add and remove authorized buyer', () {
       final buyer = AuthorizedBuyer(
         id: const BuyerId('b1'),
@@ -56,6 +57,7 @@ void main() {
       expect(company.authorizedBuyers.length, 0);
     });
 
+    // Deve atualizar a conta de crédito corretamente.
     test('should update credit account', () {
       final newAccount = CustomerCreditAccount(
         preApprovedLimit: Money.create(10000).getOrThrow(),

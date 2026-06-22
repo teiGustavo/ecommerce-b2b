@@ -30,6 +30,7 @@ void main() {
     useCase = GetPurchaseHistoryUseCase(repository);
   });
 
+  // Deve retornar o histórico de compras para uma empresa específica.
   test('should return purchase history for a given company', () async {
     const companyId = CompanyId('c1');
     final result = await useCase.execute(companyId);
