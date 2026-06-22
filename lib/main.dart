@@ -1,5 +1,5 @@
 import 'package:ecommerce_b2b/app/core/di/service_locator.dart';
-import 'package:ecommerce_b2b/app/presentation/pages/home_page.dart';
+import 'package:ecommerce_b2b/app/core/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,16 +12,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Ecommerce B2B',
       theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => HomePage(),
-      },
+      routerConfig: appRouter,
     );
   }
 }
