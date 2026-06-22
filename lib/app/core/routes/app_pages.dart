@@ -1,0 +1,90 @@
+import 'package:flutter/material.dart';
+
+enum AppPage {
+  home(
+    path: '/',
+    label: 'Home',
+    subtitle: 'Página Inicial',
+    icon: Icons.home_rounded,
+    colorType: CardColorType.surfaceVariant,
+  ),
+  companies(
+    path: '/companies',
+    label: 'Empresas',
+    subtitle: 'Cadastro e gestão',
+    icon: Icons.business_rounded,
+    colorType: CardColorType.primaryContainer,
+  ),
+  buyers(
+    path: '/buyers',
+    label: 'Compradores',
+    subtitle: 'Acessos autorizados',
+    icon: Icons.people_alt_rounded,
+    colorType: CardColorType.secondaryContainer,
+  ),
+  catalog(
+    path: '/catalog',
+    label: 'Catálogo',
+    subtitle: 'Produtos e preços',
+    icon: Icons.auto_awesome_mosaic_rounded,
+    colorType: CardColorType.tertiaryContainer,
+  ),
+  newOrder(
+    path: '/new-order',
+    label: 'Novo Pedido',
+    subtitle: 'Criar orçamento',
+    icon: Icons.add_shopping_cart_rounded,
+    colorType: CardColorType.primary,
+  ),
+  finance(
+    path: '/finance',
+    label: 'Financeiro',
+    subtitle: 'Revisão de crédito',
+    icon: Icons.account_balance_wallet_rounded,
+    colorType: CardColorType.surfaceVariant,
+  ),
+  dashboard(
+    path: '/dashboard',
+    label: 'Dashboard',
+    subtitle: 'Indicadores de venda',
+    icon: Icons.analytics_rounded,
+    colorType: CardColorType.surfaceVariant,
+  ),
+  logistics(
+    path: '/logistics',
+    label: 'Logística',
+    subtitle: 'Expedição e rastreio',
+    icon: Icons.local_shipping_rounded,
+    colorType: CardColorType.surfaceVariant,
+  ),
+  portal(
+    path: '/portal',
+    label: 'Portal',
+    subtitle: 'Pós-venda e RMAs',
+    icon: Icons.support_agent_rounded,
+    colorType: CardColorType.surfaceVariant,
+  );
+
+  final String path;
+  final String label;
+  final String subtitle;
+  final IconData icon;
+  final CardColorType colorType;
+
+  const AppPage({
+    required this.path,
+    required this.label,
+    required this.subtitle,
+    required this.icon,
+    required this.colorType,
+  });
+}
+
+/// Helper interno para mapear as cores corretas dinamicamente com base no contexto
+enum CardColorType {
+  primary,
+  primaryContainer,
+  secondaryContainer,
+  tertiaryContainer,
+  surfaceVariant,
+}
