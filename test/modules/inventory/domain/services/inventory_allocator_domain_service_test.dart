@@ -43,11 +43,13 @@ void main() {
       ];
     });
 
+    // getConsolidatedPhysicalStock deve retornar a soma das quantidades em todos os depósitos.
     test('getConsolidatedPhysicalStock should sum all warehouses', () {
       final total = service.getConsolidatedPhysicalStock(warehouses, productId);
       expect(total.value, 150);
     });
 
+    // getConsolidatedAvailableStock deve retornar a soma das quantidades disponíveis em todos os depósitos.
     test('getConsolidatedAvailableStock should sum available quantity in all warehouses', () {
       // Adding some reservations
       warehouses[0].getStockItem(productId)!.addReservation(
@@ -61,6 +63,7 @@ void main() {
       expect(total.value, 140);
     });
 
+    // allocateStock deve distribuir as reservas de estoque entre os depósitos.
     test('allocateStock should distribute reservations across warehouses', () {
       final orderId = const OrderId('o1');
       final requested = Quantity.create(120).getOrThrow();
@@ -71,6 +74,7 @@ void main() {
       expect(warehouses[1].getStockItem(productId)!.reservedQuantity.value, 20);
     });
 
+    // allocateStock deve lançar um erro se a quantidade solicitada for maior que a disponível.
     test('allocateStock should throw if insufficient stock', () {
       final orderId = const OrderId('o1');
       final requested = Quantity.create(200).getOrThrow();

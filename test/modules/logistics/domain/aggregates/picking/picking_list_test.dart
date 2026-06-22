@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('PickingList', () {
+    // Deve criar uma lista de coleta corretamente.
     test('should create picking list', () {
       const id = PickingListId('pl1');
       const orderId = OrderId('o1');

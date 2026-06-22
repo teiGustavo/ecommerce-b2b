@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Product', () {
+    // Deve adicionar variantes corretamente.
     test('should add variants', () {
       final product = Product(
         id: const ProductId('p1'),
