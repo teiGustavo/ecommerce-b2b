@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 
 @immutable
 class ReturnRequestItem extends ValueObject {
-  final ProductId productId; // Added to know what is being returned
+  final ProductId productId;
   final Quantity quantity;
   final String problemDescription;
 

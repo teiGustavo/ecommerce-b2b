@@ -1,5 +1,9 @@
+/// Decisão financeira do departamento financeiro.
 enum FinanceDecision {
-  approve,
-  reject,
+  /// Aprovado
+  approved,
+  /// Rejeitado/Reprovado
+  rejected,
+  /// Solicitar mais informações
   requestMoreInfo;
 }

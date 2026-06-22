@@ -1,0 +1,38 @@
+import 'package:ecommerce_b2b/modules/customer_portal/domain/aggregates/return_request/return_request.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/domain/aggregates/return_request/return_request_item.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/domain/enums/rma_status.dart';
+import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/sales_order.dart';
+import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
+import 'package:ecommerce_b2b/modules/order_flow/domain/services/order_state_machine_domain_service.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/rma_id.dart';
+
+/// Caso de Uso responsável por abrir uma solicitação de troca ou devolução (RMA) (RF20).
+class OpenReturnRequestUseCase {
+  final OrderStateMachineDomainService _stateMachine;
+
+  OpenReturnRequestUseCase(this._stateMachine);
+
+  /// Abre um RMA para um pedido entregue.
+  ReturnRequest execute({
+    required RmaId rmaId,
+    required SalesOrder order,
+    required String reason,
+    required List<ReturnRequestItem> items,
+  }) {
+    if (order.status != OrderStatus.delivered) {
+      throw StateError('Só é possível abrir RMA para pedidos que já foram entregues.');
+    }
+
+    final rma = ReturnRequest(
+      id: rmaId,
+      status: RmaStatus.pending,
+      reason: reason,
+      items: items,
+    );
+
+    // Atualiza o estado do pedido para RMA (RN11)
+    _stateMachine.transitionTo(order, OrderStatus.rma);
+
+    return rma;
+  }
+}
