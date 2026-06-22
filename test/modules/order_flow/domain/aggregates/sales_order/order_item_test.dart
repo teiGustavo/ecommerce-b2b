@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('OrderItem', () {
+    /// deve calcular o subtotal corretamente
     test('should calculate subtotal correctly', () {
       final unitPrice = Money.create(10.0).getOrThrow();
       final quantity = Quantity.create(5).getOrThrow();

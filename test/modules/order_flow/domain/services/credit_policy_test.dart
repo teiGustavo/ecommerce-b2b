@@ -27,6 +27,7 @@ void main() {
     creditPolicy = CreditPolicyDomainService();
   });
 
+  /// Auxiliar para criar uma empresa para testes.
   Company createCompany({required Money limit, required Money open, required Money pending}) {
     return Company(
       id: const CompanyId('comp-1'),
@@ -49,6 +50,7 @@ void main() {
     );
   }
 
+  /// Auxiliar para criar um pedido para testes.
   SalesOrder createOrder(double totalAmount) {
     return SalesOrder(
       id: const OrderId('order-1'),
@@ -69,13 +71,14 @@ void main() {
   }
 
   group('CreditPolicy', () {
-    test('deve aprovar pedido quando há limite disponível', () {
+    /// deve aprovar pedido quando há limite disponível
+    test('should approve order when there is available limit', () {
       final company = createCompany(
         limit: Money.create(1000).getOrThrow(),
         open: Money.create(200).getOrThrow(),
         pending: Money.create(100).getOrThrow(),
       );
-      // Disponível: 1000 - (200 + 100) = 700
+      // Available: 1000 - (200 + 100) = 700
       final order = createOrder(500);
 
       creditPolicy.evaluate(order, company);
@@ -84,13 +87,14 @@ void main() {
       expect(order.status, OrderStatus.pickingPacking);
     });
 
-    test('deve bloquear pedido quando valor excede limite disponível', () {
+    /// deve bloquear pedido quando valor excede limite disponível
+    test('should block order when amount exceeds available limit', () {
       final company = createCompany(
         limit: Money.create(1000).getOrThrow(),
         open: Money.create(200).getOrThrow(),
         pending: Money.create(100).getOrThrow(),
       );
-      // Disponível: 1000 - (200 + 100) = 700
+      // Available: 1000 - (200 + 100) = 700
       final order = createOrder(800);
 
       creditPolicy.evaluate(order, company);

@@ -6,12 +6,13 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  late SalesHierarchyServiceDomainService hierarchyService;
+  late SalesHierarchyDomainService hierarchyService;
 
   setUp(() {
-    hierarchyService = SalesHierarchyServiceDomainService();
+    hierarchyService = SalesHierarchyDomainService();
   });
 
+  /// Auxiliar para criar um representante comercial para testes.
   SalesRepresentative createRep(String id, {List<String> subordinates = const []}) {
     final rep = SalesRepresentative(
       id: RepresentativeId(id),
@@ -26,7 +27,8 @@ void main() {
   }
 
   group('SalesHierarchyService', () {
-    test('deve permitir acesso a subordinado direto', () {
+    /// deve permitir acesso a subordinado direto
+    test('should allow access to direct subordinate', () {
       final supervisor = createRep('S1', subordinates: ['Sub1']);
       final subordinate = createRep('Sub1');
 
@@ -39,7 +41,8 @@ void main() {
       expect(hasAccess, isTrue);
     });
 
-    test('deve permitir acesso a subordinado indireto (recursivo)', () {
+    /// deve permitir acesso a subordinado indireto (recursivo)
+    test('should allow access to indirect subordinate (recursive)', () {
       final supervisor = createRep('S1', subordinates: ['M1']);
       final manager = createRep('M1', subordinates: ['Sub1']);
       final subordinate = createRep('Sub1');
@@ -53,7 +56,8 @@ void main() {
       expect(hasAccess, isTrue);
     });
 
-    test('deve negar acesso a quem não é subordinado', () {
+    /// deve negar acesso a quem não é subordinado
+    test('should deny access to non-subordinate', () {
       final supervisor = createRep('S1', subordinates: ['Sub1']);
       final otherRep = createRep('Other');
 

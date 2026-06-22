@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Percentage', () {
+    /// deve criar uma porcentagem válida
     test('should create valid percentage', () {
       final result = Percentage.create(15.5);
       expect(result.isSuccess, isTrue);
@@ -11,18 +12,21 @@ void main() {
       expect(result.getOrThrow().decimal, 0.155);
     });
 
+    /// deve retornar erro de porcentagem fora do intervalo para valores menores que zero
     test('should return PercentageOutOfRangeError for values < 0', () {
       final result = Percentage.create(-1.0);
       expect(result.isFailure, isTrue);
       expect(result.getFailureOrThrow(), isA<PercentageOutOfRangeError>());
     });
 
+    /// deve retornar erro de porcentagem fora do intervalo para valores maiores que cem
     test('should return PercentageOutOfRangeError for values > 100', () {
       final result = Percentage.create(100.1);
       expect(result.isFailure, isTrue);
       expect(result.getFailureOrThrow(), isA<PercentageOutOfRangeError>());
     });
 
+    /// toString deve formatar corretamente
     test('toString should format correctly', () {
       final p = Percentage.create(10).getOrThrow();
       expect(p.toString(), '10.00%');

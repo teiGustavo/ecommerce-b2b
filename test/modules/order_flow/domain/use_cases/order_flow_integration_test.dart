@@ -29,8 +29,9 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('Integração Fluxo de Pedido', () {
-    test('deve realizar fluxo completo de orçamento até pedido com aprovação de crédito', () {
+  group('Order Flow Integration', () {
+    /// deve realizar fluxo completo de orçamento até pedido com aprovação de crédito
+    test('should perform complete flow from quote to order with credit approval', () {
       // 1. Setup
       final pricingService = OrderPricingDomainService();
       final creditPolicy = CreditPolicyDomainService();
@@ -85,7 +86,7 @@ void main() {
         ],
       );
 
-      // 2. Criar Orçamento
+      // 2. Create Quote
       final quote = createQuote.execute(
         id: const QuoteId('q1'),
         company: company,
@@ -94,7 +95,7 @@ void main() {
 
       expect(quote.total.amount, 1000);
 
-      // 3. Converter em Pedido
+      // 3. Convert to Order
       final order = convertQuote.execute(
         orderId: const OrderId('o1'),
         quote: quote,
@@ -102,8 +103,8 @@ void main() {
         warehouses: [warehouse],
       );
 
-      // 4. Verificar Resultados
-      expect(order.status, OrderStatus.pickingPacking); // Crédito aprovado e estoque alocado
+      // 4. Verify Results
+      expect(order.status, OrderStatus.pickingPacking); // Credit approved and stock allocated
       expect(warehouse.getStockItem(product.id)!.reservedQuantity.value, 10);
       expect(warehouse.getStockItem(product.id)!.availableQuantity.value, 40);
     });

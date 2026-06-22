@@ -11,6 +11,7 @@ void main() {
     final qty10 = Quantity.create(10).getOrThrow();
     final qty2 = Quantity.create(2).getOrThrow();
 
+    /// deve calcular a quantidade disponível corretamente
     test('should calculate available quantity correctly', () {
       final stockItem = StockItem(
         productId: productId,
@@ -24,6 +25,7 @@ void main() {
       expect(stockItem.availableQuantity.value, 8);
     });
 
+    /// deve adicionar reserva se houver estoque disponível
     test('should add reservation if stock is available', () {
       final stockItem = StockItem(productId: productId, physicalQuantity: qty10);
       stockItem.addReservation(StockReservation(orderId: OrderId('o1'), quantity: qty2));
@@ -31,6 +33,7 @@ void main() {
       expect(stockItem.reservedQuantity.value, 2);
     });
 
+    /// deve lançar StateError ao adicionar reserva que excede o estoque disponível
     test('should throw StateError when adding reservation exceeding available stock', () {
       final stockItem = StockItem(productId: productId, physicalQuantity: qty2);
       final qty5 = Quantity.create(5).getOrThrow();

@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('ReturnRequestItem', () {
+    /// deve comparar igualdade baseada nos valores
     test('should compare equality based on values', () {
       final item1 = ReturnRequestItem(
         productId: ProductId('p1'),

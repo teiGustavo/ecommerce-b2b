@@ -15,6 +15,7 @@ void main() {
     stateMachine = OrderStateMachineDomainService();
   });
 
+  /// Auxiliar para criar um pedido para testes.
   SalesOrder createOrder(OrderStatus status) {
     return SalesOrder(
       id: const OrderId('order-1'),
@@ -29,19 +30,22 @@ void main() {
   }
 
   group('OrderStateMachine', () {
-    test('deve permitir transição de pendente para bloqueado', () {
+    /// deve permitir transição de pendente para bloqueado
+    test('should allow transition from pending to blocked', () {
       final order = createOrder(OrderStatus.pendingFinanceApproval);
       stateMachine.transitionTo(order, OrderStatus.blockedByFinance);
       expect(order.status, OrderStatus.blockedByFinance);
     });
 
-    test('deve permitir transição de bloqueado para separação', () {
+    /// deve permitir transição de bloqueado para separação
+    test('should allow transition from blocked to picking/packing', () {
       final order = createOrder(OrderStatus.blockedByFinance);
       stateMachine.transitionTo(order, OrderStatus.pickingPacking);
       expect(order.status, OrderStatus.pickingPacking);
     });
 
-    test('deve lançar erro em transição inválida', () {
+    /// deve lançar erro em transição inválida
+    test('should throw error on invalid transition', () {
       final order = createOrder(OrderStatus.pendingFinanceApproval);
       expect(
         () => stateMachine.transitionTo(order, OrderStatus.delivered),
@@ -49,7 +53,8 @@ void main() {
       );
     });
 
-    test('deve permitir fluxo completo BR11', () {
+    /// deve permitir fluxo completo RN11
+    test('should allow full workflow RN11', () {
       final order = createOrder(OrderStatus.pendingFinanceApproval);
       
       stateMachine.transitionTo(order, OrderStatus.pickingPacking);

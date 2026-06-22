@@ -2,7 +2,7 @@ import 'package:ecommerce_b2b/modules/sales_team/domain/aggregates/sales_represe
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 
 /// Serviço de Domínio responsável por gerenciar a hierarquia de vendas (RN9).
-class SalesHierarchyServiceDomainService {
+class SalesHierarchyDomainService {
   /// Verifica se um supervisor tem permissão para visualizar os dados de um subordinado.
   /// Isso inclui visão direta e recursiva (hierarquia de gestão).
   bool canSupervisorAccessSubordinate({

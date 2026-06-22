@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Address', () {
+    /// deve criar um endereço válido sem complemento
     test('should create valid address without complement', () {
       final result = Address.create(
         street: 'Rua A',
@@ -31,6 +32,7 @@ void main() {
       expect(address.zipCode.value, '01001000');
     });
 
+    /// deve criar um endereço válido com complemento
     test('should create valid address with complement', () {
       final result = Address.create(
         street: 'Rua A',
@@ -46,6 +48,7 @@ void main() {
       expect(address.complement?.value, 'Apto 101');
     });
 
+    /// deve criar um endereço válido com complemento vazio
     test('should create valid address with empty complement', (){
       final result = Address.create(
         street: 'Rua A',
@@ -62,6 +65,7 @@ void main() {
       expect(address.complement, isNull);
     });
 
+    /// deve retornar erro para estado inválido
     test('should return error for invalid state', () {
       final result = Address.create(
         street: 'Rua A',
@@ -75,6 +79,7 @@ void main() {
       expect(result.getFailureOrThrow(), isA<StateInvalidError>());
     });
 
+    /// deve retornar erro para rua ausente
     test('should return error for missing street', () {
       final result = Address.create(
         street: '',
@@ -88,6 +93,7 @@ void main() {
       expect(result.getFailureOrThrow(), isA<StreetEmptyError>());
     });
 
+    /// deve retornar erro para código postal inválido
     test('should return error for invalid zip code', () {
       final result = Address.create(
         street: 'Rua A',
@@ -101,6 +107,7 @@ void main() {
       expect(result.getFailureOrThrow(), isA<ZipCodeLengthError>());
     });
 
+    /// deve retornar erro para bairro vazio
     test('should return error for empty neighborhood', () {
       final result = Address.create(
         street: 'Rua A',
@@ -114,6 +121,7 @@ void main() {
       expect(result.getFailureOrThrow(), isA<NeighborhoodEmptyError>());
     });
 
+    /// deve retornar erro para cidade vazia
     test('should return error for empty city', () {
       final result = Address.create(
         street: 'Rua A',
@@ -127,6 +135,7 @@ void main() {
       expect(result.getFailureOrThrow(), isA<CityEmptyError>());
     });
 
+    /// deve retornar erro para número vazio
     test('should return error for empty number', () {
       final result = Address.create(
         street: 'Rua A',
@@ -140,6 +149,7 @@ void main() {
       expect(result.getFailureOrThrow(), isA<AddressNumberEmptyError>());
     });
 
+    /// deve retornar erro para rua muito longa
     test('should return error for too long street', () {
       final result = Address.create(
         street: 'a' * 101,
@@ -153,6 +163,7 @@ void main() {
       expect(result.getFailureOrThrow(), isA<StreetTooLongError>());
     });
 
+    /// deve retornar erro para complemento muito longo
     test('should return error for too long complement', () {
       final result = Address.create(
         street: 'Rua A',
