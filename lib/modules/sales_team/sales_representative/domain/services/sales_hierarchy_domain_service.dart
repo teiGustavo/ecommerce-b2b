@@ -1,4 +1,4 @@
-import 'package:ecommerce_b2b/modules/sales_team/domain/aggregates/sales_representative/sales_representative.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_representative.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 
 /// Serviço de Domínio responsável por gerenciar a hierarquia de vendas (RN9).

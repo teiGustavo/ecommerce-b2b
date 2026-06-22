@@ -2,9 +2,9 @@ import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/o
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/sales_order.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/aggregates/sales_representative/sales_representative.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/enums/commission_status.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/services/commission_calculator_domain_service.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/enums/commission_status.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_representative.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/services/commission_calculator_domain_service.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';

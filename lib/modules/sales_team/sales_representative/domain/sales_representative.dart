@@ -2,9 +2,9 @@ import 'package:ecommerce_b2b/modules/shared_kernel/base/base_aggregate_root.dar
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/email_address.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/percentage.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/aggregates/sales_representative/commission.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/aggregates/sales_representative/customer_assignment.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/aggregates/sales_representative/sales_hierarchy_link.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/commission.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/customer_assignment.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_hierarchy_link.dart';
 
 class SalesRepresentative extends AggregateRoot<RepresentativeId> {
   final String fullName;

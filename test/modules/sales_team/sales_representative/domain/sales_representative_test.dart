@@ -1,7 +1,7 @@
-import 'package:ecommerce_b2b/modules/sales_team/domain/aggregates/sales_representative/commission.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/aggregates/sales_representative/customer_assignment.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/aggregates/sales_representative/sales_representative.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/enums/commission_status.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/commission.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/customer_assignment.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/enums/commission_status.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_representative.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/email_address.dart';

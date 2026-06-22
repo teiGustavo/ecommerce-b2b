@@ -1,7 +1,7 @@
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/sales_order.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/aggregates/sales_representative/commission.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/aggregates/sales_representative/sales_representative.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/enums/commission_status.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/commission.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/enums/commission_status.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_representative.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 
 /// Serviço de Domínio responsável por calcular as comissões dos representantes (RN8).

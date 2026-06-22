@@ -1,5 +1,5 @@
-import 'package:ecommerce_b2b/modules/sales_team/domain/aggregates/sales_representative/sales_representative.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/services/sales_hierarchy_domain_service.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_representative.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/services/sales_hierarchy_domain_service.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/email_address.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/percentage.dart';
