@@ -1,4 +1,4 @@
-import 'package:ecommerce_b2b/modules/customer_portal/domain/aggregates/return_request/return_request_item.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/return_request/domain/return_request_item.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -1,7 +1,7 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_aggregate_root.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/rma_id.dart';
-import 'package:ecommerce_b2b/modules/customer_portal/domain/enums/rma_status.dart';
-import 'package:ecommerce_b2b/modules/customer_portal/domain/aggregates/return_request/return_request_item.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/return_request/domain/enums/rma_status.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/return_request/domain/return_request_item.dart';
 
 class ReturnRequest extends AggregateRoot<RmaId> {
   RmaStatus _status;

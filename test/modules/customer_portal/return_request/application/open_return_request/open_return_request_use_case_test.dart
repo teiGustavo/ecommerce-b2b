@@ -1,6 +1,6 @@
-import 'package:ecommerce_b2b/modules/customer_portal/application/open_return_request/open_return_request_use_case.dart';
-import 'package:ecommerce_b2b/modules/customer_portal/domain/aggregates/return_request/return_request_item.dart';
-import 'package:ecommerce_b2b/modules/customer_portal/domain/enums/rma_status.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/return_request/application/open_return_request/open_return_request_use_case.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/return_request/domain/enums/rma_status.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/return_request/domain/return_request_item.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/sales_order.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';

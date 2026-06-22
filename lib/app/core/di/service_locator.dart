@@ -1,3 +1,6 @@
+import 'package:ecommerce_b2b/modules/customer_portal/boleto/application/download_boleto/download_boleto_use_case.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/purchase_history/application/get_purchase_history/get_purchase_history_use_case.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/return_request/application/open_return_request/open_return_request_use_case.dart';
 import 'package:get_it/get_it.dart';
 
 // Domain Services
@@ -12,7 +15,7 @@ import 'package:ecommerce_b2b/modules/sales_team/domain/services/sales_hierarchy
 import 'package:ecommerce_b2b/modules/logistics/domain/aggregates/shipment/repositories/tracking_repository.dart';
 import 'package:ecommerce_b2b/modules/logistics/domain/aggregates/shipment/repositories/freight_repository.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/repositories/sales_order_repository.dart';
-import 'package:ecommerce_b2b/modules/customer_portal/domain/repositories/boleto_repository.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/boleto/domain/repositories/boleto_repository.dart';
 
 // Adapters (Implementations)
 import 'package:ecommerce_b2b/modules/logistics/infrastructure/shipment/adapters/mock/mock_tracking_adapter.dart';
@@ -23,9 +26,6 @@ import 'package:ecommerce_b2b/modules/order_flow/application/process_finance_rev
 import 'package:ecommerce_b2b/modules/order_flow/application/convert_quote/convert_quote_to_order_use_case.dart';
 import 'package:ecommerce_b2b/modules/order_flow/application/create_quote/create_quote_use_case.dart';
 import 'package:ecommerce_b2b/modules/logistics/application/procces_order/process_order_shipment_use_case.dart';
-import 'package:ecommerce_b2b/modules/customer_portal/application/open_return_request/open_return_request_use_case.dart';
-import 'package:ecommerce_b2b/modules/customer_portal/application/download_boleto/download_boleto_use_case.dart';
-import 'package:ecommerce_b2b/modules/customer_portal/application/get_purchase_history/get_purchase_history_use_case.dart';
 
 final getIt = GetIt.instance;
 
