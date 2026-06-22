@@ -1,4 +1,4 @@
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/company.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
 import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/warehouse.dart';
 import 'package:ecommerce_b2b/modules/inventory/domain/services/inventory_allocator_domain_service.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/quote/quote.dart';

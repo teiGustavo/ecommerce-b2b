@@ -3,10 +3,10 @@ import 'package:ecommerce_b2b/modules/catalog/domain/aggregates/price_table/pric
 import 'package:ecommerce_b2b/modules/catalog/domain/aggregates/product/product.dart';
 import 'package:ecommerce_b2b/modules/catalog/domain/enums/price_scope_type.dart';
 import 'package:ecommerce_b2b/modules/catalog/domain/services/order_pricing_domain_service.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/company.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/customer_credit_account.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/value_objects/cnpj.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/value_objects/inscricao_estadual.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/customer_credit_account.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/cnpj.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/inscricao_estadual.dart';
 import 'package:ecommerce_b2b/modules/order_flow/application/create_quote/create_quote_use_case.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/quote_status.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.dart';

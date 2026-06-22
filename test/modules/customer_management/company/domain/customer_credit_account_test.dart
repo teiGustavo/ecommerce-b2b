@@ -1,4 +1,4 @@
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/customer_credit_account.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/customer_credit_account.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 import 'package:flutter_test/flutter_test.dart';
 

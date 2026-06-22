@@ -1,5 +1,5 @@
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/errors/cnpj_errors.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/value_objects/cnpj.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/errors/cnpj_errors.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/cnpj.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

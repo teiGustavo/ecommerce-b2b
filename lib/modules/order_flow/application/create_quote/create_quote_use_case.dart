@@ -1,7 +1,7 @@
 import 'package:ecommerce_b2b/modules/catalog/domain/aggregates/price_table/price_table.dart';
 import 'package:ecommerce_b2b/modules/catalog/domain/aggregates/product/product.dart';
 import 'package:ecommerce_b2b/modules/catalog/domain/services/order_pricing_domain_service.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/company.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/quote/quote.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/quote/quote_item.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/quote_status.dart';

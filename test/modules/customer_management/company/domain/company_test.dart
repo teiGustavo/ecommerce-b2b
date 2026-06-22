@@ -1,8 +1,8 @@
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/authorized_buyer.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/company.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/customer_credit_account.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/value_objects/cnpj.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/value_objects/inscricao_estadual.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/authorized_buyer.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/customer_credit_account.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/cnpj.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/inscricao_estadual.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/address.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/buyer_id.dart';

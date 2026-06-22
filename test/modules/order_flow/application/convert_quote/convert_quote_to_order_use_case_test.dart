@@ -1,7 +1,7 @@
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/company.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/customer_credit_account.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/value_objects/cnpj.dart';
-import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/company/value_objects/inscricao_estadual.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/customer_credit_account.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/cnpj.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/inscricao_estadual.dart';
 import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/stock_item.dart';
 import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/warehouse.dart';
 import 'package:ecommerce_b2b/modules/inventory/domain/services/inventory_allocator_domain_service.dart';
