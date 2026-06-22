@@ -1,10 +1,10 @@
 import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/warehouse.dart';
 import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/services/inventory_allocator_domain_service.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/finance_review.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/sales_order.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/enums/finance_decision.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/finance_review.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/sales_order.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/enums/finance_decision.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/services/order_state_machine_domain_service.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/order_state_machine_domain_service.dart';
 
 /// Caso de Uso responsável por processar a análise manual do departamento financeiro (RF12).
 class ProcessFinanceReviewUseCase {

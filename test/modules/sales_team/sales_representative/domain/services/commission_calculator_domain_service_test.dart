@@ -1,7 +1,7 @@
-import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/order_item.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/sales_order.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/order_item.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/sales_order.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/enums/commission_status.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_representative.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/services/commission_calculator_domain_service.dart';

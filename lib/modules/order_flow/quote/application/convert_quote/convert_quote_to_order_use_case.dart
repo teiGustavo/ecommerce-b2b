@@ -1,13 +1,13 @@
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
 import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/warehouse.dart';
 import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/services/inventory_allocator_domain_service.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/quote/quote.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/order_item.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/sales_order.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/domain/quote.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/enums/quote_status.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/services/credit_policy_domain_service.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/domain/enums/quote_status.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/order_item.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/sales_order.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/credit_policy_domain_service.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
 
 /// Caso de Uso responsável por converter um orçamento em pedido (RF10, RN3).

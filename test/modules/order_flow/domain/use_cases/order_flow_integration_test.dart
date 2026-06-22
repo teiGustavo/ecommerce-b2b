@@ -11,9 +11,9 @@ import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/stock_item.dart
 import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/warehouse.dart';
 import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/services/inventory_allocator_domain_service.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/services/credit_policy_domain_service.dart';
-import 'package:ecommerce_b2b/modules/order_flow/application/convert_quote/convert_quote_to_order_use_case.dart';
-import 'package:ecommerce_b2b/modules/order_flow/application/create_quote/create_quote_use_case.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/application/convert_quote/convert_quote_to_order_use_case.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/application/create_quote/create_quote_use_case.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/credit_policy_domain_service.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/address.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';

@@ -2,9 +2,9 @@ import 'package:ecommerce_b2b/modules/catalog/price_table/domain/price_table.dar
 import 'package:ecommerce_b2b/modules/catalog/product/domain/product.dart';
 import 'package:ecommerce_b2b/modules/catalog/price_table/domain/services/order_pricing_domain_service.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/quote/quote.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/quote/quote_item.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/enums/quote_status.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/domain/quote.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/domain/enums/quote_status.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/domain/quote_item.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/quote_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
 

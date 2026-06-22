@@ -2,11 +2,11 @@ import 'package:ecommerce_b2b/modules/customer_management/company/domain/company
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/customer_credit_account.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/cnpj.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/inscricao_estadual.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/order_item.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/sales_order.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/services/credit_policy_domain_service.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/order_item.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/sales_order.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/credit_policy_domain_service.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/address.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';

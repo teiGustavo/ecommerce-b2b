@@ -1,4 +1,4 @@
-import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/order_item.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/order_item.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';

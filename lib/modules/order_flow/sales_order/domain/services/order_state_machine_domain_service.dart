@@ -1,4 +1,4 @@
-import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/sales_order.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/sales_order.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 
 /// Serviço de Domínio responsável por gerenciar a máquina de estados linear do pedido (RN11).

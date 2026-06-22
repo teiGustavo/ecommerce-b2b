@@ -1,20 +1,18 @@
-import 'package:ecommerce_b2b/modules/customer_portal/boleto/application/download_boleto/download_boleto_use_case.dart';
-import 'package:ecommerce_b2b/modules/customer_portal/purchase_history/application/get_purchase_history/get_purchase_history_use_case.dart';
-import 'package:ecommerce_b2b/modules/customer_portal/return_request/application/open_return_request/open_return_request_use_case.dart';
 import 'package:get_it/get_it.dart';
 
 // Domain Services
 import 'package:ecommerce_b2b/modules/catalog/price_table/domain/services/order_pricing_domain_service.dart';
 import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/services/inventory_allocator_domain_service.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/services/credit_policy_domain_service.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/services/order_state_machine_domain_service.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/services/commission_calculator_domain_service.dart';
-import 'package:ecommerce_b2b/modules/sales_team/domain/services/sales_hierarchy_domain_service.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/credit_policy_domain_service.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/order_state_machine_domain_service.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/services/commission_calculator_domain_service.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/services/sales_hierarchy_domain_service.dart';
+
 
 // Repositories (Interfaces)
 import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/tracking_repository.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/freight_repository.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/repositories/sales_order_repository.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/repositories/sales_order_repository.dart';
 import 'package:ecommerce_b2b/modules/customer_portal/boleto/domain/repositories/boleto_repository.dart';
 
 // Adapters (Implementations)
@@ -22,10 +20,14 @@ import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/reposito
 import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_freight_adapter.dart';
 
 // Use Cases
-import 'package:ecommerce_b2b/modules/order_flow/application/process_finance_review/process_finance_review_use_case.dart';
-import 'package:ecommerce_b2b/modules/order_flow/application/convert_quote/convert_quote_to_order_use_case.dart';
-import 'package:ecommerce_b2b/modules/order_flow/application/create_quote/create_quote_use_case.dart';
 import 'package:ecommerce_b2b/modules/logistics/application/procces_order/process_order_shipment_use_case.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/application/convert_quote/convert_quote_to_order_use_case.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/application/create_quote/create_quote_use_case.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/application/process_finance_review/process_finance_review_use_case.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/boleto/application/download_boleto/download_boleto_use_case.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/purchase_history/application/get_purchase_history/get_purchase_history_use_case.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/return_request/application/open_return_request/open_return_request_use_case.dart';
+
 
 final getIt = GetIt.instance;
 

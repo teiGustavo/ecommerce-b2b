@@ -1,7 +1,7 @@
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
-import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/sales_order.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/sales_order.dart';
 
 /// Serviço de Domínio responsável por validar as regras de crédito (RN4, RN10).
 class CreditPolicyDomainService {
