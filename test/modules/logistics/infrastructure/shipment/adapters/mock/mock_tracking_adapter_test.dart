@@ -1,0 +1,34 @@
+import 'package:ecommerce_b2b/modules/logistics/domain/aggregates/shipment/shipment.dart';
+import 'package:ecommerce_b2b/modules/logistics/domain/aggregates/shipment/shipping_label.dart';
+import 'package:ecommerce_b2b/modules/logistics/domain/enums/shipment_status.dart';
+import 'package:ecommerce_b2b/modules/logistics/domain/enums/tracking_status.dart';
+import 'package:ecommerce_b2b/modules/logistics/infrastructure/shipment/adapters/mock/mock_tracking_adapter.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/shipment_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/logistics/value_objects/tracking_code.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  late MockTrackingAdapter trackingAdapter;
+
+  setUp(() {
+    trackingAdapter = MockTrackingAdapter();
+  });
+
+  group('MockTrackingAdapter', () {
+    test('deve adicionar um novo evento de rastreamento à remessa', () async {
+      final shipment = Shipment(
+        id: const ShipmentId('ship-1'),
+        trackingCode: const TrackingCode('TRK123456'),
+        status: ShipmentStatus.pending,
+        shippingLabel: const ShippingLabel('LBL-001'),
+      );
+
+      expect(shipment.trackingEvents, isEmpty);
+
+      await trackingAdapter.syncTracking(shipment);
+
+      expect(shipment.trackingEvents, isNotEmpty);
+      expect(shipment.trackingEvents.first.status, TrackingStatus.inTransit);
+    });
+  });
+}
