@@ -16,7 +16,8 @@ void main() {
   });
 
   group('OrderPricingService', () {
-    test('deve retornar preço baseado em volume e estado', () {
+    /// deve retornar preço baseado em volume e estado
+    test('should return price based on volume and state', () {
       final table = PriceTable(
         id: const PriceTableId('t1'),
         name: 'Tabela Padrão',
@@ -43,6 +44,7 @@ void main() {
         ],
       );
 
+      // Case 1: SP, low volume
       // Caso 1: SP, volume baixo
       final p1 = pricingService.getUnitPrice(
         priceTable: table,
@@ -51,6 +53,7 @@ void main() {
       );
       expect(p1.amount, 100);
 
+      // Case 2: SP, high volume
       // Caso 2: SP, volume alto
       final p2 = pricingService.getUnitPrice(
         priceTable: table,
@@ -59,6 +62,7 @@ void main() {
       );
       expect(p2.amount, 90);
 
+      // Case 3: RJ
       // Caso 3: RJ
       final p3 = pricingService.getUnitPrice(
         priceTable: table,

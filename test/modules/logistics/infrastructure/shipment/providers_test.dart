@@ -6,12 +6,14 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Shipment Providers', () {
-    test('FreightProvider.mock deve retornar uma instância de MockFreightAdapter', () {
+    /// FreightProvider.mock deve retornar uma instância de MockFreightAdapter
+    test('FreightProvider.mock should return an instance of MockFreightAdapter', () {
       final repository = FreightProvider.mock.freightProvider;
       expect(repository, isA<MockFreightAdapter>());
     });
 
-    test('TrackingProvider.mock deve retornar uma instância de MockTrackingAdapter', () {
+    /// TrackingProvider.mock deve retornar uma instância de MockTrackingAdapter
+    test('TrackingProvider.mock should return an instance of MockTrackingAdapter', () {
       final repository = TrackingProvider.mock.trackingProvider;
       expect(repository, isA<MockTrackingAdapter>());
     });

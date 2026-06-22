@@ -22,7 +22,8 @@ void main() {
   });
 
   group('CommissionCalculatorDomainService', () {
-    test('deve calcular a comissão corretamente baseada no total do pedido e taxa do representante', () {
+    /// deve calcular a comissão corretamente baseada no total do pedido e taxa do representante
+    test('should calculate commission correctly based on order total and rep rate', () {
       final order = SalesOrder(
         id: const OrderId('o1'),
         status: OrderStatus.pickingPacking,

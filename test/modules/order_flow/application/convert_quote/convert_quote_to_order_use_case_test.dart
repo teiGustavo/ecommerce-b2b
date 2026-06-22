@@ -74,7 +74,8 @@ void main() {
       ]);
     });
 
-    test('deve converter orçamento em pedido e alocar estoque se aprovado pelo crédito', () {
+    /// deve converter orçamento em pedido e alocar estoque se aprovado pelo crédito
+    test('should convert quote to order and allocate stock if approved by credit', () {
       final creditPolicy = MockCreditPolicy(targetStatus: OrderStatus.pickingPacking);
       final inventoryAllocator = MockInventoryAllocator();
       final useCase = ConvertQuoteToOrderUseCase(creditPolicy, inventoryAllocator);
@@ -86,7 +87,8 @@ void main() {
       expect(inventoryAllocator.allocateCalled, isTrue);
     });
 
-    test('deve converter orçamento em pedido mas NÃO alocar estoque se bloqueado pelo crédito', () {
+    /// deve converter orçamento em pedido mas NÃO alocar estoque se bloqueado pelo crédito
+    test('should convert quote to order but NOT allocate stock if blocked by credit', () {
       final creditPolicy = MockCreditPolicy(targetStatus: OrderStatus.blockedByFinance);
       final inventoryAllocator = MockInventoryAllocator();
       final useCase = ConvertQuoteToOrderUseCase(creditPolicy, inventoryAllocator);
@@ -97,7 +99,8 @@ void main() {
       expect(inventoryAllocator.allocateCalled, isFalse);
     });
 
-    test('deve lançar erro se orçamento não estiver enviado', () {
+    /// deve lançar erro se orçamento não estiver enviado
+    test('should throw error if quote is not sent', () {
       final creditPolicy = MockCreditPolicy(targetStatus: OrderStatus.pickingPacking);
       final inventoryAllocator = MockInventoryAllocator();
       final useCase = ConvertQuoteToOrderUseCase(creditPolicy, inventoryAllocator);

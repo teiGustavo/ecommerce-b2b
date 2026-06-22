@@ -51,7 +51,8 @@ void main() {
       ]);
     });
 
-    test('deve aprovar pedido, transicionar status e alocar estoque', () {
+    /// deve aprovar pedido, transicionar status e alocar estoque
+    test('should approve order, transition status and allocate stock', () {
       final stateMachine = MockOrderStateMachine();
       final inventoryAllocator = MockInventoryAllocator();
       final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator);
@@ -64,7 +65,8 @@ void main() {
       expect(inventoryAllocator.allocateCalled, isTrue);
     });
 
-    test('deve cancelar pedido se reprovado pelo financeiro', () {
+    /// deve cancelar pedido se reprovado pelo financeiro
+    test('should cancel order if rejected by finance', () {
       final stateMachine = MockOrderStateMachine();
       final inventoryAllocator = MockInventoryAllocator();
       final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator);
@@ -76,7 +78,8 @@ void main() {
       expect(inventoryAllocator.allocateCalled, isFalse);
     });
 
-    test('deve lançar erro se pedido não estiver bloqueado', () {
+    /// deve lançar erro se pedido não estiver bloqueado
+    test('should throw error if order is not blocked', () {
       final stateMachine = MockOrderStateMachine();
       final inventoryAllocator = MockInventoryAllocator();
       final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator);

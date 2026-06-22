@@ -11,7 +11,8 @@ void main() {
   });
 
   group('MockFreightAdapter', () {
-    test('deve calcular o frete corretamente seguindo a regra simulada (10 + 2*peso)', () async {
+    /// deve calcular o frete corretamente seguindo a regra simulada (10 + 2*peso)
+    test('should calculate freight correctly following simulated rule (10 + 2*weight)', () async {
       final origin = ZipCode.create('01000-000').getOrThrow();
       final destination = ZipCode.create('20000-000').getOrThrow();
       final weight = Weight.create(5.0).getOrThrow();
@@ -26,7 +27,8 @@ void main() {
       expect(result.amount, 20.0);
     });
 
-    test('deve calcular frete com peso zero', () async {
+    /// deve calcular frete com peso zero
+    test('should calculate freight with zero weight', () async {
       final origin = ZipCode.create('01000-000').getOrThrow();
       final destination = ZipCode.create('20000-000').getOrThrow();
       final weight = Weight.create(0.0).getOrThrow();

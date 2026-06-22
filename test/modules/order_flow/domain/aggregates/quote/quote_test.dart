@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Quote', () {
+    /// deve calcular o total corretamente
     test('should calculate total correctly', () {
       final quote = Quote(id: QuoteId('q1'), status: QuoteStatus.draft);
       
@@ -27,6 +28,7 @@ void main() {
       expect(quote.total.amount, 25.0);
     });
 
+    /// deve lançar StateError ao adicionar item a um orçamento que não seja rascunho
     test('should throw StateError when adding item to non-draft quote', () {
       final quote = Quote(id: QuoteId('q1'), status: QuoteStatus.sent);
       

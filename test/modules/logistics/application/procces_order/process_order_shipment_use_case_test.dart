@@ -19,7 +19,8 @@ class MockOrderStateMachine extends OrderStateMachineDomainService {
 
 void main() {
   group('ProcessOrderShipmentUseCase', () {
-    test('deve processar expedição com sucesso e transicionar status do pedido', () {
+    /// deve processar expedição com sucesso e transicionar status do pedido
+    test('should process shipment successfully and transition order status', () {
       final stateMachine = MockOrderStateMachine();
       final useCase = ProcessOrderShipmentUseCase(stateMachine);
       final order = SalesOrder(
@@ -46,7 +47,8 @@ void main() {
       expect(result.shipment.shippingLabel.labelNumber, 'LBL-001');
     });
 
-    test('deve lançar erro se pedido não estiver em pickingPacking', () {
+    /// deve lançar erro se pedido não estiver em pickingPacking
+    test('should throw error if order is not in pickingPacking', () {
       final stateMachine = MockOrderStateMachine();
       final useCase = ProcessOrderShipmentUseCase(stateMachine);
       final order = SalesOrder(

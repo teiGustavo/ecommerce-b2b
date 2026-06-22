@@ -15,7 +15,8 @@ void main() {
   });
 
   group('MockTrackingAdapter', () {
-    test('deve adicionar um novo evento de rastreamento à remessa', () async {
+    /// deve adicionar um novo evento de rastreamento à remessa
+    test('should add a new tracking event to the shipment', () async {
       final shipment = Shipment(
         id: const ShipmentId('ship-1'),
         trackingCode: const TrackingCode('TRK123456'),

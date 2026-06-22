@@ -20,7 +20,8 @@ class MockOrderStateMachine extends OrderStateMachineDomainService {
 
 void main() {
   group('OpenReturnRequestUseCase', () {
-    test('deve abrir RMA com sucesso para pedido entregue', () {
+    /// deve abrir RMA com sucesso para pedido entregue
+    test('should open RMA successfully for delivered order', () {
       final stateMachine = MockOrderStateMachine();
       final useCase = OpenReturnRequestUseCase(stateMachine);
       final order = SalesOrder(
@@ -48,7 +49,8 @@ void main() {
       expect(rma.items.length, 1);
     });
 
-    test('deve lançar erro se pedido não estiver entregue', () {
+    /// deve lançar erro se pedido não estiver entregue
+    test('should throw error if order is not delivered', () {
       final stateMachine = MockOrderStateMachine();
       final useCase = OpenReturnRequestUseCase(stateMachine);
       final order = SalesOrder(

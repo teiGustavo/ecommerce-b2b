@@ -42,7 +42,8 @@ void main() {
     useCase = CreateQuoteUseCase(pricingService);
   });
 
-  test('deve criar um orçamento com sucesso aplicando precificação', () {
+  /// deve criar um orçamento com sucesso aplicando precificação
+  test('should create a quote successfully applying pricing', () {
     final company = Company(
       id: const CompanyId('c1'),
       legalName: 'Legal',

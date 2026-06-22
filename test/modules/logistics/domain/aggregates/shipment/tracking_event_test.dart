@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('TrackingEvent', () {
+    /// deve comparar igualdade baseada nos valores
     test('should compare equality based on values', () {
       final now = DateTime.now();
       final event1 = TrackingEvent(
@@ -20,6 +21,7 @@ void main() {
       expect(event1, equals(event2));
     });
 
+    /// deve falhar na igualdade se qualquer campo for diferente
     test('should fail equality if any field is different', () {
       final now = DateTime.now();
       final event1 = TrackingEvent(
