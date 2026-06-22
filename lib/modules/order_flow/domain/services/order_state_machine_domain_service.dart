@@ -18,6 +18,9 @@ class OrderStateMachineDomainService {
     if (next == OrderStatus.cancelled) return true; // Cancelamento permitido de quase qualquer estado (simplificação).
 
     switch (current) {
+      case OrderStatus.draft:
+        return next == OrderStatus.pendingFinanceApproval || next == OrderStatus.pickingPacking;
+
       case OrderStatus.pendingFinanceApproval:
         return next == OrderStatus.blockedByFinance || next == OrderStatus.pickingPacking;
       

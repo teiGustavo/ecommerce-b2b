@@ -1,5 +1,8 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_aggregate_root.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/buyer_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
@@ -13,14 +16,26 @@ class SalesOrder extends AggregateRoot<OrderId> {
   final List<OrderItem> _items;
   FinanceReview? _financeReview;
 
-  /// Construtor do Pedido de Venda.
+  final CompanyId companyId;
+  final BuyerId buyerId;
+  final RepresentativeId representativeId;
+  final DateTime createdAt;
+
   SalesOrder({
     required OrderId id,
-    required this._status,
-    required this._creditStatus,
-    required this._items,
-    this._financeReview,
-  })  : super(id);
+    required this.companyId,
+    required this.buyerId,
+    required this.representativeId,
+    required this.createdAt,
+    required OrderStatus status,
+    required CreditStatus creditStatus,
+    required List<OrderItem> items,
+    FinanceReview? financeReview,
+  })  : _status = status,
+        _creditStatus = creditStatus,
+        _items = items,
+        _financeReview = financeReview,
+        super(id);
 
   /// Status atual do pedido (ex: pendente aprovação, em trânsito).
   OrderStatus get status => _status;

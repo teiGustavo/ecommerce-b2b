@@ -3,6 +3,9 @@ import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/services/order_state_machine_domain_service.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/buyer_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -15,6 +18,10 @@ void main() {
   SalesOrder createOrder(OrderStatus status) {
     return SalesOrder(
       id: const OrderId('order-1'),
+      companyId: const CompanyId('comp-1'),
+      buyerId: BuyerId('buyer-1'),
+      representativeId: RepresentativeId('rep-1'),
+      createdAt: DateTime.now(),
       status: status,
       creditStatus: CreditStatus.pending,
       items: [],

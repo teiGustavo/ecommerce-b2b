@@ -12,6 +12,8 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/buyer_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/email_address.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/phone_number.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
@@ -50,6 +52,10 @@ void main() {
   SalesOrder createOrder(double totalAmount) {
     return SalesOrder(
       id: const OrderId('order-1'),
+      companyId: const CompanyId('comp-1'),
+      buyerId: BuyerId('buyer-1'),
+      representativeId: RepresentativeId('rep-1'),
+      createdAt: DateTime.now(),
       status: OrderStatus.pendingFinanceApproval,
       creditStatus: CreditStatus.pending,
       items: [

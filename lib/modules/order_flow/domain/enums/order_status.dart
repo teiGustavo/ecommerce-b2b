@@ -1,4 +1,5 @@
 enum OrderStatus {
+  draft,
   pendingFinanceApproval,
   blockedByFinance,
   pickingPacking,

@@ -3,6 +3,7 @@ import 'package:ecommerce_b2b/modules/customer_management/domain/aggregates/comp
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_aggregate_root.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/address.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/email_address.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
@@ -32,6 +33,8 @@ class Company extends AggregateRoot<CompanyId> {
   final State state;
   /// Limite de crédito total concedido.
   final Money creditLimit;
+  /// Representante responsável pela conta.
+  final RepresentativeId? representativeId;
   
   final List<AuthorizedBuyer> _authorizedBuyers;
   CustomerCreditAccount _creditAccount;
@@ -49,9 +52,12 @@ class Company extends AggregateRoot<CompanyId> {
     required this.shippingAddress,
     required this.state,
     required this.creditLimit,
-    required this._authorizedBuyers,
-    required this._creditAccount,
-  }) : super(id);
+    this.representativeId,
+    required List<AuthorizedBuyer> authorizedBuyers,
+    required CustomerCreditAccount creditAccount,
+  }) : _authorizedBuyers = List.from(authorizedBuyers),
+       _creditAccount = creditAccount,
+       super(id);
 
   /// Lista de compradores autorizados para esta empresa.
   List<AuthorizedBuyer> get authorizedBuyers => List.unmodifiable(_authorizedBuyers);

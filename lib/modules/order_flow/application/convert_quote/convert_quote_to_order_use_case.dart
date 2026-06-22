@@ -9,6 +9,8 @@ import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart'
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/quote_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/services/credit_policy_domain_service.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/buyer_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 
 /// Caso de Uso responsável por converter um orçamento em pedido (RF10, RN3).
 class ConvertQuoteToOrderUseCase {
@@ -36,6 +38,10 @@ class ConvertQuoteToOrderUseCase {
 
     final order = SalesOrder(
       id: orderId,
+      companyId: company.id,
+      buyerId: BuyerId('mock_buyer'),
+      representativeId: company.representativeId ?? RepresentativeId('mock_rep'),
+      createdAt: DateTime.now(),
       status: OrderStatus.pendingFinanceApproval,
       creditStatus: CreditStatus.pending,
       items: orderItems,
