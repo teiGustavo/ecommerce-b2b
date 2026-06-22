@@ -1,6 +1,6 @@
-import 'package:ecommerce_b2b/modules/catalog/domain/aggregates/price_table/price_rule.dart';
-import 'package:ecommerce_b2b/modules/catalog/domain/aggregates/price_table/price_table.dart';
-import 'package:ecommerce_b2b/modules/catalog/domain/enums/price_scope_type.dart';
+import 'package:ecommerce_b2b/modules/catalog/price_table/domain/price_rule.dart';
+import 'package:ecommerce_b2b/modules/catalog/price_table/domain/price_table.dart';
+import 'package:ecommerce_b2b/modules/catalog/price_table/domain/enums/price_scope_type.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/price_table_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';

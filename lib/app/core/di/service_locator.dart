@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
 
 // Domain Services
-import 'package:ecommerce_b2b/modules/catalog/domain/services/order_pricing_domain_service.dart';
+import 'package:ecommerce_b2b/modules/catalog/price_table/domain/services/order_pricing_domain_service.dart';
 import 'package:ecommerce_b2b/modules/inventory/domain/services/inventory_allocator_domain_service.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/services/credit_policy_domain_service.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/services/order_state_machine_domain_service.dart';

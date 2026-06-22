@@ -1,4 +1,4 @@
-import 'package:ecommerce_b2b/modules/catalog/domain/aggregates/price_table/price_table.dart';
+import 'package:ecommerce_b2b/modules/catalog/price_table/domain/price_table.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';

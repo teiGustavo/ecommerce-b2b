@@ -1,8 +1,8 @@
-import 'package:ecommerce_b2b/modules/catalog/domain/aggregates/price_table/price_rule.dart';
-import 'package:ecommerce_b2b/modules/catalog/domain/aggregates/price_table/price_table.dart';
-import 'package:ecommerce_b2b/modules/catalog/domain/aggregates/product/product.dart';
-import 'package:ecommerce_b2b/modules/catalog/domain/enums/price_scope_type.dart';
-import 'package:ecommerce_b2b/modules/catalog/domain/services/order_pricing_domain_service.dart';
+import 'package:ecommerce_b2b/modules/catalog/price_table/domain/price_rule.dart';
+import 'package:ecommerce_b2b/modules/catalog/price_table/domain/price_table.dart';
+import 'package:ecommerce_b2b/modules/catalog/product/domain/product.dart';
+import 'package:ecommerce_b2b/modules/catalog/price_table/domain/enums/price_scope_type.dart';
+import 'package:ecommerce_b2b/modules/catalog/price_table/domain/services/order_pricing_domain_service.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/customer_credit_account.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/cnpj.dart';
