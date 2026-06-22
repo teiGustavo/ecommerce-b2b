@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ecommerce_b2b/main.dart';
 import 'package:ecommerce_b2b/modules/customer_management/presentation/pages/company_list_page.dart';
 import 'package:ecommerce_b2b/modules/customer_management/presentation/pages/authorized_buyer_form_page.dart';
 import 'package:ecommerce_b2b/modules/order_flow/presentation/pages/budget_list_page.dart';
@@ -44,9 +45,13 @@ class _MainLayoutState extends State<MainLayout> {
               });
             },
             labelType: NavigationRailLabelType.all,
-            leading: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Icon(Icons.business_center, size: 40, color: Colors.blue),
+            leading: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 8.0),
+              child: Image.asset(
+                'assets/icon/ecommerce-b2b.png',
+                width: 56,
+                height: 56,
+              ),
             ),
             destinations: const [
               NavigationRailDestination(
@@ -95,6 +100,33 @@ class _MainLayoutState extends State<MainLayout> {
                 label: Text('Portal'),
               ),
             ],
+            trailing: Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 24.0),
+                  child: ValueListenableBuilder<ThemeMode>(
+                    valueListenable: themeNotifier,
+                    builder: (context, currentMode, _) {
+                      final isDark = currentMode == ThemeMode.dark ||
+                          (currentMode == ThemeMode.system &&
+                              MediaQuery.of(context).platformBrightness ==
+                                  Brightness.dark);
+                      return IconButton(
+                        icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+                        onPressed: () {
+                          themeNotifier.value =
+                              isDark ? ThemeMode.light : ThemeMode.dark;
+                        },
+                        tooltip: isDark
+                            ? 'Mudar para Tema Claro'
+                            : 'Mudar para Tema Escuro',
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
