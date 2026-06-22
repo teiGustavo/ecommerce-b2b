@@ -1,0 +1,90 @@
+import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/stock_item.dart';
+import 'package:ecommerce_b2b/modules/inventory/domain/aggregates/warehouse/warehouse.dart';
+import 'package:ecommerce_b2b/modules/inventory/domain/services/inventory_allocator_domain_service.dart';
+import 'package:ecommerce_b2b/modules/order_flow/application/process_finance_review/process_finance_review_use_case.dart';
+import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/finance_review.dart';
+import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/order_item.dart';
+import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/sales_order.dart';
+import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
+import 'package:ecommerce_b2b/modules/order_flow/domain/enums/finance_decision.dart';
+import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
+import 'package:ecommerce_b2b/modules/order_flow/domain/services/order_state_machine_domain_service.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/warehouse_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+class MockOrderStateMachine extends OrderStateMachineDomainService {
+  @override
+  void transitionTo(SalesOrder order, OrderStatus newStatus) {
+    order.updateStatus(newStatus);
+  }
+}
+
+class MockInventoryAllocator extends InventoryAllocatorDomainService {
+  bool allocateCalled = false;
+  @override
+  void allocateStock(List<Warehouse> warehouses, OrderId orderId, ProductId productId, Quantity requestedQuantity) {
+    allocateCalled = true;
+  }
+}
+
+void main() {
+  group('ProcessFinanceReviewUseCase', () {
+    late SalesOrder order;
+    late Warehouse warehouse;
+
+    setUp(() {
+      order = SalesOrder(
+        id: const OrderId('o1'),
+        status: OrderStatus.blockedByFinance,
+        creditStatus: CreditStatus.blocked,
+        items: [
+          OrderItem(productId: const ProductId('p1'), quantity: Quantity.create(1).getOrThrow(), unitPriceSnapshot: Money.create(100).getOrThrow())
+        ],
+      );
+
+      warehouse = Warehouse(id: const WarehouseId('w1'), code: 'W1', name: 'N1', stockItems: [
+        StockItem(productId: const ProductId('p1'), physicalQuantity: Quantity.create(10).getOrThrow())
+      ]);
+    });
+
+    test('deve aprovar pedido, transicionar status e alocar estoque', () {
+      final stateMachine = MockOrderStateMachine();
+      final inventoryAllocator = MockInventoryAllocator();
+      final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator);
+      final review = FinanceReview(decision: FinanceDecision.approved, reason: 'OK');
+
+      useCase.execute(order: order, review: review, warehouses: [warehouse]);
+
+      expect(order.status, OrderStatus.pickingPacking);
+      expect(order.financeReview, review);
+      expect(inventoryAllocator.allocateCalled, isTrue);
+    });
+
+    test('deve cancelar pedido se reprovado pelo financeiro', () {
+      final stateMachine = MockOrderStateMachine();
+      final inventoryAllocator = MockInventoryAllocator();
+      final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator);
+      final review = FinanceReview(decision: FinanceDecision.rejected, reason: 'No credit');
+
+      useCase.execute(order: order, review: review, warehouses: [warehouse]);
+
+      expect(order.status, OrderStatus.cancelled);
+      expect(inventoryAllocator.allocateCalled, isFalse);
+    });
+
+    test('deve lançar erro se pedido não estiver bloqueado', () {
+      final stateMachine = MockOrderStateMachine();
+      final inventoryAllocator = MockInventoryAllocator();
+      final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator);
+      final review = FinanceReview(decision: FinanceDecision.approved, reason: 'OK');
+
+      order.updateStatus(OrderStatus.pendingFinanceApproval);
+
+      expect(() => useCase.execute(order: order, review: review, warehouses: [warehouse]), throwsStateError);
+    });
+  });
+}

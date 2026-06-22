@@ -6,10 +6,10 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  late SalesHierarchyServiceDomainService hierarchyService;
+  late SalesHierarchyDomainService hierarchyService;
 
   setUp(() {
-    hierarchyService = SalesHierarchyServiceDomainService();
+    hierarchyService = SalesHierarchyDomainService();
   });
 
   SalesRepresentative createRep(String id, {List<String> subordinates = const []}) {
