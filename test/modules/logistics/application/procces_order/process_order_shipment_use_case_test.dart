@@ -20,7 +20,7 @@ class MockOrderStateMachine extends OrderStateMachineDomainService {
 void main() {
   group('ProcessOrderShipmentUseCase', () {
     /// deve processar expedição com sucesso e transicionar status do pedido
-    test('should process shipment successfully and transition order status', () {
+    test('should process repositories successfully and transition order status', () {
       final stateMachine = MockOrderStateMachine();
       final useCase = ProcessOrderShipmentUseCase(stateMachine);
       final order = SalesOrder(

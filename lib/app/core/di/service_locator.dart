@@ -12,14 +12,14 @@ import 'package:ecommerce_b2b/modules/sales_team/domain/services/commission_calc
 import 'package:ecommerce_b2b/modules/sales_team/domain/services/sales_hierarchy_domain_service.dart';
 
 // Repositories (Interfaces)
-import 'package:ecommerce_b2b/modules/logistics/domain/aggregates/shipment/repositories/tracking_repository.dart';
-import 'package:ecommerce_b2b/modules/logistics/domain/aggregates/shipment/repositories/freight_repository.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/tracking_repository.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/freight_repository.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/repositories/sales_order_repository.dart';
 import 'package:ecommerce_b2b/modules/customer_portal/boleto/domain/repositories/boleto_repository.dart';
 
 // Adapters (Implementations)
-import 'package:ecommerce_b2b/modules/logistics/infrastructure/shipment/adapters/mock/mock_tracking_adapter.dart';
-import 'package:ecommerce_b2b/modules/logistics/infrastructure/shipment/adapters/mock/mock_freight_adapter.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_tracking_adapter.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_freight_adapter.dart';
 
 // Use Cases
 import 'package:ecommerce_b2b/modules/order_flow/application/process_finance_review/process_finance_review_use_case.dart';

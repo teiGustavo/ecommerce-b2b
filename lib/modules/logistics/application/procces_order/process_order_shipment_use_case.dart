@@ -1,8 +1,8 @@
-import 'package:ecommerce_b2b/modules/logistics/domain/aggregates/packing/packing_session.dart';
-import 'package:ecommerce_b2b/modules/logistics/domain/aggregates/picking/picking_list.dart';
-import 'package:ecommerce_b2b/modules/logistics/domain/aggregates/shipment/shipment.dart';
-import 'package:ecommerce_b2b/modules/logistics/domain/aggregates/shipment/shipping_label.dart';
-import 'package:ecommerce_b2b/modules/logistics/domain/enums/shipment_status.dart';
+import 'package:ecommerce_b2b/modules/logistics/packing/packing_session.dart';
+import 'package:ecommerce_b2b/modules/logistics/picking/picking_list.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/domain/shipment.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/domain/shipping_label.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/domain/enums/shipment_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/sales_order.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/services/order_state_machine_domain_service.dart';
