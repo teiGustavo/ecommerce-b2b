@@ -14,6 +14,9 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/warehouse_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/buyer_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class MockOrderStateMachine extends OrderStateMachineDomainService {
@@ -38,9 +41,13 @@ void main() {
 
     setUp(() {
       order = SalesOrder(
-        id: const OrderId('o1'),
+        id: const OrderId('ORD_1'),
         status: OrderStatus.blockedByFinance,
         creditStatus: CreditStatus.blocked,
+        companyId: const CompanyId('COMP_1'),
+        buyerId: const BuyerId('BUYER_1'),
+        representativeId: const RepresentativeId('REP_1'),
+        createdAt: DateTime.now(),
         items: [
           OrderItem(productId: const ProductId('p1'), quantity: Quantity.create(1).getOrThrow(), unitPriceSnapshot: Money.create(100).getOrThrow())
         ],

@@ -5,6 +5,9 @@ import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart'
 import 'package:ecommerce_b2b/modules/order_flow/domain/repositories/sales_order_repository.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/buyer_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class MockSalesOrderRepository implements SalesOrderRepository {
@@ -15,6 +18,10 @@ class MockSalesOrderRepository implements SalesOrderRepository {
         id: const OrderId('o1'),
         status: OrderStatus.delivered,
         creditStatus: CreditStatus.approved,
+        companyId: const CompanyId('c1'),
+        buyerId: const BuyerId('b1'),
+        representativeId: const RepresentativeId('r1'),
+        createdAt: DateTime.now(),
         items: [],
       ),
     ];

@@ -7,6 +7,9 @@ import 'package:ecommerce_b2b/modules/sales_team/domain/enums/commission_status.
 import 'package:ecommerce_b2b/modules/sales_team/domain/services/commission_calculator_domain_service.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/buyer_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/email_address.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
@@ -25,7 +28,11 @@ void main() {
     /// deve calcular a comissão corretamente baseada no total do pedido e taxa do representante
     test('should calculate commission correctly based on order total and rep rate', () {
       final order = SalesOrder(
-        id: const OrderId('o1'),
+        id: const OrderId('ORD_1'),
+        companyId: const CompanyId('COMP_1'),
+        buyerId: const BuyerId('BUYER_1'),
+        representativeId: const RepresentativeId('REP_2'),
+        createdAt: DateTime.now(),
         status: OrderStatus.pickingPacking,
         creditStatus: CreditStatus.approved,
         items: [

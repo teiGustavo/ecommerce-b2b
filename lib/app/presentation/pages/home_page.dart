@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ecommerce_b2b/modules/customer_management/presentation/pages/company_form_page.dart';
 import 'package:ecommerce_b2b/modules/customer_management/presentation/pages/authorized_buyer_form_page.dart';
-import 'package:ecommerce_b2b/modules/order_flow/presentation/pages/cart_page.dart';
 import 'package:ecommerce_b2b/modules/order_flow/presentation/pages/finance_review_page.dart';
 import 'package:ecommerce_b2b/modules/sales_team/presentation/pages/sales_dashboard_page.dart';
 import 'package:ecommerce_b2b/modules/catalog/presentation/pages/product_catalog_page.dart';
 import 'package:ecommerce_b2b/modules/logistics/presentation/pages/logistics_dashboard_page.dart';
 import 'package:ecommerce_b2b/modules/customer_portal/presentation/pages/customer_portal_page.dart';
+import 'package:ecommerce_b2b/modules/order_flow/presentation/pages/order_entry_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -33,7 +33,7 @@ class HomePage extends StatelessWidget {
             'Catálogo de Produtos',
             const ProductCatalogPage(),
           ),
-          _buildMenuButton(context, 'Carrinho / Orçamento', const CartPage()),
+          _buildMenuButton(context, 'Novo Pedido', const OrderEntryPage()),
           _buildMenuButton(
             context,
             'Revisão Financeira',

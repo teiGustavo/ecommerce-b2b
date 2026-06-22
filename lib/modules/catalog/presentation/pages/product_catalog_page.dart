@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ecommerce_b2b/modules/catalog/presentation/controllers/product_catalog_cubit.dart';
+import 'package:ecommerce_b2b/modules/catalog/presentation/pages/product_form_page.dart';
 
 class ProductCatalogPage extends StatelessWidget {
   const ProductCatalogPage({super.key});
@@ -24,8 +25,17 @@ class _ProductCatalogView extends StatelessWidget {
         title: const Text('Catálogo de Produtos'),
         actions: [
           IconButton(icon: const Icon(Icons.search), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.filter_list), onPressed: () {}),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final result = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProductFormPage()));
+          if (result == true && context.mounted) {
+            context.read<ProductCatalogCubit>().loadCatalog();
+          }
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Novo Produto'),
       ),
       body: BlocBuilder<ProductCatalogCubit, ProductCatalogState>(
         builder: (context, state) {
@@ -73,19 +83,6 @@ class _ProductCatalogView extends StatelessWidget {
                             price != null ? 'R\$ ${price.amount.toStringAsFixed(2)}' : 'Sob consulta',
                             style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary, fontSize: 16),
                           ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                              ),
-                              onPressed: stock > 0 ? () {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${product.name} adicionado!')));
-                              } : null,
-                              child: Text(stock > 0 ? 'Comprar' : 'Sem Estoque'),
-                            ),
-                          )
                         ],
                       ),
                     )

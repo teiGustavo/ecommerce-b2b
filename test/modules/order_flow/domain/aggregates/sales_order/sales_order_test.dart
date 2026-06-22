@@ -1,5 +1,8 @@
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/order_item.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/aggregates/sales_order/sales_order.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/buyer_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
@@ -14,6 +17,10 @@ void main() {
       final order = SalesOrder(
         id: const OrderId('o1'),
         status: OrderStatus.pendingFinanceApproval,
+        companyId: const CompanyId('COMP_1'),
+        buyerId: const BuyerId('BUYER_1'),
+        representativeId: const RepresentativeId('REP_1'),
+        createdAt: DateTime.now(),
         creditStatus: CreditStatus.pending,
         items: [
           OrderItem(
@@ -36,6 +43,10 @@ void main() {
       final order = SalesOrder(
         id: const OrderId('o1'),
         status: OrderStatus.pendingFinanceApproval,
+        companyId: const CompanyId('COMP_1'),
+        buyerId: const BuyerId('BUYER_1'),
+        representativeId: const RepresentativeId('REP_1'),
+        createdAt: DateTime.now(),
         creditStatus: CreditStatus.pending,
         items: [],
       );

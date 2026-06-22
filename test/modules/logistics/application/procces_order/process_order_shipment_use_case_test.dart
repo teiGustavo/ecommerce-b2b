@@ -4,6 +4,9 @@ import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/services/order_state_machine_domain_service.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/buyer_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/packing_session_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/picking_list_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/shipment_id.dart';
@@ -24,8 +27,12 @@ void main() {
       final stateMachine = MockOrderStateMachine();
       final useCase = ProcessOrderShipmentUseCase(stateMachine);
       final order = SalesOrder(
-        id: const OrderId('o1'),
+        id: const OrderId('ORD_1'),
         status: OrderStatus.pickingPacking,
+        companyId: const CompanyId('COMP_1'),
+        buyerId: const BuyerId('BUYER_1'),
+        representativeId: const RepresentativeId('REP_1'),
+        createdAt: DateTime.now(),
         creditStatus: CreditStatus.approved,
         items: [],
       );
@@ -54,6 +61,10 @@ void main() {
       final order = SalesOrder(
         id: const OrderId('o1'),
         status: OrderStatus.pendingFinanceApproval,
+        companyId: const CompanyId('COMP_1'),
+        buyerId: const BuyerId('BUYER_1'),
+        representativeId: const RepresentativeId('REP_1'),
+        createdAt: DateTime.now(),
         creditStatus: CreditStatus.approved,
         items: [],
       );

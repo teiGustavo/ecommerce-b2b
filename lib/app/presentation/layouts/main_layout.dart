@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ecommerce_b2b/modules/customer_management/presentation/pages/company_list_page.dart';
 import 'package:ecommerce_b2b/modules/customer_management/presentation/pages/authorized_buyer_form_page.dart';
-import 'package:ecommerce_b2b/modules/order_flow/presentation/pages/cart_page.dart';
 import 'package:ecommerce_b2b/modules/order_flow/presentation/pages/budget_list_page.dart';
+import 'package:ecommerce_b2b/modules/order_flow/presentation/pages/order_entry_page.dart';
 import 'package:ecommerce_b2b/modules/order_flow/presentation/pages/finance_review_page.dart';
 import 'package:ecommerce_b2b/modules/sales_team/presentation/pages/sales_dashboard_page.dart';
 import 'package:ecommerce_b2b/modules/catalog/presentation/pages/product_catalog_page.dart';
@@ -22,8 +22,8 @@ class _MainLayoutState extends State<MainLayout> {
   final List<Widget> _pages = [
     const SalesDashboardPage(),
     const ProductCatalogPage(),
-    const CartPage(),
     const BudgetListPage(),
+    const OrderEntryPage(),
     const FinanceReviewPage(),
     const CompanyListPage(),
     const AuthorizedBuyerFormPage(),
@@ -60,14 +60,14 @@ class _MainLayoutState extends State<MainLayout> {
                 label: Text('Catálogo'),
               ),
               NavigationRailDestination(
-                icon: Icon(Icons.shopping_cart_outlined),
-                selectedIcon: Icon(Icons.shopping_cart),
-                label: Text('Carrinho'),
-              ),
-              NavigationRailDestination(
                 icon: Icon(Icons.request_quote_outlined),
                 selectedIcon: Icon(Icons.request_quote),
                 label: Text('Orçamentos'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.add_shopping_cart_outlined),
+                selectedIcon: Icon(Icons.add_shopping_cart),
+                label: Text('Novo Pedido'),
               ),
               NavigationRailDestination(
                 icon: Icon(Icons.attach_money_outlined),
