@@ -38,6 +38,7 @@ import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/ser
 
 
 // Repositories (Interfaces)
+import 'package:ecommerce_b2b/modules/catalog/product/domain/repositories/product_repository.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/repositories/company_repository.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/tracking_repository.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/freight_repository.dart';
@@ -47,10 +48,13 @@ import 'package:ecommerce_b2b/modules/identity_access/domain/repositories/auth_r
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/repositories/sales_representative_repository.dart';
 
 // Adapters (Implementations)
+import 'package:ecommerce_b2b/modules/catalog/product/infrastructure/repositories/drift_product_repository.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_tracking_adapter.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_freight_adapter.dart';
 
 // Use Cases
+import 'package:ecommerce_b2b/modules/catalog/product/application/get_products/get_products_use_case.dart';
+import 'package:ecommerce_b2b/modules/catalog/product/application/save_product/save_product_use_case.dart';
 import 'package:ecommerce_b2b/modules/logistics/application/procces_order/process_order_shipment_use_case.dart';
 import 'package:ecommerce_b2b/modules/order_flow/quote/application/convert_quote/convert_quote_to_order_use_case.dart';
 import 'package:ecommerce_b2b/modules/order_flow/quote/application/create_quote/create_quote_use_case.dart';
@@ -69,6 +73,9 @@ import 'package:ecommerce_b2b/modules/customer_management/company/application/ge
 import 'package:ecommerce_b2b/modules/customer_management/company/application/register_company/register_company_use_case.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/application/add_authorized_buyer/add_authorized_buyer_use_case.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/presentation/cubit/company_management_cubit.dart';
+import 'package:ecommerce_b2b/modules/catalog/product/presentation/cubit/catalog_cubit.dart';
+import 'package:ecommerce_b2b/modules/catalog/product/domain/product.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
 
 
 final getIt = GetIt.instance;
@@ -88,6 +95,7 @@ Future<void> setupServiceLocator() async {
   getIt.registerLazySingleton(() => SalesHierarchyDomainService());
 
   // --- Infrastructure / Adapters ---
+  getIt.registerLazySingleton<ProductRepository>(() => DriftProductRepository(getIt<AppDatabase>()));
   getIt.registerLazySingleton<CompanyRepository>(() => DriftCompanyRepository(getIt<AppDatabase>()));
   getIt.registerLazySingleton<TrackingRepository>(() => MockTrackingAdapter());
   getIt.registerLazySingleton<FreightRepository>(() => MockFreightAdapter());
@@ -108,6 +116,12 @@ Future<void> setupServiceLocator() async {
   getIt.registerLazySingleton(() => GetCustomerPortfolioUseCase(
     getIt<SalesRepresentativeRepository>(),
     getIt<SalesHierarchyDomainService>(),
+  ));
+  getIt.registerLazySingleton(() => GetProductsUseCase(
+    getIt<ProductRepository>(),
+  ));
+  getIt.registerLazySingleton(() => SaveProductUseCase(
+    getIt<ProductRepository>(),
   ));
   getIt.registerLazySingleton(() => GetCompaniesUseCase(
     getIt<CompanyRepository>(),
@@ -172,6 +186,11 @@ Future<void> setupServiceLocator() async {
     getCompaniesUseCase: getIt<GetCompaniesUseCase>(),
     registerCompanyUseCase: getIt<RegisterCompanyUseCase>(),
     addAuthorizedBuyerUseCase: getIt<AddAuthorizedBuyerUseCase>(),
+  ));
+
+  getIt.registerFactory(() => CatalogCubit(
+    getIt<GetProductsUseCase>(),
+    getIt<SaveProductUseCase>(),
   ));
 }
 
@@ -298,4 +317,31 @@ Future<void> _seedDatabase(AppDatabase db) async {
 
   await orderRepo.save(order1, companyId: const CompanyId('c1'));
   await orderRepo.save(order2, companyId: const CompanyId('c2'));
+
+  // Seed Products
+  final productRepo = DriftProductRepository(db);
+  final productsList = await productRepo.getAll();
+  if (productsList.isEmpty) {
+    await productRepo.save(Product(
+      id: const ProductId('p1'),
+      sku: 'SKU-001',
+      name: 'Notebook Pro 15',
+      description: 'Notebook de alta performance para empresas.',
+      active: true,
+    ));
+    await productRepo.save(Product(
+      id: const ProductId('p2'),
+      sku: 'SKU-002',
+      name: 'Monitor UltraWide 34',
+      description: 'Monitor curvo para máxima produtividade.',
+      active: true,
+    ));
+    await productRepo.save(Product(
+      id: const ProductId('p3'),
+      sku: 'SKU-003',
+      name: 'Teclado Mecânico RGB',
+      description: 'Teclado ergonômico e durável.',
+      active: false,
+    ));
+  }
 }

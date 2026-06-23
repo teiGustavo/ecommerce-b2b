@@ -5,29 +5,44 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_va
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('Product', () {
-    // Deve adicionar variantes corretamente.
-    test('should add variants', () {
+  group('Product Aggregate', () {
+    test('should add variant correctly', () {
       final product = Product(
         id: const ProductId('p1'),
-        sku: 'SKU1',
+        sku: 'SKU-001',
         name: 'Product 1',
-        description: 'Description',
+        description: 'Description 1',
         active: true,
       );
 
       final variant = ProductVariant(
         id: const ProductVariantId('v1'),
+        variantSku: 'SKU-001-RED',
         color: 'Red',
-        size: 'L',
-        voltage: '110V',
-        variantSku: 'SKU1-RED-L',
+        size: 'G',
+        voltage: 'N/A',
       );
 
       product.addVariant(variant);
 
-      expect(product.variants.length, 1);
-      expect(product.variants.first, variant);
+      expect(product.variants, hasLength(1));
+      expect(product.variants.first.variantSku, 'SKU-001-RED');
+    });
+
+    test('variants list should be unmodifiable from outside', () {
+      final product = Product(
+        id: const ProductId('p1'),
+        sku: 'SKU-001',
+        name: 'Product 1',
+        description: 'Description 1',
+        active: true,
+      );
+
+      expect(() => product.variants.add(ProductVariant(
+        id: const ProductVariantId('v1'),
+        variantSku: 'V1',
+        color: '', size: '', voltage: '',
+      )), throwsUnsupportedError);
     });
   });
 }

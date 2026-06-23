@@ -108,6 +108,31 @@ class UserSessions extends Table {
   Set<Column> get primaryKey => {userId};
 }
 
+@DataClassName('ProductRow')
+class Products extends Table {
+  TextColumn get id => text()();
+  TextColumn get sku => text()();
+  TextColumn get name => text()();
+  TextColumn get description => text()();
+  BoolColumn get active => boolean()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('ProductVariantRow')
+class ProductVariants extends Table {
+  TextColumn get id => text()();
+  TextColumn get productId => text()();
+  TextColumn get variantSku => text()();
+  TextColumn get color => text()();
+  TextColumn get size => text()();
+  TextColumn get voltage => text()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(tables: [
   Companies,
   AuthorizedBuyersTable,
@@ -115,12 +140,14 @@ class UserSessions extends Table {
   SalesOrdersTable,
   OrderItemsTable,
   UserSessions,
+  Products,
+  ProductVariants,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -130,6 +157,10 @@ class AppDatabase extends _$AppDatabase {
         onUpgrade: (m, from, to) async {
           if (from < 2) {
             await m.createTable(userSessions);
+          }
+          if (from < 3) {
+            await m.createTable(products);
+            await m.createTable(productVariants);
           }
         },
       );
