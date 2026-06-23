@@ -1,6 +1,6 @@
 import 'package:ecommerce_b2b/modules/identity_access/domain/enums/user_role.dart';
 import 'package:ecommerce_b2b/modules/identity_access/domain/user_session.dart';
-import 'package:ecommerce_b2b/modules/sales_team/application/get_customers/get_customer_portfolio_use_case.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/application/get_commissions/get_representative_commissions_use_case.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/repositories/sales_representative_repository.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_representative.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/services/sales_hierarchy_domain_service.dart';
@@ -16,12 +16,12 @@ class MockSalesRepresentativeRepository extends Mock implements SalesRepresentat
 void main() {
   late MockSalesRepresentativeRepository repRepository;
   late SalesHierarchyDomainService hierarchyService;
-  late GetCustomerPortfolioUseCase useCase;
+  late GetRepresentativeCommissionsUseCase useCase;
 
   setUp(() {
     repRepository = MockSalesRepresentativeRepository();
     hierarchyService = SalesHierarchyDomainService();
-    useCase = GetCustomerPortfolioUseCase(repRepository, hierarchyService);
+    useCase = GetRepresentativeCommissionsUseCase(repRepository, hierarchyService);
   });
 
   SalesRepresentative createRep(String id) {
@@ -33,11 +33,12 @@ void main() {
     );
   }
 
-  group('GetCustomerPortfolioUseCase', () {
+  group('GetRepresentativeCommissionsUseCase', () {
     final repId = const RepresentativeId('rep-1');
+    final otherRepId = const RepresentativeId('rep-2');
 
-    // Deve permitir que um representante veja seus próprios clientes.
-    test('should allow rep to see their own customers', () async {
+    // Deve permitir que os representantes vejam suas próprias comissões
+    test('should allow rep to see their own commissions', () async {
       final session = UserSession(
         userId: repId,
         role: UserRole.representative,
@@ -51,9 +52,29 @@ void main() {
       expect(result.isSuccess, isTrue);
     });
 
-    // Deve negar o acesso se não for o próprio representante ou supervisor
-    test('should deny access if not self or supervisor', () async {
-      final otherRepId = const RepresentativeId('rep-2');
+    // Deve permitir que o supervisor veja as comissões dos subordinados
+    test('should allow supervisor to see subordinate commissions', () async {
+      final supervisorId = const RepresentativeId('sup-1');
+      final session = UserSession(
+        userId: supervisorId,
+        role: UserRole.representative,
+      );
+
+      final supervisor = createRep('sup-1');
+      supervisor.addSubordinate(repId);
+      final subordinate = createRep('rep-1');
+
+      when(() => repRepository.findById(supervisorId)).thenAnswer((_) async => supervisor);
+      when(() => repRepository.findById(repId)).thenAnswer((_) async => subordinate);
+      when(() => repRepository.findAll()).thenAnswer((_) async => [supervisor, subordinate]);
+
+      final result = await useCase.execute(repId, session);
+
+      expect(result.isSuccess, isTrue);
+    });
+
+    // Deve negar o acesso a comissões representativas não relacionadas
+    test('should deny access to non-related representative commissions', () async {
       final session = UserSession(
         userId: otherRepId,
         role: UserRole.representative,

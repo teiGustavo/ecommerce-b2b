@@ -1,3 +1,4 @@
+import 'package:ecommerce_b2b/modules/identity_access/domain/enums/user_role.dart';
 import 'package:flutter/material.dart';
 
 enum AppPage {
@@ -85,6 +86,24 @@ enum AppPage {
     required this.icon,
     required this.colorType,
   });
+
+  /// Define quais páginas são visíveis para cada papel na barra lateral
+  static List<AppPage> sidebarPagesFor(UserRole role) {
+    return switch (role) {
+      UserRole.representative => [
+          AppPage.home,
+          AppPage.companies, // Carteira de clientes
+          AppPage.catalog,
+          AppPage.newOrder,
+        ],
+      UserRole.finance => [
+          AppPage.home,
+          AppPage.finance,
+          AppPage.dashboard,
+        ],
+      UserRole.buyer => [], // Comprador não usa sidebar/MainLayout
+    };
+  }
 }
 
 /// Helper interno para mapear as cores corretas dinamicamente com base no contexto

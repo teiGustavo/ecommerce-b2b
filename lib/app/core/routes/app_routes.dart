@@ -7,6 +7,7 @@ import 'package:ecommerce_b2b/modules/identity_access/domain/enums/user_role.dar
 import 'package:ecommerce_b2b/modules/identity_access/presentation/cubit/auth_cubit.dart';
 import 'package:ecommerce_b2b/modules/identity_access/presentation/pages/login_page.dart';
 import 'package:ecommerce_b2b/modules/customer_portal/presentation/pages/buyer_home_page.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/presentation/pages/representative_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -49,8 +50,13 @@ final appRouter = GoRouter(
           path: AppPage.home.path,
           builder: (context, state) {
             final authState = context.watch<AuthCubit>().state;
-            if (authState is AuthAuthenticated && authState.session.role == UserRole.buyer) {
-              return const BuyerHomePage();
+            if (authState is AuthAuthenticated) {
+              if (authState.session.role == UserRole.buyer) {
+                return const BuyerHomePage();
+              }
+              if (authState.session.role == UserRole.representative) {
+                return const RepresentativeHomePage();
+              }
             }
             return const HomePage();
           },

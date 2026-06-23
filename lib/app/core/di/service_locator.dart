@@ -21,6 +21,7 @@ import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/rep
 import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_tracking_adapter.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_freight_adapter.dart';
 import 'package:ecommerce_b2b/modules/identity_access/infrastructure/repositories/adapters/mock/mock_auth_adapter.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/infrastructure/repositories/adapters/mock/mock_representative_adapter.dart';
 
 // Use Cases
 import 'package:ecommerce_b2b/modules/logistics/application/procces_order/process_order_shipment_use_case.dart';
@@ -31,9 +32,10 @@ import 'package:ecommerce_b2b/modules/customer_portal/boleto/application/downloa
 import 'package:ecommerce_b2b/modules/customer_portal/purchase_history/application/get_purchase_history/get_purchase_history_use_case.dart';
 import 'package:ecommerce_b2b/modules/customer_portal/return_request/application/open_return_request/open_return_request_use_case.dart';
 import 'package:ecommerce_b2b/modules/identity_access/application/login/login_use_case.dart';
-import 'package:ecommerce_b2b/modules/sales_team/application/get_commissions/get_representative_commissions_use_case.dart';
-import 'package:ecommerce_b2b/modules/sales_team/application/get_customers/get_customer_portfolio_use_case.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/application/get_commissions/get_representative_commissions_use_case.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/application/get_customers/get_customer_portfolio_use_case.dart';
 import 'package:ecommerce_b2b/modules/identity_access/presentation/cubit/auth_cubit.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/presentation/cubit/representative_dashboard_cubit.dart';
 
 
 final getIt = GetIt.instance;
@@ -51,6 +53,7 @@ void setupServiceLocator() {
   getIt.registerLazySingleton<TrackingRepository>(() => MockTrackingAdapter());
   getIt.registerLazySingleton<FreightRepository>(() => MockFreightAdapter());
   getIt.registerLazySingleton<AuthRepository>(() => MockAuthAdapter());
+  getIt.registerLazySingleton<SalesRepresentativeRepository>(() => MockRepresentativeAdapter());
 
   // --- Use Cases ---
   getIt.registerLazySingleton(() => LoginUseCase(
@@ -100,5 +103,10 @@ void setupServiceLocator() {
   getIt.registerLazySingleton(() => AuthCubit(
     loginUseCase: getIt<LoginUseCase>(),
     authRepository: getIt<AuthRepository>(),
+  ));
+
+  getIt.registerFactory(() => RepresentativeDashboardCubit(
+    getCommissionsUseCase: getIt<GetRepresentativeCommissionsUseCase>(),
+    getCustomerPortfolioUseCase: getIt<GetCustomerPortfolioUseCase>(),
   ));
 }

@@ -1,4 +1,6 @@
+import 'package:ecommerce_b2b/modules/identity_access/presentation/cubit/auth_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ecommerce_b2b/app/core/routes/app_pages.dart';
 import 'package:ecommerce_b2b/main.dart';
@@ -13,9 +15,8 @@ class MainLayout extends StatelessWidget {
   });
 
   /// Calcula dinamicamente o índice correto do menu baseado no path atual da URL
-  int _calculateSelectedIndex(BuildContext context) {
+  int _calculateSelectedIndex(BuildContext context, List<AppPage> pages) {
     final String location = GoRouterState.of(context).uri.toString();
-    final pages = AppPage.values.where((p) => p != AppPage.login).toList();
 
     for (int i = 0; i < pages.length; i++) {
       if (location == pages[i].path) {
@@ -26,22 +27,27 @@ class MainLayout extends StatelessWidget {
   }
 
   /// Navega dinamicamente usando a estrutura de rotas do GoRouter
-  void _onDestinationSelected(BuildContext context, int index) {
-    final pages = AppPage.values.where((p) => p != AppPage.login).toList();
+  void _onDestinationSelected(BuildContext context, int index, List<AppPage> pages) {
     final destinationPage = pages[index];
     context.go(destinationPage.path);
   }
 
   @override
   Widget build(BuildContext context) {
-    final selectedIndex = _calculateSelectedIndex(context);
+    final authState = context.watch<AuthCubit>().state;
+    
+    // Fallback caso não esteja autenticado (embora o router deva bloquear)
+    if (authState is! AuthAuthenticated) return child;
+
+    final visiblePages = AppPage.sidebarPagesFor(authState.session.role);
+    final selectedIndex = _calculateSelectedIndex(context, visiblePages);
 
     return Scaffold(
       body: Row(
         children: [
           NavigationRail(
             selectedIndex: selectedIndex,
-            onDestinationSelected: (index) => _onDestinationSelected(context, index),
+            onDestinationSelected: (index) => _onDestinationSelected(context, index, visiblePages),
             labelType: NavigationRailLabelType.all,
             leading: Padding(
               padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 8.0),
@@ -51,9 +57,7 @@ class MainLayout extends StatelessWidget {
                 height: 56,
               ),
             ),
-            destinations: AppPage.values
-                .where((page) => page != AppPage.login)
-                .map((page) {
+            destinations: visiblePages.map((page) {
               return NavigationRailDestination(
                 icon: Icon(page.icon),
                 selectedIcon: Icon(page.icon),
