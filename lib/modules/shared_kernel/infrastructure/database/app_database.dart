@@ -221,6 +221,8 @@ class ReturnRequests extends Table {
 @DataClassName('QuoteRow')
 class QuotesTable extends Table {
   TextColumn get id => text()();
+  TextColumn get companyId => text().nullable()();
+  TextColumn get representativeId => text().nullable()();
   TextColumn get status => text()();
   DateTimeColumn get createdAt => dateTime()();
 
@@ -236,6 +238,17 @@ class QuoteItemsTable extends Table {
   IntColumn get quantity => integer()();
   RealColumn get unitPrice => real()();
   TextColumn get currency => text()();
+}
+
+@DataClassName('CommissionRow')
+class CommissionsTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get representativeId => text()();
+  RealColumn get baseAmount => real()();
+  RealColumn get rate => real()();
+  RealColumn get amount => real()();
+  TextColumn get status => text()();
+  DateTimeColumn get createdAt => dateTime()();
 }
 
 @DriftDatabase(tables: [
@@ -256,12 +269,13 @@ class QuoteItemsTable extends Table {
   ReturnRequests,
   QuotesTable,
   QuoteItemsTable,
+  CommissionsTable,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -298,6 +312,11 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 8) {
             await _createUsersTable(m);
+          }
+          if (from < 9) {
+            await m.addColumn(quotesTable, quotesTable.companyId);
+            await m.addColumn(quotesTable, quotesTable.representativeId);
+            await m.createTable(commissionsTable);
           }
         },
       );

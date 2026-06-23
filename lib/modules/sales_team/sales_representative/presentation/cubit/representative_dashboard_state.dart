@@ -14,14 +14,16 @@ class RepresentativeDashboardLoading extends RepresentativeDashboardState {}
 class RepresentativeDashboardLoaded extends RepresentativeDashboardState {
   final List<Commission> commissions;
   final List<CustomerAssignment> assignments;
+  final List<Quote> recentQuotes;
 
   const RepresentativeDashboardLoaded({
     required this.commissions,
     required this.assignments,
+    required this.recentQuotes,
   });
 
   @override
-  List<Object?> get props => [commissions, assignments];
+  List<Object?> get props => [commissions, assignments, recentQuotes];
 }
 
 class RepresentativeDashboardFailure extends RepresentativeDashboardState {

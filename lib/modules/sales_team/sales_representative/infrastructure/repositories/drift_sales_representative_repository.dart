@@ -1,7 +1,12 @@
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/commission.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/customer_assignment.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/enums/commission_status.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/repositories/sales_representative_repository.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_representative.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/email_address.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/percentage.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/infrastructure/database/app_database.dart';
 
@@ -28,21 +33,51 @@ class DriftSalesRepresentativeRepository implements SalesRepresentativeRepositor
         .getSingleOrNull();
 
     if (row == null) return null;
-    return _mapToDomain(row);
+
+    final companyRows = await (_db.select(_db.companies)
+          ..where((t) => t.representativeId.equals(id.value)))
+        .get();
+
+    final commissionRows = await (_db.select(_db.commissionsTable)
+          ..where((t) => t.representativeId.equals(id.value)))
+        .get();
+
+    return _mapToDomain(row, companyRows, commissionRows);
   }
 
   @override
   Future<List<SalesRepresentative>> findAll() async {
     final rows = await _db.select(_db.salesRepresentativesTable).get();
-    return rows.map(_mapToDomain).toList();
+    final List<SalesRepresentative> representatives = [];
+    for (final row in rows) {
+      final companyRows = await (_db.select(_db.companies)
+            ..where((t) => t.representativeId.equals(row.id)))
+          .get();
+      final commissionRows = await (_db.select(_db.commissionsTable)
+            ..where((t) => t.representativeId.equals(row.id)))
+          .get();
+      representatives.add(_mapToDomain(row, companyRows, commissionRows));
+    }
+    return representatives;
   }
 
-  SalesRepresentative _mapToDomain(SalesRepresentativeRow row) {
+  SalesRepresentative _mapToDomain(
+    SalesRepresentativeRow row,
+    List<CompanyRow> companyRows,
+    List<CommissionRow> commissionRows,
+  ) {
     return SalesRepresentative(
       id: RepresentativeId(row.id),
       fullName: row.fullName,
       email: EmailAddress.create(row.email).getOrThrow(),
       commissionRate: Percentage.create(row.commissionRate).getOrThrow(),
+      assignments: companyRows.map((c) => CustomerAssignment(CompanyId(c.id))).toList(),
+      commissions: commissionRows.map((c) => Commission(
+        baseAmount: Money.create(c.baseAmount).getOrThrow(),
+        rate: Percentage.create(c.rate).getOrThrow(),
+        amount: Money.create(c.amount).getOrThrow(),
+        status: CommissionStatus.values.firstWhere((s) => s.name == c.status),
+      )).toList(),
     );
   }
 }

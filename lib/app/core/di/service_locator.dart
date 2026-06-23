@@ -89,6 +89,7 @@ import 'package:ecommerce_b2b/modules/customer_portal/return_request/application
 import 'package:ecommerce_b2b/modules/identity_access/application/login/login_use_case.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/application/get_commissions/get_representative_commissions_use_case.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/application/get_customers/get_customer_portfolio_use_case.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/application/get_quotes/get_recent_quotes_use_case.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/presentation/finance_review/cubit/finance_review_cubit.dart';
 import 'package:ecommerce_b2b/modules/identity_access/presentation/cubit/auth_cubit.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/presentation/cubit/representative_dashboard_cubit.dart';
@@ -147,6 +148,9 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
   getIt.registerLazySingleton(() => GetCustomerPortfolioUseCase(
     getIt<SalesRepresentativeRepository>(),
     getIt<SalesHierarchyDomainService>(),
+  ));
+  getIt.registerLazySingleton(() => GetRecentQuotesUseCase(
+    getIt<QuoteRepository>(),
   ));
   getIt.registerLazySingleton(() => GetProductsUseCase(
     getIt<ProductRepository>(),
@@ -218,6 +222,7 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
   getIt.registerFactory(() => RepresentativeDashboardCubit(
     getCommissionsUseCase: getIt<GetRepresentativeCommissionsUseCase>(),
     getCustomerPortfolioUseCase: getIt<GetCustomerPortfolioUseCase>(),
+    getRecentQuotesUseCase: getIt<GetRecentQuotesUseCase>(),
   ));
 
   getIt.registerFactory(() => FinanceReviewCubit(
@@ -302,6 +307,7 @@ Future<void> _seedDatabase(AppDatabase db) async {
         openBalance: Money.create(15000).getOrThrow(),
         pendingOrdersBalance: Money.create(5000).getOrThrow(),
       ),
+      representativeId: 'rep-456',
     );
 
     final company2 = Company(
@@ -345,6 +351,7 @@ Future<void> _seedDatabase(AppDatabase db) async {
         openBalance: Money.create(0).getOrThrow(),
         pendingOrdersBalance: Money.create(45000).getOrThrow(),
       ),
+      representativeId: 'rep-456',
     );
 
     await companyRepo.save(company1);
@@ -368,6 +375,40 @@ Future<void> _seedDatabase(AppDatabase db) async {
 
     await orderRepo.save(order1);
     await orderRepo.save(order2);
+
+    // Seed Commissions
+    await db.into(db.commissionsTable).insert(CommissionsTableCompanion.insert(
+      representativeId: 'rep-456',
+      baseAmount: 5000.0,
+      rate: 5.0,
+      amount: 250.0,
+      status: 'paid',
+      createdAt: DateTime.now().subtract(const Duration(days: 2)),
+    ));
+    await db.into(db.commissionsTable).insert(CommissionsTableCompanion.insert(
+      representativeId: 'rep-456',
+      baseAmount: 10000.0,
+      rate: 5.0,
+      amount: 500.0,
+      status: 'pending',
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+    ));
+
+    // Seed Quotes
+    await db.into(db.quotesTable).insert(QuotesTableCompanion.insert(
+      id: 'quote-001',
+      companyId: const Value('c1'),
+      representativeId: const Value('rep-456'),
+      status: 'draft',
+      createdAt: DateTime.now().subtract(const Duration(hours: 5)),
+    ));
+    await db.into(db.quotesTable).insert(QuotesTableCompanion.insert(
+      id: 'quote-002',
+      companyId: const Value('c2'),
+      representativeId: const Value('rep-456'),
+      status: 'sent',
+      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+    ));
   }
 
   if (usersList.isEmpty) {
@@ -377,11 +418,12 @@ Future<void> _seedDatabase(AppDatabase db) async {
       required String email,
       required String role,
       String? companyId,
+      String? userId,
     }) {
       return db.customInsert(
         'INSERT OR REPLACE INTO users (id, full_name, email, password_hash, role, company_id, active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
         variables: [
-          Variable(generateId()),
+          Variable(userId ?? generateId()),
           Variable(fullName),
           Variable(email),
           Variable(BCrypt.hashpw('password123', BCrypt.gensalt())),
@@ -404,6 +446,7 @@ Future<void> _seedDatabase(AppDatabase db) async {
       fullName: 'Representante Mock',
       email: 'rep@test.com',
       role: UserRole.representative.name,
+      userId: 'rep-456',
     );
     await insertUser(
       fullName: 'Financeiro Mock',

@@ -5,14 +5,19 @@ import 'package:ecommerce_b2b/modules/order_flow/quote/domain/enums/quote_status
 import 'package:ecommerce_b2b/modules/order_flow/quote/domain/quote_item.dart';
 
 class Quote extends AggregateRoot<QuoteId> {
+  final String? companyId;
+  final String? representativeId;
   QuoteStatus _status;
   final List<QuoteItem> _items;
 
   Quote({
     required QuoteId id,
-    required this._status,
+    this.companyId,
+    this.representativeId,
+    required QuoteStatus status,
     List<QuoteItem>? items,
-  })  : _items = items ?? [],
+  })  : _status = status,
+        _items = items ?? [],
         super(id);
 
   QuoteStatus get status => _status;

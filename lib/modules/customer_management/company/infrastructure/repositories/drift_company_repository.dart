@@ -49,7 +49,7 @@ class DriftCompanyRepository implements CompanyRepository {
           creditLimit: company.creditLimit.amount,
           openBalance: company.creditAccount.openBalance.amount,
           pendingOrdersBalance: company.creditAccount.pendingOrdersBalance.amount,
-          representativeId: const Value('rep-456'), // Default link as per original mock/requirements
+          representativeId: Value(company.representativeId),
         ),
       );
 
@@ -149,6 +149,7 @@ class DriftCompanyRepository implements CompanyRepository {
       ).getOrThrow(),
       state: address_state.State.fromString(row.stateCode).getOrThrow(),
       creditLimit: Money.create(row.creditLimit).getOrThrow(),
+      representativeId: row.representativeId,
       authorizedBuyers: buyers.map((b) => AuthorizedBuyer(
         id: BuyerId(b.id),
         fullName: b.fullName,

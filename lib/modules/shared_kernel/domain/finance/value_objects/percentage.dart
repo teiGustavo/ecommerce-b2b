@@ -21,6 +21,8 @@ class Percentage extends ValueObject {
 
   double get decimal => value / 100;
 
+  String get formatted => '${value.toStringAsFixed(2)}%';
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -32,5 +34,5 @@ class Percentage extends ValueObject {
   int get hashCode => value.hashCode;
 
   @override
-  String toString() => '${value.toStringAsFixed(2)}%';
+  String toString() => formatted;
 }

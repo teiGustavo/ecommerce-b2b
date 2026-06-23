@@ -37,11 +37,11 @@ enum AppPage {
     icon: Icons.auto_awesome_mosaic_rounded,
     colorType: CardColorType.tertiaryContainer,
   ),
-  newOrder(
-    path: '/new-order',
-    label: 'Novo Pedido',
-    subtitle: 'Criar orçamento',
-    icon: Icons.add_shopping_cart_rounded,
+  quotes(
+    path: '/quotes',
+    label: 'Orçamentos',
+    subtitle: 'Gestão de propostas',
+    icon: Icons.receipt_long_rounded,
     colorType: CardColorType.primary,
   ),
   finance(
@@ -94,7 +94,7 @@ enum AppPage {
           AppPage.home,
           AppPage.companies, // Carteira de clientes
           AppPage.catalog,
-          AppPage.newOrder,
+          AppPage.quotes,
           AppPage.logistics,
         ],
       UserRole.finance => [

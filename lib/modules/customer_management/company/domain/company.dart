@@ -32,6 +32,8 @@ class Company extends AggregateRoot<CompanyId> {
   final State state;
   /// Limite de crédito total concedido.
   final Money creditLimit;
+  /// ID do representante comercial responsável (opcional).
+  final String? representativeId;
   
   final List<AuthorizedBuyer> _authorizedBuyers;
   CustomerCreditAccount _creditAccount;
@@ -49,9 +51,12 @@ class Company extends AggregateRoot<CompanyId> {
     required this.shippingAddress,
     required this.state,
     required this.creditLimit,
-    required this._authorizedBuyers,
-    required this._creditAccount,
-  }) : super(id);
+    required List<AuthorizedBuyer> authorizedBuyers,
+    required CustomerCreditAccount creditAccount,
+    this.representativeId,
+  }) : _authorizedBuyers = authorizedBuyers,
+       _creditAccount = creditAccount,
+       super(id);
 
   /// Lista de compradores autorizados para esta empresa.
   List<AuthorizedBuyer> get authorizedBuyers => List.unmodifiable(_authorizedBuyers);

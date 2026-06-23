@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:ecommerce_b2b/modules/order_flow/quote/domain/enums/quote_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/quote/domain/quote.dart';
 import 'package:ecommerce_b2b/modules/order_flow/quote/domain/quote_item.dart';
@@ -20,6 +21,8 @@ class DriftQuoteRepository implements QuoteRepository {
       await _db.into(_db.quotesTable).insertOnConflictUpdate(
         QuotesTableCompanion.insert(
           id: quote.id.value,
+          companyId: Value(quote.companyId),
+          representativeId: Value(quote.representativeId),
           status: quote.status.name,
           createdAt: DateTime.now(), // Simplified
         ),
@@ -72,9 +75,26 @@ class DriftQuoteRepository implements QuoteRepository {
     return quotes;
   }
 
+  @override
+  Future<List<Quote>> findByRepresentativeId(String representativeId) async {
+    final rows = await (_db.select(_db.quotesTable)
+          ..where((t) => t.representativeId.equals(representativeId)))
+        .get();
+    final List<Quote> quotes = [];
+    for (final row in rows) {
+      final itemRows = await (_db.select(_db.quoteItemsTable)
+            ..where((t) => t.quoteId.equals(row.id)))
+          .get();
+      quotes.add(_mapToDomain(row, itemRows));
+    }
+    return quotes;
+  }
+
   Quote _mapToDomain(QuoteRow row, List<QuoteItemRow> itemRows) {
     return Quote(
       id: QuoteId(row.id),
+      companyId: row.companyId,
+      representativeId: row.representativeId,
       status: QuoteStatus.values.firstWhere((e) => e.name == row.status),
       items: itemRows.map((i) => QuoteItem(
         productId: ProductId(i.productId),

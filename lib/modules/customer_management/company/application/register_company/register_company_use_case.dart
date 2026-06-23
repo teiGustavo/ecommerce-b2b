@@ -108,6 +108,7 @@ class RegisterCompanyUseCase {
         openBalance: Money.create(0).getOrThrow(),
         pendingOrdersBalance: Money.create(0).getOrThrow(),
       ),
+      representativeId: currentSession.isRepresentative ? currentSession.userId.value : null,
     );
 
     await _companyRepository.save(company);

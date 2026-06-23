@@ -12,7 +12,7 @@ import 'package:ecommerce_b2b/modules/order_flow/sales_order/presentation/financ
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/presentation/finance_review/pages/finance_review_page.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/presentation/pages/company_list_page.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/presentation/pages/product_list_page.dart';
-import 'package:ecommerce_b2b/modules/order_flow/quote/presentation/pages/create_quote_page.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/presentation/pages/quote_page.dart';
 import 'package:ecommerce_b2b/modules/logistics/presentation/pages/packing_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -83,8 +83,8 @@ final appRouter = GoRouter(
           builder: (context, state) => const ProductListPage(),
         ),
         GoRoute(
-          path: AppPage.newOrder.path,
-          builder: (context, state) => const CreateQuotePage(),
+          path: AppPage.quotes.path,
+          builder: (context, state) => const QuotePage(),
         ),
         GoRoute(
           path: AppPage.logistics.path,

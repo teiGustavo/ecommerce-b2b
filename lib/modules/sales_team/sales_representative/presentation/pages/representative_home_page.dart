@@ -1,6 +1,8 @@
 import 'package:ecommerce_b2b/app/core/di/service_locator.dart';
 import 'package:ecommerce_b2b/app/presentation/widgets/b2b_app_bar.dart';
 import 'package:ecommerce_b2b/modules/identity_access/presentation/cubit/auth_cubit.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/domain/quote.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/commission.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/presentation/cubit/representative_dashboard_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -69,8 +71,7 @@ class RepresentativeHomePage extends StatelessWidget {
                                   _buildMetricCard(
                                     context,
                                     'Comissões',
-                                    'R\$ ${_calculateTotalCommissions(
-                                        state.commissions)}',
+                                    _calculateTotalCommissions(state.commissions),
                                     Icons.payments_outlined,
                                     colorScheme.primaryContainer,
                                   ),
@@ -89,44 +90,10 @@ class RepresentativeHomePage extends StatelessWidget {
                         ),
                       ),
 
-                      // Ações de Venda
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 8),
-                          child: Text(
-                            'Vendas',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Row(
-                            children: [
-                              _buildActionCard(
-                                context,
-                                'Novo Orçamento',
-                                Icons.add_shopping_cart_rounded,
-                                colorScheme.tertiaryContainer,
-                              ),
-                              _buildActionCard(
-                                context,
-                                'Ver Catálogo',
-                                Icons.auto_awesome_mosaic_rounded,
-                                colorScheme.surfaceContainerHigh,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
                       // Lista de Comissões Recentes
                       SliverToBoxAdapter(
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 32, 20, 16),
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
                           child: Text(
                             'Comissões Recentes',
                             style: theme.textTheme.titleLarge?.copyWith(
@@ -158,17 +125,63 @@ class RepresentativeHomePage extends StatelessWidget {
                                       child: const Icon(
                                           Icons.attach_money_rounded),
                                     ),
-                                    title: Text('Comissão de ${commission.amount
-                                        .toString()}'),
+                                    title: Text('Comissão: ${commission.amount.formatted}'),
                                     subtitle: Text(
-                                        'Base: ${commission.baseAmount
-                                            .toString()}'),
+                                        'Base: ${commission.baseAmount.formatted} (${commission.rate.formatted})'),
                                     trailing: const Icon(
                                         Icons.chevron_right_rounded),
                                   ),
                                 );
                               },
                               childCount: state.commissions.length,
+                            ),
+                          ),
+                        ),
+
+                      // Lista de Orçamentos Recentes
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 32, 20, 16),
+                          child: Text(
+                            'Orçamentos Recentes',
+                            style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      if (state.recentQuotes.isEmpty)
+                        const SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.all(32.0),
+                            child: Center(child: Text(
+                                'Nenhum orçamento registrado.')),
+                          ),
+                        )
+                      else
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                final quote = state.recentQuotes[index];
+                                return Card(
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  child: ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundColor: colorScheme
+                                          .tertiaryContainer,
+                                      child: const Icon(
+                                          Icons.request_quote_rounded),
+                                    ),
+                                    title: Text('Orçamento #${quote.id.value.substring(0, 8)}'),
+                                    subtitle: Text(
+                                        'Total: ${quote.total.formatted} - ${quote.status.name}'),
+                                    trailing: const Icon(
+                                        Icons.chevron_right_rounded),
+                                  ),
+                                );
+                              },
+                              childCount: state.recentQuotes.length,
                             ),
                           ),
                         ),
@@ -185,9 +198,14 @@ class RepresentativeHomePage extends StatelessWidget {
     );
   }
 
-  String _calculateTotalCommissions(List<dynamic> commissions) {
-    // Simplificação para o mockup
-    return '1.250,00';
+  String _calculateTotalCommissions(List<Commission> commissions) {
+    if (commissions.isEmpty) return 'R\$ 0,00';
+    
+    var total = commissions.first.amount;
+    for (var i = 1; i < commissions.length; i++) {
+      total = total + commissions[i].amount;
+    }
+    return total.formatted;
   }
 
   Widget _buildMetricCard(BuildContext context, String label, String value,

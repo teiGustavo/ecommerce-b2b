@@ -9,4 +9,6 @@ abstract class QuoteRepository implements BaseRepository<Quote> {
   Future<Quote?> getById(QuoteId id);
 
   Future<List<Quote>> getAll();
+
+  Future<List<Quote>> findByRepresentativeId(String representativeId);
 }
