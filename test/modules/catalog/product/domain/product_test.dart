@@ -2,6 +2,7 @@ import 'package:ecommerce_b2b/modules/catalog/product/domain/product.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/domain/product_variant.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_variant_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -12,6 +13,7 @@ void main() {
         sku: 'SKU-001',
         name: 'Product 1',
         description: 'Description 1',
+        basePrice: Money.create(100).getOrThrow(),
         active: true,
       );
 
@@ -21,6 +23,7 @@ void main() {
         color: 'Red',
         size: 'G',
         voltage: 'N/A',
+        sameAsParent: true,
       );
 
       product.addVariant(variant);
@@ -35,6 +38,7 @@ void main() {
         sku: 'SKU-001',
         name: 'Product 1',
         description: 'Description 1',
+        basePrice: Money.create(100).getOrThrow(),
         active: true,
       );
 

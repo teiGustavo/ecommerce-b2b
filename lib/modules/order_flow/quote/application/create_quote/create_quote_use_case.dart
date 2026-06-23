@@ -24,6 +24,7 @@ class CreateQuoteUseCase {
 
     for (final item in items) {
       final unitPrice = _pricingService.getUnitPrice(
+        product: item.product,
         priceTable: item.priceTable,
         quantity: item.quantity,
         state: company.state,

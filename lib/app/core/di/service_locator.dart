@@ -38,21 +38,30 @@ import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/ser
 
 
 // Repositories (Interfaces)
+import 'package:ecommerce_b2b/modules/catalog/price_table/domain/repositories/price_table_repository.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/domain/repositories/product_repository.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/repositories/company_repository.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/tracking_repository.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/freight_repository.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/repositories/sales_order_repository.dart';
 import 'package:ecommerce_b2b/modules/customer_portal/boleto/domain/repositories/boleto_repository.dart';
+import 'package:ecommerce_b2b/modules/catalog/price_table/domain/price_table.dart';
+import 'package:ecommerce_b2b/modules/catalog/price_table/domain/price_rule.dart';
+import 'package:ecommerce_b2b/modules/catalog/price_table/domain/enums/price_scope_type.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/price_table_id.dart';
 import 'package:ecommerce_b2b/modules/identity_access/domain/repositories/auth_repository.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/repositories/sales_representative_repository.dart';
 
 // Adapters (Implementations)
+import 'package:ecommerce_b2b/modules/catalog/price_table/infrastructure/repositories/drift_price_table_repository.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/infrastructure/repositories/drift_product_repository.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_tracking_adapter.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_freight_adapter.dart';
 
 // Use Cases
+import 'package:ecommerce_b2b/modules/catalog/price_table/application/get_price_tables/get_price_tables_use_case.dart';
+import 'package:ecommerce_b2b/modules/catalog/price_table/application/save_price_table/save_price_table_use_case.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/application/get_products/get_products_use_case.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/application/save_product/save_product_use_case.dart';
 import 'package:ecommerce_b2b/modules/logistics/application/procces_order/process_order_shipment_use_case.dart';
@@ -73,6 +82,7 @@ import 'package:ecommerce_b2b/modules/customer_management/company/application/ge
 import 'package:ecommerce_b2b/modules/customer_management/company/application/register_company/register_company_use_case.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/application/add_authorized_buyer/add_authorized_buyer_use_case.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/presentation/cubit/company_management_cubit.dart';
+import 'package:ecommerce_b2b/modules/catalog/price_table/presentation/cubit/price_table_cubit.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/presentation/cubit/catalog_cubit.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/domain/product.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
@@ -95,6 +105,7 @@ Future<void> setupServiceLocator() async {
   getIt.registerLazySingleton(() => SalesHierarchyDomainService());
 
   // --- Infrastructure / Adapters ---
+  getIt.registerLazySingleton<PriceTableRepository>(() => DriftPriceTableRepository(getIt<AppDatabase>()));
   getIt.registerLazySingleton<ProductRepository>(() => DriftProductRepository(getIt<AppDatabase>()));
   getIt.registerLazySingleton<CompanyRepository>(() => DriftCompanyRepository(getIt<AppDatabase>()));
   getIt.registerLazySingleton<TrackingRepository>(() => MockTrackingAdapter());
@@ -122,6 +133,12 @@ Future<void> setupServiceLocator() async {
   ));
   getIt.registerLazySingleton(() => SaveProductUseCase(
     getIt<ProductRepository>(),
+  ));
+  getIt.registerLazySingleton(() => GetPriceTablesUseCase(
+    getIt<PriceTableRepository>(),
+  ));
+  getIt.registerLazySingleton(() => SavePriceTableUseCase(
+    getIt<PriceTableRepository>(),
   ));
   getIt.registerLazySingleton(() => GetCompaniesUseCase(
     getIt<CompanyRepository>(),
@@ -191,6 +208,11 @@ Future<void> setupServiceLocator() async {
   getIt.registerFactory(() => CatalogCubit(
     getIt<GetProductsUseCase>(),
     getIt<SaveProductUseCase>(),
+  ));
+
+  getIt.registerFactory(() => PriceTableCubit(
+    getIt<GetPriceTablesUseCase>(),
+    getIt<SavePriceTableUseCase>(),
   ));
 }
 
@@ -327,6 +349,7 @@ Future<void> _seedDatabase(AppDatabase db) async {
       sku: 'SKU-001',
       name: 'Notebook Pro 15',
       description: 'Notebook de alta performance para empresas.',
+      basePrice: Money.create(5500).getOrThrow(),
       active: true,
     ));
     await productRepo.save(Product(
@@ -334,6 +357,7 @@ Future<void> _seedDatabase(AppDatabase db) async {
       sku: 'SKU-002',
       name: 'Monitor UltraWide 34',
       description: 'Monitor curvo para máxima produtividade.',
+      basePrice: Money.create(2800).getOrThrow(),
       active: true,
     ));
     await productRepo.save(Product(
@@ -341,7 +365,29 @@ Future<void> _seedDatabase(AppDatabase db) async {
       sku: 'SKU-003',
       name: 'Teclado Mecânico RGB',
       description: 'Teclado ergonômico e durável.',
+      basePrice: Money.create(450).getOrThrow(),
       active: false,
     ));
+  }
+
+  // Seed Price Tables
+  final priceTableRepo = DriftPriceTableRepository(db);
+  final tables = await priceTableRepo.findAll();
+  if (tables.isEmpty) {
+    final table1 = PriceTable(
+      id: const PriceTableId('pt-1'),
+      name: 'Tabela Atacado SP',
+      scopeType: PriceScopeType.regional,
+      rules: [
+        PriceRule(
+          productId: const ProductId('p1'),
+          minQuantity: Quantity.create(10).getOrThrow(),
+          maxQuantity: Quantity.create(999).getOrThrow(),
+          state: State.saoPaulo,
+          unitPrice: Money.create(5000).getOrThrow(),
+        ),
+      ],
+    );
+    await priceTableRepo.save(table1);
   }
 }

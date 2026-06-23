@@ -1,8 +1,10 @@
+import 'package:drift/drift.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/domain/product.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/domain/product_variant.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/domain/repositories/product_repository.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_variant_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/infrastructure/database/app_database.dart';
 
 class DriftProductRepository implements ProductRepository {
@@ -19,6 +21,7 @@ class DriftProductRepository implements ProductRepository {
           sku: product.sku,
           name: product.name,
           description: product.description,
+          basePrice: Value(product.basePrice.amount),
           active: product.active,
         ),
       );
@@ -37,6 +40,8 @@ class DriftProductRepository implements ProductRepository {
             color: variant.color,
             size: variant.size,
             voltage: variant.voltage,
+            price: Value(variant.price?.amount),
+            sameAsParent: Value(variant.sameAsParent),
           ),
         );
       }
@@ -91,6 +96,7 @@ class DriftProductRepository implements ProductRepository {
       sku: row.sku,
       name: row.name,
       description: row.description,
+      basePrice: Money.create(row.basePrice).getOrThrow(),
       active: row.active,
       variants: variantRows
           .map((v) => ProductVariant(
@@ -99,6 +105,8 @@ class DriftProductRepository implements ProductRepository {
                 size: v.size,
                 voltage: v.voltage,
                 variantSku: v.variantSku,
+                price: v.price != null ? Money.create(v.price!).getOrThrow() : null,
+                sameAsParent: v.sameAsParent,
               ))
           .toList(),
     );

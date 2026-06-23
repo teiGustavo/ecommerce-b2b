@@ -114,6 +114,7 @@ class Products extends Table {
   TextColumn get sku => text()();
   TextColumn get name => text()();
   TextColumn get description => text()();
+  RealColumn get basePrice => real().withDefault(const Constant(0.0))();
   BoolColumn get active => boolean()();
 
   @override
@@ -128,9 +129,33 @@ class ProductVariants extends Table {
   TextColumn get color => text()();
   TextColumn get size => text()();
   TextColumn get voltage => text()();
+  RealColumn get price => real().nullable()();
+  BoolColumn get sameAsParent => boolean().withDefault(const Constant(true))();
 
   @override
   Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('PriceTableRow')
+class PriceTables extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get scopeType => text()(); // national, regional, customerSpecific
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('PriceRuleRow')
+class PriceRules extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get priceTableId => text()();
+  TextColumn get productId => text()();
+  TextColumn get variantId => text().nullable()();
+  IntColumn get minQuantity => integer()();
+  IntColumn get maxQuantity => integer()();
+  TextColumn get stateCode => text().nullable()();
+  RealColumn get unitPrice => real()();
 }
 
 @DriftDatabase(tables: [
@@ -142,12 +167,14 @@ class ProductVariants extends Table {
   UserSessions,
   Products,
   ProductVariants,
+  PriceTables,
+  PriceRules,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -161,6 +188,15 @@ class AppDatabase extends _$AppDatabase {
           if (from < 3) {
             await m.createTable(products);
             await m.createTable(productVariants);
+          }
+          if (from < 4) {
+            await m.addColumn(products, products.basePrice);
+            await m.addColumn(productVariants, productVariants.price);
+            await m.addColumn(productVariants, productVariants.sameAsParent);
+          }
+          if (from < 5) {
+            await m.createTable(priceTables);
+            await m.createTable(priceRules);
           }
         },
       );

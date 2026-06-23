@@ -12,6 +12,13 @@ sealed class Result<S, F> {
     };
   }
 
+  S? getOrNull() {
+    return switch (this) {
+      Success(value: var v) => v,
+      Failure() => null,
+    };
+  }
+
   F getFailureOrThrow() {
     return switch (this) {
       Success(value: var v) => throw Exception('Called getFailureOrThrow on Success: $v'),

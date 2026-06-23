@@ -5,12 +5,14 @@ class B2BAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
   final bool showProfile;
+  final PreferredSizeWidget? bottom;
 
   const B2BAppBar({
     super.key,
     required this.title,
     this.actions,
     this.showProfile = true,
+    this.bottom,
   });
 
   @override
@@ -28,14 +30,14 @@ class B2BAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: false,
       actions: [
-        if (actions != null) ...actions!,
+        ...?actions,
         if (showProfile) const UserProfileDropdown(),
       ],
       elevation: 0,
       scrolledUnderElevation: 3,
       backgroundColor: colorScheme.surface,
       surfaceTintColor: colorScheme.surface,
-      bottom: PreferredSize(
+      bottom: bottom ?? PreferredSize(
         preferredSize: const Size.fromHeight(1.0),
         child: Container(
           color: colorScheme.outlineVariant.withValues(alpha: 0.5),
@@ -46,5 +48,5 @@ class B2BAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 1);
+  Size get preferredSize => Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 1));
 }
