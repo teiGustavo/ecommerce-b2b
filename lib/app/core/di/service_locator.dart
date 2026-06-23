@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:drift/drift.dart';
 
 // Drift and Database
 import 'package:ecommerce_b2b/modules/shared_kernel/infrastructure/database/app_database.dart';
@@ -6,6 +7,10 @@ import 'package:ecommerce_b2b/modules/customer_management/company/infrastructure
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/infrastructure/repositories/drift_sales_representative_repository.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/infrastructure/repositories/drift_sales_order_repository.dart';
 import 'package:ecommerce_b2b/modules/identity_access/infrastructure/repositories/drift_auth_repository.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/infrastructure/repositories/drift_inventory_repository.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/infrastructure/repositories/drift_quote_repository.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/drift_shipment_repository.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/return_request/infrastructure/repositories/drift_return_request_repository.dart';
 
 // Domain entities for seeding
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
@@ -35,6 +40,8 @@ import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/cre
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/order_state_machine_domain_service.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/services/commission_calculator_domain_service.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/services/sales_hierarchy_domain_service.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/credit_service.dart';
+import 'package:ecommerce_b2b/modules/order_flow/application/order_workflow_service.dart';
 
 
 // Repositories (Interfaces)
@@ -44,7 +51,11 @@ import 'package:ecommerce_b2b/modules/customer_management/company/domain/reposit
 import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/tracking_repository.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/freight_repository.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/repositories/sales_order_repository.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/repositories/inventory_repository.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/domain/repositories/quote_repository.dart';
 import 'package:ecommerce_b2b/modules/customer_portal/boleto/domain/repositories/boleto_repository.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/shipment_repository.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/return_request/domain/repositories/return_request_repository.dart';
 import 'package:ecommerce_b2b/modules/catalog/price_table/domain/price_table.dart';
 import 'package:ecommerce_b2b/modules/catalog/price_table/domain/price_rule.dart';
 import 'package:ecommerce_b2b/modules/catalog/price_table/domain/enums/price_scope_type.dart';
@@ -90,9 +101,9 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id
 
 final getIt = GetIt.instance;
 
-Future<void> setupServiceLocator() async {
+Future<void> setupServiceLocator({QueryExecutor? connection}) async {
   // --- Database ---
-  final db = AppDatabase(openConnection());
+  final db = AppDatabase(connection ?? openConnection());
   getIt.registerSingleton<AppDatabase>(db);
   await _seedDatabase(db);
 
@@ -103,6 +114,8 @@ Future<void> setupServiceLocator() async {
   getIt.registerLazySingleton(() => OrderStateMachineDomainService());
   getIt.registerLazySingleton(() => CommissionCalculatorDomainService());
   getIt.registerLazySingleton(() => SalesHierarchyDomainService());
+  getIt.registerLazySingleton(() => CreditService(getIt<CompanyRepository>(), getIt<SalesOrderRepository>()));
+  getIt.registerLazySingleton(() => OrderWorkflowService(getIt<SalesOrderRepository>(), getIt<CreditService>()));
 
   // --- Infrastructure / Adapters ---
   getIt.registerLazySingleton<PriceTableRepository>(() => DriftPriceTableRepository(getIt<AppDatabase>()));
@@ -113,6 +126,10 @@ Future<void> setupServiceLocator() async {
   getIt.registerLazySingleton<AuthRepository>(() => DriftAuthRepository(getIt<AppDatabase>()));
   getIt.registerLazySingleton<SalesRepresentativeRepository>(() => DriftSalesRepresentativeRepository(getIt<AppDatabase>()));
   getIt.registerLazySingleton<SalesOrderRepository>(() => DriftSalesOrderRepository(getIt<AppDatabase>()));
+  getIt.registerLazySingleton<InventoryRepository>(() => DriftInventoryRepository(getIt<AppDatabase>()));
+  getIt.registerLazySingleton<QuoteRepository>(() => DriftQuoteRepository(getIt<AppDatabase>()));
+  getIt.registerLazySingleton<ShipmentRepository>(() => DriftShipmentRepository(getIt<AppDatabase>()));
+  getIt.registerLazySingleton<ReturnRequestRepository>(() => DriftReturnRequestRepository(getIt<AppDatabase>()));
 
   // --- Use Cases ---
   getIt.registerLazySingleton(() => LoginUseCase(
@@ -165,10 +182,14 @@ Future<void> setupServiceLocator() async {
 
   getIt.registerLazySingleton(() => ProcessOrderShipmentUseCase(
     getIt<OrderStateMachineDomainService>(),
+    getIt<ShipmentRepository>(),
+    getIt<SalesOrderRepository>(),
   ));
 
   getIt.registerLazySingleton(() => OpenReturnRequestUseCase(
     getIt<OrderStateMachineDomainService>(),
+    getIt<ReturnRequestRepository>(),
+    getIt<SalesOrderRepository>(),
   ));
 
   getIt.registerLazySingleton(() => DownloadBoletoUseCase(
@@ -177,6 +198,8 @@ Future<void> setupServiceLocator() async {
 
   getIt.registerLazySingleton(() => GetPurchaseHistoryUseCase(
     getIt<SalesOrderRepository>(),
+    getIt<SalesRepresentativeRepository>(),
+    getIt<SalesHierarchyDomainService>(),
   ));
 
   getIt.registerLazySingleton(() => GetPendingFinanceReviewsUseCase(
@@ -326,19 +349,21 @@ Future<void> _seedDatabase(AppDatabase db) async {
   // Seed Sales Orders
   final order1 = SalesOrder(
     id: const OrderId('order-101'),
+    companyId: 'c1',
     status: OrderStatus.blockedByFinance,
     creditStatus: CreditStatus.blocked,
     items: [],
   );
   final order2 = SalesOrder(
     id: const OrderId('order-102'),
+    companyId: 'c2',
     status: OrderStatus.pendingFinanceApproval,
     creditStatus: CreditStatus.approved,
     items: [],
   );
 
-  await orderRepo.save(order1, companyId: const CompanyId('c1'));
-  await orderRepo.save(order2, companyId: const CompanyId('c2'));
+  await orderRepo.save(order1);
+  await orderRepo.save(order2);
 
   // Seed Products
   final productRepo = DriftProductRepository(db);

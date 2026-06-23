@@ -2,6 +2,7 @@ import 'package:ecommerce_b2b/modules/catalog/product/application/get_products/g
 import 'package:ecommerce_b2b/modules/catalog/product/domain/product.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/domain/repositories/product_repository.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -23,6 +24,7 @@ void main() {
       sku: sku,
       description: 'Desc $name',
       active: true,
+      basePrice: Money.create(100.0).getOrThrow(),
     );
   }
 

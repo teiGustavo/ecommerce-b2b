@@ -1,0 +1,267 @@
+import 'package:ecommerce_b2b/app/core/di/service_locator.dart';
+import 'package:ecommerce_b2b/modules/catalog/product/domain/product.dart';
+import 'package:ecommerce_b2b/modules/catalog/product/domain/repositories/product_repository.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/domain/quote.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/domain/quote_item.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/domain/enums/quote_status.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/domain/repositories/quote_repository.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/quote_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
+import 'package:ecommerce_b2b/app/presentation/widgets/b2b_app_bar.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
+
+class CreateQuotePage extends StatefulWidget {
+  const CreateQuotePage({super.key});
+
+  @override
+  State<CreateQuotePage> createState() => _CreateQuotePageState();
+}
+
+class _CreateQuotePageState extends State<CreateQuotePage> {
+  final List<QuoteItem> _items = [];
+  List<Product> _availableProducts = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProducts();
+  }
+
+  Future<void> _loadProducts() async {
+    final products = await getIt<ProductRepository>().getAll();
+    if (!mounted) return;
+    setState(() {
+      _availableProducts = products;
+      _isLoading = false;
+    });
+  }
+
+  void _addItem(Product product, int quantity) {
+    setState(() {
+      _items.add(QuoteItem(
+        productId: product.id,
+        quantity: Quantity.create(quantity).getOrThrow(),
+        unitPrice: product.basePrice,
+      ));
+    });
+  }
+
+  Future<void> _saveQuote() async {
+    if (_items.isEmpty) return;
+
+    final quote = Quote(
+      id: QuoteId(const Uuid().v4()),
+      status: QuoteStatus.draft,
+      items: _items,
+    );
+
+    await getIt<QuoteRepository>().save(quote);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Orçamento salvo com sucesso!')),
+      );
+      context.go('/');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Scaffold(
+      appBar: B2BAppBar(
+        title: 'Novo Orçamento',
+        actions: [
+          IconButton(
+            tooltip: 'Salvar orçamento',
+            icon: const Icon(Icons.save_rounded),
+            onPressed: _saveQuote,
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _availableProducts.isEmpty ? null : _showAddProductDialog,
+        icon: const Icon(Icons.add_shopping_cart_rounded),
+        label: const Text('Adicionar Item'),
+      ),
+      body: RefreshIndicator(
+        onRefresh: _loadProducts,
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _items.isEmpty
+            ? ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16.0),
+          children: [
+            Card(
+              elevation: 0,
+              color: colorScheme.surfaceContainerLow,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.receipt_long_rounded,
+                      size: 56,
+                      color: colorScheme.primary,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Nenhum item adicionado ao orçamento.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Use o botão “Adicionar Item” para incluir produtos e montar a proposta.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        )
+            : ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16.0),
+          itemCount: _items.length,
+          itemBuilder: (context, index) {
+            final item = _items[index];
+            final product = _availableProducts.firstWhere(
+                  (p) => p.id == item.productId,
+            );
+
+            return Card(
+              margin: const EdgeInsets.only(bottom: 12.0),
+              elevation: 0,
+              color: colorScheme.surfaceContainerLow,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.inventory_2_rounded,
+                    color: colorScheme.onPrimaryContainer,
+                  ),
+                ),
+                title: Text(
+                  product.name,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Text(
+                    'Qtd: ${item.quantity.value} • Unitário: ${item.unitPrice.formatted} • Total: ${item.subtotal.formatted}',
+                  ),
+                ),
+                trailing: IconButton(
+                  tooltip: 'Remover item',
+                  icon: const Icon(Icons.delete_outline_rounded),
+                  onPressed: () => setState(() => _items.removeAt(index)),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showAddProductDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        Product? selectedProduct;
+        int quantity = 1;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Adicionar Item'),
+              content: SizedBox(
+                width: 900,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      DropdownButtonFormField<Product>(
+                        initialValue: selectedProduct,
+                        isExpanded: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Produto *',
+                          prefixIcon: Icon(Icons.inventory_2_rounded),
+                        ),
+                        hint: const Text('Selecione um produto'),
+                        onChanged: (p) => setState(() => selectedProduct = p),
+                        items: _availableProducts.map((p) {
+                          return DropdownMenuItem(
+                            value: p,
+                            child: Text(p.name),
+                          );
+                        }).toList(),
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Selecione um produto';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        decoration: const InputDecoration(
+                          labelText: 'Quantidade *',
+                          prefixIcon: Icon(Icons.onetwothree_rounded),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) => quantity = int.tryParse(v) ?? 1,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (selectedProduct != null) {
+                      _addItem(selectedProduct!, quantity);
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text('Adicionar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}

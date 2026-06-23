@@ -1,7 +1,10 @@
 import 'package:ecommerce_b2b/modules/logistics/application/procces_order/process_order_shipment_use_case.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/domain/shipment.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/shipment_repository.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/sales_order.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/repositories/sales_order_repository.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/order_state_machine_domain_service.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/packing_session_id.dart';
@@ -9,6 +12,7 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/picking_li
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/shipment_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/logistics/value_objects/tracking_code.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 class MockOrderStateMachine extends OrderStateMachineDomainService {
   @override
@@ -17,12 +21,35 @@ class MockOrderStateMachine extends OrderStateMachineDomainService {
   }
 }
 
+class MockShipmentRepository extends Mock implements ShipmentRepository {}
+class MockSalesOrderRepository extends Mock implements SalesOrderRepository {}
+
+class ShipmentFake extends Fake implements Shipment {}
+class SalesOrderFake extends Fake implements SalesOrder {}
+
 void main() {
+  setUpAll(() {
+    registerFallbackValue(ShipmentFake());
+    registerFallbackValue(SalesOrderFake());
+  });
+
   group('ProcessOrderShipmentUseCase', () {
-    /// deve processar expedição com sucesso e transicionar status do pedido
-    test('should process repositories successfully and transition order status', () {
-      final stateMachine = MockOrderStateMachine();
-      final useCase = ProcessOrderShipmentUseCase(stateMachine);
+    late MockShipmentRepository shipmentRepo;
+    late MockSalesOrderRepository orderRepo;
+    late MockOrderStateMachine stateMachine;
+    late ProcessOrderShipmentUseCase useCase;
+
+    setUp(() {
+      shipmentRepo = MockShipmentRepository();
+      orderRepo = MockSalesOrderRepository();
+      stateMachine = MockOrderStateMachine();
+      useCase = ProcessOrderShipmentUseCase(stateMachine, shipmentRepo, orderRepo);
+
+      when(() => shipmentRepo.save(any())).thenAnswer((_) async {});
+      when(() => orderRepo.save(any())).thenAnswer((_) async {});
+    });
+
+    test('should process shipment successfully and transition order status', () async {
       final order = SalesOrder(
         id: const OrderId('o1'),
         status: OrderStatus.pickingPacking,
@@ -30,12 +57,12 @@ void main() {
         items: [],
       );
 
-      final result = useCase.execute(
+      final result = await useCase.execute(
         order: order,
         pickingId: const PickingListId('pick-1'),
         packingId: const PackingSessionId('pack-1'),
         shipmentId: const ShipmentId('ship-1'),
-        trackingCode: const TrackingCode('TRK123'),
+        trackingCode: TrackingCode.create('TRK123').getOrThrow(),
         labelNumber: 'LBL-001',
       );
 
@@ -45,12 +72,12 @@ void main() {
       expect(result.shipment.id, const ShipmentId('ship-1'));
       expect(result.shipment.trackingCode.value, 'TRK123');
       expect(result.shipment.shippingLabel.labelNumber, 'LBL-001');
+
+      verify(() => shipmentRepo.save(any())).called(1);
+      verify(() => orderRepo.save(order)).called(1);
     });
 
-    /// deve lançar erro se pedido não estiver em pickingPacking
-    test('should throw error if order is not in pickingPacking', () {
-      final stateMachine = MockOrderStateMachine();
-      final useCase = ProcessOrderShipmentUseCase(stateMachine);
+    test('should throw error if order is not in pickingPacking', () async {
       final order = SalesOrder(
         id: const OrderId('o1'),
         status: OrderStatus.pendingFinanceApproval,
@@ -64,11 +91,14 @@ void main() {
           pickingId: const PickingListId('pick-1'),
           packingId: const PackingSessionId('pack-1'),
           shipmentId: const ShipmentId('ship-1'),
-          trackingCode: const TrackingCode('TRK123'),
+          trackingCode: TrackingCode.create('TRK123').getOrThrow(),
           labelNumber: 'LBL-001',
         ),
         throwsStateError,
       );
+
+      verifyNever(() => shipmentRepo.save(any()));
+      verifyNever(() => orderRepo.save(any()));
     });
   });
 }

@@ -11,6 +11,7 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.d
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/enums/currency.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/infrastructure/database/app_database.dart';
 
 class DriftSalesOrderRepository implements SalesOrderRepository {
@@ -18,12 +19,13 @@ class DriftSalesOrderRepository implements SalesOrderRepository {
 
   DriftSalesOrderRepository(this._db);
 
-  Future<void> save(SalesOrder order, {CompanyId? companyId}) async {
+  @override
+  Future<void> save(SalesOrder order) async {
     await _db.transaction(() async {
       await _db.into(_db.salesOrdersTable).insertOnConflictUpdate(
         SalesOrdersTableCompanion.insert(
           id: order.id.value,
-          companyId: Value(companyId?.value),
+          companyId: Value(order.companyId),
           status: order.status.name,
           creditStatus: order.creditStatus.name,
           financeDecision: Value(order.financeReview?.decision.name),
@@ -33,8 +35,10 @@ class DriftSalesOrderRepository implements SalesOrderRepository {
         ),
       );
 
-      // Save order items
-      await (_db.delete(_db.orderItemsTable)..where((t) => t.orderId.equals(order.id.value))).go();
+      // Delete old items and re-insert
+      await (_db.delete(_db.orderItemsTable)
+            ..where((t) => t.orderId.equals(order.id.value)))
+          .go();
 
       for (final item in order.items) {
         await _db.into(_db.orderItemsTable).insert(
@@ -43,7 +47,7 @@ class DriftSalesOrderRepository implements SalesOrderRepository {
             productId: item.productId.value,
             quantity: item.quantity.value,
             unitPrice: item.unitPriceSnapshot.amount,
-            currency: item.unitPriceSnapshot.currency.name,
+            currency: item.unitPriceSnapshot.currency.code,
           ),
         );
       }
@@ -51,60 +55,90 @@ class DriftSalesOrderRepository implements SalesOrderRepository {
   }
 
   @override
-  Future<List<SalesOrder>> findByCompanyId(CompanyId companyId) async {
-    final rows = await (_db.select(_db.salesOrdersTable)
-          ..where((t) => t.companyId.equals(companyId.value)))
+  Future<SalesOrder?> getById(OrderId id) async {
+    final row = await (_db.select(_db.salesOrdersTable)
+          ..where((t) => t.id.equals(id.value)))
+        .getSingleOrNull();
+
+    if (row == null) return null;
+
+    final itemRows = await (_db.select(_db.orderItemsTable)
+          ..where((t) => t.orderId.equals(id.value)))
         .get();
 
+    return _mapToDomain(row, itemRows);
+  }
+
+  @override
+  Future<List<SalesOrder>> getAll() async {
+    final rows = await _db.select(_db.salesOrdersTable).get();
     final List<SalesOrder> orders = [];
     for (final row in rows) {
-      final itemsRows = await (_db.select(_db.orderItemsTable)
+      final itemRows = await (_db.select(_db.orderItemsTable)
             ..where((t) => t.orderId.equals(row.id)))
           .get();
-      orders.add(_mapToDomain(row, itemsRows));
+      orders.add(_mapToDomain(row, itemRows));
     }
     return orders;
   }
 
   @override
-  Future<List<SalesOrder>> findByStatus(OrderStatus status) async {
+  Future<List<SalesOrder>> findByCompanyId(CompanyId companyId) async {
     final rows = await (_db.select(_db.salesOrdersTable)
-          ..where((t) => t.status.equals(status.name)))
+          ..where((t) => t.companyId.equals(companyId.value)))
         .get();
-
+    
     final List<SalesOrder> orders = [];
     for (final row in rows) {
-      final itemsRows = await (_db.select(_db.orderItemsTable)
+      final itemRows = await (_db.select(_db.orderItemsTable)
             ..where((t) => t.orderId.equals(row.id)))
           .get();
-      orders.add(_mapToDomain(row, itemsRows));
+      orders.add(_mapToDomain(row, itemRows));
     }
     return orders;
   }
 
-  SalesOrder _mapToDomain(SalesOrderRow row, List<OrderItemRow> itemsRows) {
-    final items = itemsRows.map((i) => OrderItem(
-      productId: ProductId(i.productId),
-      quantity: Quantity.create(i.quantity).getOrThrow(),
-      unitPriceSnapshot: Money.create(i.unitPrice).getOrThrow(),
-    )).toList();
+  @override
+  Future<List<SalesOrder>> findByStatus(String status) async {
+    final rows = await (_db.select(_db.salesOrdersTable)
+          ..where((t) => t.status.equals(status)))
+        .get();
 
-    FinanceReview? financeReview;
+    final List<SalesOrder> orders = [];
+    for (final row in rows) {
+      final itemRows = await (_db.select(_db.orderItemsTable)
+            ..where((t) => t.orderId.equals(row.id)))
+          .get();
+      orders.add(_mapToDomain(row, itemRows));
+    }
+    return orders;
+  }
+
+  SalesOrder _mapToDomain(SalesOrderRow row, List<OrderItemRow> itemRows) {
+    FinanceReview? review;
     if (row.financeDecision != null) {
-      financeReview = FinanceReview(
-        decision: FinanceDecision.values.firstWhere((d) => d.name == row.financeDecision),
-        reviewerId: row.financeReviewerId!,
-        reviewedAt: row.financeReviewedAt!,
-        justification: row.financeJustification!,
+      review = FinanceReview(
+        decision: FinanceDecision.values.firstWhere((e) => e.name == row.financeDecision),
+        reviewerId: row.financeReviewerId ?? '',
+        reviewedAt: row.financeReviewedAt ?? DateTime.now(),
+        justification: row.financeJustification ?? '',
       );
     }
 
     return SalesOrder(
       id: OrderId(row.id),
-      status: OrderStatus.values.firstWhere((s) => s.name == row.status),
-      creditStatus: CreditStatus.values.firstWhere((c) => c.name == row.creditStatus),
-      items: items,
-      financeReview: financeReview,
+      companyId: row.companyId,
+      status: OrderStatus.values.firstWhere((e) => e.name == row.status),
+      creditStatus: CreditStatus.values.firstWhere((e) => e.name == row.creditStatus),
+      items: itemRows.map((i) => OrderItem(
+        productId: ProductId(i.productId),
+        quantity: Quantity.create(i.quantity).getOrThrow(),
+        unitPriceSnapshot: Money.create(
+          i.unitPrice,
+          currency: Currency.values.firstWhere((c) => c.code == i.currency),
+        ).getOrThrow(),
+      )).toList(),
+      financeReview: review,
     );
   }
 }

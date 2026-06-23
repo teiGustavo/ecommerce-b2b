@@ -7,6 +7,7 @@ import 'package:ecommerce_b2b/modules/logistics/shipment/domain/tracking_event.d
 
 /// Raiz do Agregado que representa uma Remessa/Envio.
 class Shipment extends AggregateRoot<ShipmentId> {
+  final String orderId;
   /// Código de rastreamento da transportadora.
   final TrackingCode trackingCode;
   ShipmentStatus _status;
@@ -17,6 +18,7 @@ class Shipment extends AggregateRoot<ShipmentId> {
   /// Construtor da Remessa.
   Shipment({
     required ShipmentId id,
+    required this.orderId,
     required this.trackingCode,
     required this._status,
     required this.shippingLabel,

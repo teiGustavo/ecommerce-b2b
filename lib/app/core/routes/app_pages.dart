@@ -95,11 +95,13 @@ enum AppPage {
           AppPage.companies, // Carteira de clientes
           AppPage.catalog,
           AppPage.newOrder,
+          AppPage.logistics,
         ],
       UserRole.finance => [
           AppPage.home,
           AppPage.finance,
           AppPage.dashboard,
+          AppPage.logistics,
         ],
       UserRole.buyer => [], // Comprador não usa sidebar/MainLayout
     };

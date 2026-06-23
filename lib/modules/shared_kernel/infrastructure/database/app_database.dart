@@ -158,6 +158,70 @@ class PriceRules extends Table {
   RealColumn get unitPrice => real()();
 }
 
+@DataClassName('WarehouseRow')
+class Warehouses extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('StockRow')
+class Stocks extends Table {
+  TextColumn get warehouseId => text()();
+  TextColumn get variantId => text()();
+  IntColumn get quantity => integer()();
+
+  @override
+  Set<Column> get primaryKey => {warehouseId, variantId};
+}
+
+@DataClassName('ShipmentRow')
+class Shipments extends Table {
+  TextColumn get id => text()();
+  TextColumn get orderId => text()();
+  TextColumn get trackingCode => text().nullable()();
+  TextColumn get carrierName => text().nullable()();
+  TextColumn get status => text()();
+  DateTimeColumn get estimatedDelivery => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('ReturnRequestRow')
+class ReturnRequests extends Table {
+  TextColumn get id => text()();
+  TextColumn get orderId => text()();
+  TextColumn get reason => text()();
+  TextColumn get status => text()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('QuoteRow')
+class QuotesTable extends Table {
+  TextColumn get id => text()();
+  TextColumn get status => text()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('QuoteItemRow')
+class QuoteItemsTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get quoteId => text()();
+  TextColumn get productId => text()();
+  IntColumn get quantity => integer()();
+  RealColumn get unitPrice => real()();
+  TextColumn get currency => text()();
+}
+
 @DriftDatabase(tables: [
   Companies,
   AuthorizedBuyersTable,
@@ -169,12 +233,18 @@ class PriceRules extends Table {
   ProductVariants,
   PriceTables,
   PriceRules,
+  Warehouses,
+  Stocks,
+  Shipments,
+  ReturnRequests,
+  QuotesTable,
+  QuoteItemsTable,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -197,6 +267,16 @@ class AppDatabase extends _$AppDatabase {
           if (from < 5) {
             await m.createTable(priceTables);
             await m.createTable(priceRules);
+          }
+          if (from < 6) {
+            await m.createTable(warehouses);
+            await m.createTable(stocks);
+            await m.createTable(shipments);
+            await m.createTable(returnRequests);
+          }
+          if (from < 7) {
+            await m.createTable(quotesTable);
+            await m.createTable(quoteItemsTable);
           }
         },
       );

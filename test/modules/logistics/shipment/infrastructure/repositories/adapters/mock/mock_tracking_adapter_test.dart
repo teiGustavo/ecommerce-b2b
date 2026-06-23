@@ -19,7 +19,8 @@ void main() {
     test('should add a new tracking event to the repositories', () async {
       final shipment = Shipment(
         id: const ShipmentId('ship-1'),
-        trackingCode: const TrackingCode('TRK123456'),
+        orderId: 'order-1',
+        trackingCode: TrackingCode.create('TRK123456').getOrThrow(),
         status: ShipmentStatus.pending,
         shippingLabel: const ShippingLabel('LBL-001'),
       );

@@ -4,12 +4,14 @@ import 'package:ecommerce_b2b/modules/customer_portal/return_request/domain/enum
 import 'package:ecommerce_b2b/modules/customer_portal/return_request/domain/return_request_item.dart';
 
 class ReturnRequest extends AggregateRoot<RmaId> {
+  final String orderId;
   RmaStatus _status;
   final String reason;
   final List<ReturnRequestItem> _items;
 
   ReturnRequest({
     required RmaId id,
+    required this.orderId,
     required this._status,
     required this.reason,
     List<ReturnRequestItem>? items,

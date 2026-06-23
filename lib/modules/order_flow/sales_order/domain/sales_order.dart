@@ -6,8 +6,11 @@ import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/order_item.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/finance_review.dart';
 
+// ignore_for_file: prefer_initializing_formals
+
 /// Raiz do Agregado que representa um Pedido de Venda.
 class SalesOrder extends AggregateRoot<OrderId> {
+  final String? companyId;
   OrderStatus _status;
   CreditStatus _creditStatus;
   final List<OrderItem> _items;
@@ -16,11 +19,16 @@ class SalesOrder extends AggregateRoot<OrderId> {
   /// Construtor do Pedido de Venda.
   SalesOrder({
     required OrderId id,
-    required this._status,
-    required this._creditStatus,
-    required this._items,
-    this._financeReview,
-  })  : super(id);
+    this.companyId,
+    required OrderStatus status,
+    required CreditStatus creditStatus,
+    required List<OrderItem> items,
+    FinanceReview? financeReview,
+  })  : _status = status,
+        _creditStatus = creditStatus,
+        _items = items,
+        _financeReview = financeReview,
+        super(id);
 
   /// Status atual do pedido (ex: pendente aprovação, em trânsito).
   OrderStatus get status => _status;

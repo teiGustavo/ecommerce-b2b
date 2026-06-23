@@ -59,13 +59,21 @@ void main() {
         ),
       );
 
-      final product = Product(id: const ProductId('p1'), sku: 'SKU1', name: 'Prod 1', description: 'Desc', active: true);
+      final product = Product(
+        id: const ProductId('p1'),
+        sku: 'SKU1',
+        name: 'Prod 1',
+        description: 'Desc',
+        active: true,
+        basePrice: Money.create(100).getOrThrow(),
+      );
       final priceTable = PriceTable(
         id: const PriceTableId('t1'),
         name: 'Tabela',
         scopeType: PriceScopeType.regional,
         rules: [
           PriceRule(
+            productId: const ProductId('p1'),
             minQuantity: Quantity.create(1).getOrThrow(),
             maxQuantity: Quantity.create(100).getOrThrow(),
             state: State.saoPaulo,

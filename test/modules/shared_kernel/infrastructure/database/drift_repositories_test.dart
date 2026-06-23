@@ -28,6 +28,11 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/percentage.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/infrastructure/database/app_database.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/domain/enums/quote_status.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/domain/quote.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/domain/quote_item.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/infrastructure/repositories/drift_quote_repository.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/quote_id.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -36,6 +41,7 @@ void main() {
   late DriftSalesRepresentativeRepository representativeRepository;
   late DriftSalesOrderRepository salesOrderRepository;
   late DriftAuthRepository authRepository;
+  late DriftQuoteRepository quoteRepository;
 
   setUp(() {
     // Start with an in-memory SQLite database connection for testing
@@ -44,6 +50,7 @@ void main() {
     representativeRepository = DriftSalesRepresentativeRepository(database);
     salesOrderRepository = DriftSalesOrderRepository(database);
     authRepository = DriftAuthRepository(database);
+    quoteRepository = DriftQuoteRepository(database);
   });
 
   tearDown(() async {
@@ -175,34 +182,11 @@ void main() {
       final orderId = const OrderId('order-test-555');
       final companyId = const CompanyId('comp-test-2');
 
-      final order = SalesOrder(
-        id: orderId,
-        status: OrderStatus.pendingFinanceApproval,
-        creditStatus: CreditStatus.approved,
-        items: [
-          OrderItem(
-            productId: const ProductId('prod-1'),
-            quantity: Quantity.create(5).getOrThrow(),
-            unitPriceSnapshot: Money.create(120.0).getOrThrow(),
-          ),
-          OrderItem(
-            productId: const ProductId('prod-2'),
-            quantity: Quantity.create(2).getOrThrow(),
-            unitPriceSnapshot: Money.create(50.0).getOrThrow(),
-          ),
-        ],
-        financeReview: FinanceReview(
-          decision: FinanceDecision.approved,
-          reviewerId: 'finance-user-1',
-          reviewedAt: DateTime.now(),
-          justification: 'Approved automatically',
-        ),
-      );
-
       // Create a non-null date for testing persistence
       final fixedDate = DateTime(2026, 6, 23, 10, 0, 0);
       final orderWithFixedDate = SalesOrder(
         id: orderId,
+        companyId: companyId.value,
         status: OrderStatus.pendingFinanceApproval,
         creditStatus: CreditStatus.approved,
         items: [
@@ -220,7 +204,7 @@ void main() {
         ),
       );
 
-      await salesOrderRepository.save(orderWithFixedDate, companyId: companyId);
+      await salesOrderRepository.save(orderWithFixedDate);
 
       // Retrieve by company id
       final companyOrders = await salesOrderRepository.findByCompanyId(companyId);
@@ -237,7 +221,7 @@ void main() {
       expect(companyOrders.first.financeReview!.reviewedAt, fixedDate);
 
       // Retrieve by status
-      final statusOrders = await salesOrderRepository.findByStatus(OrderStatus.pendingFinanceApproval);
+      final statusOrders = await salesOrderRepository.findByStatus(OrderStatus.pendingFinanceApproval.name);
       expect(statusOrders.length, 1);
       expect(statusOrders.first.id, orderId);
     });
@@ -260,6 +244,42 @@ void main() {
       
       final loggedOutSession = await authRepository.getCurrentSession();
       expect(loggedOutSession, isNull);
+    });
+  });
+
+  group('DriftQuoteRepository Integration Tests', () {
+    test('should save and retrieve quote with items', () async {
+      final quoteId = const QuoteId('q1');
+      final quote = Quote(
+        id: quoteId,
+        status: QuoteStatus.draft,
+        items: [
+          QuoteItem(
+            productId: const ProductId('p1'),
+            quantity: Quantity.create(10).getOrThrow(),
+            unitPrice: Money.create(50).getOrThrow(),
+          ),
+          QuoteItem(
+            productId: const ProductId('p2'),
+            quantity: Quantity.create(5).getOrThrow(),
+            unitPrice: Money.create(100).getOrThrow(),
+          ),
+        ],
+      );
+
+      await quoteRepository.save(quote);
+
+      final fetched = await quoteRepository.getById(quoteId);
+      expect(fetched, isNotNull);
+      expect(fetched!.id, quoteId);
+      expect(fetched.status, QuoteStatus.draft);
+      expect(fetched.items.length, 2);
+      expect(fetched.items.first.productId, const ProductId('p1'));
+      expect(fetched.items.first.quantity.value, 10);
+      expect(fetched.items.first.unitPrice.amount, 50);
+
+      final allQuotes = await quoteRepository.getAll();
+      expect(allQuotes.length, 1);
     });
   });
 }

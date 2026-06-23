@@ -1,6 +1,7 @@
 import 'package:ecommerce_b2b/modules/catalog/price_table/domain/price_rule.dart';
 import 'package:ecommerce_b2b/modules/catalog/price_table/domain/price_table.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/domain/product.dart';
+import 'package:ecommerce_b2b/modules/catalog/product/domain/product_variant.dart';
 import 'package:ecommerce_b2b/modules/catalog/price_table/domain/enums/price_scope_type.dart';
 import 'package:ecommerce_b2b/modules/catalog/price_table/domain/services/order_pricing_domain_service.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
@@ -25,11 +26,16 @@ import 'package:flutter_test/flutter_test.dart';
 class MockOrderPricingService extends OrderPricingDomainService {
   @override
   Money getUnitPrice({
-    required PriceTable priceTable,
+    required Product product,
+    ProductVariant? variant,
+    PriceTable? priceTable,
     required Quantity quantity,
     required State state,
   }) {
-    return priceTable.rules.first.unitPrice;
+    if (priceTable != null && priceTable.rules.isNotEmpty) {
+      return priceTable.rules.first.unitPrice;
+    }
+    return product.basePrice;
   }
 }
 
@@ -64,13 +70,21 @@ void main() {
       ),
     );
 
-    final product = Product(id: const ProductId('p1'), sku: 'S1', name: 'N1', description: 'D1', active: true);
+    final product = Product(
+      id: const ProductId('p1'),
+      sku: 'S1',
+      name: 'N1',
+      description: 'D1',
+      active: true,
+      basePrice: Money.create(60.0).getOrThrow(),
+    );
     final priceTable = PriceTable(
       id: const PriceTableId('t1'),
       name: 'T1',
       scopeType: PriceScopeType.regional,
       rules: [
         PriceRule(
+          productId: const ProductId('p1'),
           minQuantity: Quantity.create(1).getOrThrow(),
           maxQuantity: Quantity.create(100).getOrThrow(),
           state: State.saoPaulo,

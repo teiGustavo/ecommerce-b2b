@@ -9,8 +9,8 @@ class GetPendingFinanceReviewsUseCase {
 
   Future<List<SalesOrder>> execute() async {
     // Busca tanto pedidos pendentes de aprovação quanto bloqueados que requerem ação manual (RF12).
-    final pending = await _orderRepository.findByStatus(OrderStatus.pendingFinanceApproval);
-    final blocked = await _orderRepository.findByStatus(OrderStatus.blockedByFinance);
+    final pending = await _orderRepository.findByStatus(OrderStatus.pendingFinanceApproval.name);
+    final blocked = await _orderRepository.findByStatus(OrderStatus.blockedByFinance.name);
     
     return [...pending, ...blocked];
   }
