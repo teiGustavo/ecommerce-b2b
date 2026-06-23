@@ -11,8 +11,8 @@ enum AppPage {
   ),
   home(
     path: '/',
-    label: 'Home',
-    subtitle: 'Página Inicial',
+    label: 'Painel Principal',
+    subtitle: 'Visão geral',
     icon: Icons.home_rounded,
     colorType: CardColorType.surfaceVariant,
   ),
@@ -46,8 +46,8 @@ enum AppPage {
   ),
   finance(
     path: '/finance',
-    label: 'Financeiro',
-    subtitle: 'Revisão de crédito',
+    label: 'Análise de Crédito',
+    subtitle: 'Revisão de pedidos',
     icon: Icons.account_balance_wallet_rounded,
     colorType: CardColorType.surfaceVariant,
   ),

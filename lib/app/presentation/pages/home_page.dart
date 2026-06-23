@@ -1,4 +1,4 @@
-import 'package:ecommerce_b2b/app/presentation/widgets/user_profile_dropdown.dart';
+import 'package:ecommerce_b2b/app/presentation/widgets/b2b_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ecommerce_b2b/app/core/routes/app_pages.dart';
@@ -8,112 +8,97 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme
+        .of(context)
+        .colorScheme;
+    final textTheme = Theme
+        .of(context)
+        .textTheme;
 
     final cardPages = AppPage.values
         .where((page) => page != AppPage.home && page != AppPage.login)
         .toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'E-commerce B2B',
-          style: textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        centerTitle: false,
-        actions: const [
-          UserProfileDropdown(),
-        ],
-        elevation: 0,
-        scrolledUnderElevation: 3,
-        backgroundColor: colorScheme.surface,
-        surfaceTintColor: colorScheme.surface,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-            height: 1.0,
-          ),
-        ),
-      ),
-      body: CustomScrollView(
-        slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.all(20.0),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 1.4,
+        appBar: const B2BAppBar(title: 'Painel Principal'),
+        body: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.all(20.0),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1.4,
+                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final page = cardPages[index];
+                  return _buildMenuCard(context, page, colorScheme);
+                }, childCount: cardPages.length),
               ),
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final page = cardPages[index];
-                return _buildMenuCard(context, page, colorScheme);
-              }, childCount: cardPages.length),
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 10.0,
-              ),
-              child: Text(
-                'Atividades Recentes',
-                style: textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 10.0,
+                ),
+                child: Text(
+                  'Atividades Recentes',
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) => ListTile(
-                leading: const CircleAvatar(
-                  child: Icon(Icons.history, size: 20),
-                ),
-                title: Text('Pedido #100${5 - index} atualizado'),
-                subtitle: const Text('Status alterado para "Em Transporte"'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {},
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                    (context, index) =>
+                    ListTile(
+                      leading: const CircleAvatar(
+                        child: Icon(Icons.history, size: 20),
+                      ),
+                      title: Text('Pedido #100${5 - index} atualizado'),
+                      subtitle: const Text(
+                          'Status alterado para "Em Transporte"'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {},
+                    ),
+                childCount: 3,
               ),
-              childCount: 3,
             ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
-        ],
-      ),
+            const SliverToBoxAdapter(child: SizedBox(height: 40)),
+          ],
+        ),
     );
   }
 
-  Widget _buildMenuCard(
-    BuildContext context,
-    AppPage page,
-    ColorScheme colorScheme,
-  ) {
+  Widget _buildMenuCard(BuildContext context,
+      AppPage page,
+      ColorScheme colorScheme,) {
     // Resolve o par de cores (Fundo e Texto) com base na propriedade do enum
     final (backgroundColor, foregroundColor) = switch (page.colorType) {
       CardColorType.primary => (colorScheme.primary, colorScheme.onPrimary),
-      CardColorType.primaryContainer => (
-        colorScheme.primaryContainer,
-        colorScheme.onPrimaryContainer,
+      CardColorType.primaryContainer =>
+      (
+      colorScheme.primaryContainer,
+      colorScheme.onPrimaryContainer,
       ),
-      CardColorType.secondaryContainer => (
-        colorScheme.secondaryContainer,
-        colorScheme.onSecondaryContainer,
+      CardColorType.secondaryContainer =>
+      (
+      colorScheme.secondaryContainer,
+      colorScheme.onSecondaryContainer,
       ),
-      CardColorType.tertiaryContainer => (
-        colorScheme.tertiaryContainer,
-        colorScheme.onTertiaryContainer,
+      CardColorType.tertiaryContainer =>
+      (
+      colorScheme.tertiaryContainer,
+      colorScheme.onTertiaryContainer,
       ),
-      CardColorType.surfaceVariant => (
-        colorScheme.surfaceContainerHighest,
-        colorScheme.onSurfaceVariant,
+      CardColorType.surfaceVariant =>
+      (
+      colorScheme.surfaceContainerHighest,
+      colorScheme.onSurfaceVariant,
       ),
     };
 

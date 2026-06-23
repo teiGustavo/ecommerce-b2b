@@ -1,5 +1,5 @@
 import 'package:ecommerce_b2b/app/core/routes/app_pages.dart';
-import 'package:ecommerce_b2b/app/presentation/widgets/user_profile_dropdown.dart';
+import 'package:ecommerce_b2b/app/presentation/widgets/b2b_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,29 +12,7 @@ class FinanceHomePage extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        title: Text(
-          'Painel Financeiro',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        centerTitle: false,
-        actions: const [UserProfileDropdown()],
-        elevation: 0,
-        scrolledUnderElevation: 3,
-        backgroundColor: colorScheme.surface,
-        surfaceTintColor: colorScheme.surface,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-            height: 1.0,
-          ),
-        ),
-      ),
+      appBar: const B2BAppBar(title: 'Painel Financeiro'),
       body: RefreshIndicator(
         onRefresh: () async {
           // Simulação de recarregamento
@@ -128,33 +106,34 @@ class FinanceHomePage extends StatelessWidget {
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      color: colorScheme.surfaceContainerLow,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24)),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(16),
-                        leading: CircleAvatar(
-                          backgroundColor: colorScheme.primaryContainer,
-                          child: Icon(Icons.check_circle_outline_rounded,
-                              color: colorScheme.onPrimaryContainer),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    color: colorScheme.surfaceContainerLow,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
+                      leading: CircleAvatar(
+                        backgroundColor: colorScheme.primaryContainer,
+                        child: Icon(
+                          Icons.check_circle_outline_rounded,
+                          color: colorScheme.onPrimaryContainer,
                         ),
-                        title: Text('Pedido #99${80 - index} Liberado',
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: const Text('Cliente: Tech Solutions Ltda'),
-                        trailing: const Icon(Icons.chevron_right_rounded),
                       ),
-                    );
-                  },
-                  childCount: 3,
-                ),
+                      title: Text(
+                        'Pedido #99${80 - index} Liberado',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: const Text('Cliente: Tech Solutions Ltda'),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                    ),
+                  );
+                }, childCount: 3),
               ),
             ),
-            
+
             const SliverToBoxAdapter(child: SizedBox(height: 32)),
           ],
         ),
@@ -222,7 +201,7 @@ class FinanceHomePage extends StatelessWidget {
             color: backgroundColor.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
-          )
+          ),
         ],
       ),
       child: Material(
@@ -266,8 +245,11 @@ class FinanceHomePage extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(Icons.arrow_forward_ios_rounded,
-                    size: 18, color: foregroundColor),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 18,
+                  color: foregroundColor,
+                ),
               ],
             ),
           ),

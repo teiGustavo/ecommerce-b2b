@@ -23,6 +23,8 @@ class BuyerHomePage extends StatelessWidget {
             floating: false,
             pinned: true,
             backgroundColor: colorScheme.primary,
+            elevation: 0,
+            scrolledUnderElevation: 3,
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
               title: Text(
@@ -58,6 +60,13 @@ class BuyerHomePage extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+            ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(1.0),
+              child: Container(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                height: 1.0,
               ),
             ),
             actions: [
