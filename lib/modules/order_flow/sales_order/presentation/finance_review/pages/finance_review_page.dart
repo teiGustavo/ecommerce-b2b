@@ -1,4 +1,5 @@
 import 'package:ecommerce_b2b/app/core/di/service_locator.dart';
+import 'package:ecommerce_b2b/app/presentation/widgets/user_profile_dropdown.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/presentation/finance_review/cubit/finance_review_cubit.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,26 @@ class FinanceReviewPage extends StatelessWidget {
       create: (context) => getIt<FinanceReviewCubit>()..loadPendingOrders(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Análise Financeira', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(
+            'Análise Financeira',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          centerTitle: false,
+          actions: const [UserProfileDropdown()],
+          elevation: 0,
+          scrolledUnderElevation: 3,
+          backgroundColor: colorScheme.surface,
+          surfaceTintColor: colorScheme.surface,
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1.0),
+            child: Container(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              height: 1.0,
+            ),
+          ),
         ),
         body: BlocBuilder<FinanceReviewCubit, FinanceReviewState>(
           builder: (context, state) {

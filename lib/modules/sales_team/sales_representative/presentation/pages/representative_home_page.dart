@@ -24,8 +24,26 @@ class RepresentativeHomePage extends StatelessWidget {
       create: (context) => getIt<RepresentativeDashboardCubit>()..loadDashboard(session),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Painel do Representante', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(
+            'Painel do Representante',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          centerTitle: false,
           actions: const [UserProfileDropdown()],
+          elevation: 0,
+          scrolledUnderElevation: 3,
+          backgroundColor: colorScheme.surface,
+          surfaceTintColor: colorScheme.surface,
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1.0),
+            child: Container(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              height: 1.0,
+            ),
+          ),
         ),
         body: BlocBuilder<RepresentativeDashboardCubit, RepresentativeDashboardState>(
           builder: (context, state) {

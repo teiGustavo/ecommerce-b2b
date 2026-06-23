@@ -14,9 +14,26 @@ class FinanceHomePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Painel Financeiro',
-            style: TextStyle(fontWeight: FontWeight.w900)),
+        title: Text(
+          'Painel Financeiro',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        centerTitle: false,
         actions: const [UserProfileDropdown()],
+        elevation: 0,
+        scrolledUnderElevation: 3,
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: colorScheme.surface,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+            height: 1.0,
+          ),
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
