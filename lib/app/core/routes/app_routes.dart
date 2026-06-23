@@ -10,6 +10,7 @@ import 'package:ecommerce_b2b/modules/customer_portal/presentation/pages/buyer_h
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/presentation/pages/representative_home_page.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/presentation/finance_review/pages/finance_home_page.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/presentation/finance_review/pages/finance_review_page.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/presentation/pages/company_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -69,6 +70,10 @@ final appRouter = GoRouter(
         GoRoute(
           path: AppPage.finance.path,
           builder: (context, state) => const FinanceReviewPage(),
+        ),
+        GoRoute(
+          path: AppPage.companies.path,
+          builder: (context, state) => const CompanyListPage(),
         ),
       ],
     ),

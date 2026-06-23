@@ -10,6 +10,7 @@ import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/ser
 
 
 // Repositories (Interfaces)
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/repositories/company_repository.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/tracking_repository.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/freight_repository.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/repositories/sales_order_repository.dart';
@@ -18,6 +19,7 @@ import 'package:ecommerce_b2b/modules/identity_access/domain/repositories/auth_r
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/repositories/sales_representative_repository.dart';
 
 // Adapters (Implementations)
+import 'package:ecommerce_b2b/modules/customer_management/company/infrastructure/repositories/adapters/mock/mock_company_adapter.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_tracking_adapter.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_freight_adapter.dart';
 import 'package:ecommerce_b2b/modules/identity_access/infrastructure/repositories/adapters/mock/mock_auth_adapter.dart';
@@ -39,6 +41,10 @@ import 'package:ecommerce_b2b/modules/sales_team/sales_representative/applicatio
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/presentation/finance_review/cubit/finance_review_cubit.dart';
 import 'package:ecommerce_b2b/modules/identity_access/presentation/cubit/auth_cubit.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/presentation/cubit/representative_dashboard_cubit.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/application/get_companies/get_companies_use_case.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/application/register_company/register_company_use_case.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/application/add_authorized_buyer/add_authorized_buyer_use_case.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/presentation/cubit/company_management_cubit.dart';
 
 
 final getIt = GetIt.instance;
@@ -53,6 +59,7 @@ void setupServiceLocator() {
   getIt.registerLazySingleton(() => SalesHierarchyDomainService());
 
   // --- Infrastructure / Adapters ---
+  getIt.registerLazySingleton<CompanyRepository>(() => MockCompanyAdapter());
   getIt.registerLazySingleton<TrackingRepository>(() => MockTrackingAdapter());
   getIt.registerLazySingleton<FreightRepository>(() => MockFreightAdapter());
   getIt.registerLazySingleton<AuthRepository>(() => MockAuthAdapter());
@@ -72,6 +79,15 @@ void setupServiceLocator() {
   getIt.registerLazySingleton(() => GetCustomerPortfolioUseCase(
     getIt<SalesRepresentativeRepository>(),
     getIt<SalesHierarchyDomainService>(),
+  ));
+  getIt.registerLazySingleton(() => GetCompaniesUseCase(
+    getIt<CompanyRepository>(),
+  ));
+  getIt.registerLazySingleton(() => RegisterCompanyUseCase(
+    getIt<CompanyRepository>(),
+  ));
+  getIt.registerLazySingleton(() => AddAuthorizedBuyerUseCase(
+    getIt<CompanyRepository>(),
   ));
   getIt.registerLazySingleton(() => CreateQuoteUseCase(
     getIt<OrderPricingDomainService>(),
@@ -121,5 +137,11 @@ void setupServiceLocator() {
   getIt.registerFactory(() => FinanceReviewCubit(
     getPendingReviews: getIt<GetPendingFinanceReviewsUseCase>(),
     processReview: getIt<ProcessFinanceReviewUseCase>(),
+  ));
+
+  getIt.registerFactory(() => CompanyManagementCubit(
+    getCompaniesUseCase: getIt<GetCompaniesUseCase>(),
+    registerCompanyUseCase: getIt<RegisterCompanyUseCase>(),
+    addAuthorizedBuyerUseCase: getIt<AddAuthorizedBuyerUseCase>(),
   ));
 }
