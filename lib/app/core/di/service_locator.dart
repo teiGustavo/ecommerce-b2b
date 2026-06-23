@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:drift/drift.dart';
+import 'package:bcrypt/bcrypt.dart';
 
 // Drift and Database
 import 'package:ecommerce_b2b/modules/shared_kernel/infrastructure/database/app_database.dart';
@@ -32,6 +33,8 @@ import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/sales_order.
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
+import 'package:ecommerce_b2b/modules/identity_access/domain/enums/user_role.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/id_generator.dart';
 
 // Domain Services
 import 'package:ecommerce_b2b/modules/catalog/price_table/domain/services/order_pricing_domain_service.dart';
@@ -241,129 +244,173 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
 
 Future<void> _seedDatabase(AppDatabase db) async {
   final companiesList = await db.select(db.companies).get();
-  if (companiesList.isNotEmpty) return;
+  final usersList = await db.customSelect('SELECT id FROM users LIMIT 1').get();
 
   final companyRepo = DriftCompanyRepository(db);
   final repRepo = DriftSalesRepresentativeRepository(db);
   final orderRepo = DriftSalesOrderRepository(db);
 
-  // Seed Sales Representative
-  final rep = SalesRepresentative(
-    id: const RepresentativeId('rep-456'),
-    fullName: 'Representante Mock',
-    email: EmailAddress.create('rep@test.com').getOrThrow(),
-    commissionRate: Percentage.create(5).getOrThrow(),
-  );
-  await repRepo.save(rep);
+  if (companiesList.isEmpty) {
+    // Seed Sales Representative
+    final rep = SalesRepresentative(
+      id: const RepresentativeId('rep-456'),
+      fullName: 'Representante Mock',
+      email: EmailAddress.create('rep@test.com').getOrThrow(),
+      commissionRate: Percentage.create(5).getOrThrow(),
+    );
+    await repRepo.save(rep);
 
-  // Seed Companies
-  final company1 = Company(
-    id: const CompanyId('c1'),
-    legalName: 'Acme Corporation Ltda',
-    tradeName: 'Acme Corp',
-    cnpj: Cnpj.create('12345678000195').getOrThrow(),
-    inscricaoEstadual: InscricaoEstadual.create('123456789').getOrThrow(),
-    email: EmailAddress.create('contato@acme.com').getOrThrow(),
-    phone: PhoneNumber.create('11999999999').getOrThrow(),
-    billingAddress: Address.create(
-      street: 'Avenida Paulista',
-      number: '1000',
-      neighborhood: 'Bela Vista',
-      city: 'São Paulo',
-      state: 'SP',
-      zipCode: '01310100',
-    ).getOrThrow(),
-    shippingAddress: Address.create(
-      street: 'Avenida Paulista',
-      number: '1000',
-      neighborhood: 'Bela Vista',
-      city: 'São Paulo',
-      state: 'SP',
-      zipCode: '01310100',
-    ).getOrThrow(),
-    state: State.saoPaulo,
-    creditLimit: Money.create(100000).getOrThrow(),
-    authorizedBuyers: [
-      AuthorizedBuyer(
-        id: const BuyerId('buyer-1'),
-        fullName: 'Carlos Comprador',
-        email: EmailAddress.create('carlos@acme.com').getOrThrow(),
-        phone: PhoneNumber.create('11988888888').getOrThrow(),
-        positionTitle: 'Diretor de Compras',
-        active: true,
+    // Seed Companies
+    final company1 = Company(
+      id: const CompanyId('c1'),
+      legalName: 'Acme Corporation Ltda',
+      tradeName: 'Acme Corp',
+      cnpj: Cnpj.create('12345678000195').getOrThrow(),
+      inscricaoEstadual: InscricaoEstadual.create('123456789').getOrThrow(),
+      email: EmailAddress.create('contato@acme.com').getOrThrow(),
+      phone: PhoneNumber.create('11999999999').getOrThrow(),
+      billingAddress: Address.create(
+        street: 'Avenida Paulista',
+        number: '1000',
+        neighborhood: 'Bela Vista',
+        city: 'São Paulo',
+        state: 'SP',
+        zipCode: '01310100',
+      ).getOrThrow(),
+      shippingAddress: Address.create(
+        street: 'Avenida Paulista',
+        number: '1000',
+        neighborhood: 'Bela Vista',
+        city: 'São Paulo',
+        state: 'SP',
+        zipCode: '01310100',
+      ).getOrThrow(),
+      state: State.saoPaulo,
+      creditLimit: Money.create(100000).getOrThrow(),
+      authorizedBuyers: [
+        AuthorizedBuyer(
+          id: const BuyerId('buyer-1'),
+          fullName: 'Carlos Comprador',
+          email: EmailAddress.create('carlos@acme.com').getOrThrow(),
+          phone: PhoneNumber.create('11988888888').getOrThrow(),
+          positionTitle: 'Diretor de Compras',
+          active: true,
+        ),
+      ],
+      creditAccount: CustomerCreditAccount(
+        preApprovedLimit: Money.create(100000).getOrThrow(),
+        openBalance: Money.create(15000).getOrThrow(),
+        pendingOrdersBalance: Money.create(5000).getOrThrow(),
       ),
-    ],
-    creditAccount: CustomerCreditAccount(
-      preApprovedLimit: Money.create(100000).getOrThrow(),
-      openBalance: Money.create(15000).getOrThrow(),
-      pendingOrdersBalance: Money.create(5000).getOrThrow(),
-    ),
-  );
+    );
 
-  final company2 = Company(
-    id: const CompanyId('c2'),
-    legalName: 'Indústrias Stark S.A.',
-    tradeName: 'Stark Industries',
-    cnpj: Cnpj.create('60746948000112').getOrThrow(),
-    inscricaoEstadual: InscricaoEstadual.create('987654321').getOrThrow(),
-    email: EmailAddress.create('contact@stark.com').getOrThrow(),
-    phone: PhoneNumber.create('21999999999').getOrThrow(),
-    billingAddress: Address.create(
-      street: 'Avenida Atlântica',
-      number: '400',
-      neighborhood: 'Copacabana',
-      city: 'Rio de Janeiro',
-      state: 'RJ',
-      zipCode: '22010000',
-    ).getOrThrow(),
-    shippingAddress: Address.create(
-      street: 'Avenida Atlântica',
-      number: '400',
-      neighborhood: 'Copacabana',
-      city: 'Rio de Janeiro',
-      state: 'RJ',
-      zipCode: '22010000',
-    ).getOrThrow(),
-    state: State.rioDeJaneiro,
-    creditLimit: Money.create(500000).getOrThrow(),
-    authorizedBuyers: [
-      AuthorizedBuyer(
-        id: const BuyerId('buyer-2'),
-        fullName: 'Pepper Potts',
-        email: EmailAddress.create('pepper@stark.com').getOrThrow(),
-        phone: PhoneNumber.create('21988888888').getOrThrow(),
-        positionTitle: 'CEO',
-        active: true,
+    final company2 = Company(
+      id: const CompanyId('c2'),
+      legalName: 'Indústrias Stark S.A.',
+      tradeName: 'Stark Industries',
+      cnpj: Cnpj.create('60746948000112').getOrThrow(),
+      inscricaoEstadual: InscricaoEstadual.create('987654321').getOrThrow(),
+      email: EmailAddress.create('contact@stark.com').getOrThrow(),
+      phone: PhoneNumber.create('21999999999').getOrThrow(),
+      billingAddress: Address.create(
+        street: 'Avenida Atlântica',
+        number: '400',
+        neighborhood: 'Copacabana',
+        city: 'Rio de Janeiro',
+        state: 'RJ',
+        zipCode: '22010000',
+      ).getOrThrow(),
+      shippingAddress: Address.create(
+        street: 'Avenida Atlântica',
+        number: '400',
+        neighborhood: 'Copacabana',
+        city: 'Rio de Janeiro',
+        state: 'RJ',
+        zipCode: '22010000',
+      ).getOrThrow(),
+      state: State.rioDeJaneiro,
+      creditLimit: Money.create(500000).getOrThrow(),
+      authorizedBuyers: [
+        AuthorizedBuyer(
+          id: const BuyerId('buyer-2'),
+          fullName: 'Pepper Potts',
+          email: EmailAddress.create('pepper@stark.com').getOrThrow(),
+          phone: PhoneNumber.create('21988888888').getOrThrow(),
+          positionTitle: 'CEO',
+          active: true,
+        ),
+      ],
+      creditAccount: CustomerCreditAccount(
+        preApprovedLimit: Money.create(500000).getOrThrow(),
+        openBalance: Money.create(0).getOrThrow(),
+        pendingOrdersBalance: Money.create(45000).getOrThrow(),
       ),
-    ],
-    creditAccount: CustomerCreditAccount(
-      preApprovedLimit: Money.create(500000).getOrThrow(),
-      openBalance: Money.create(0).getOrThrow(),
-      pendingOrdersBalance: Money.create(45000).getOrThrow(),
-    ),
-  );
+    );
 
-  await companyRepo.save(company1);
-  await companyRepo.save(company2);
+    await companyRepo.save(company1);
+    await companyRepo.save(company2);
 
-  // Seed Sales Orders
-  final order1 = SalesOrder(
-    id: const OrderId('order-101'),
-    companyId: 'c1',
-    status: OrderStatus.blockedByFinance,
-    creditStatus: CreditStatus.blocked,
-    items: [],
-  );
-  final order2 = SalesOrder(
-    id: const OrderId('order-102'),
-    companyId: 'c2',
-    status: OrderStatus.pendingFinanceApproval,
-    creditStatus: CreditStatus.approved,
-    items: [],
-  );
+    // Seed Sales Orders
+    final order1 = SalesOrder(
+      id: const OrderId('order-101'),
+      companyId: 'c1',
+      status: OrderStatus.blockedByFinance,
+      creditStatus: CreditStatus.blocked,
+      items: [],
+    );
+    final order2 = SalesOrder(
+      id: const OrderId('order-102'),
+      companyId: 'c2',
+      status: OrderStatus.pendingFinanceApproval,
+      creditStatus: CreditStatus.approved,
+      items: [],
+    );
 
-  await orderRepo.save(order1);
-  await orderRepo.save(order2);
+    await orderRepo.save(order1);
+    await orderRepo.save(order2);
+  }
+
+  if (usersList.isEmpty) {
+    final now = DateTime.now();
+    Future<void> insertUser({
+      required String fullName,
+      required String email,
+      required String role,
+      String? companyId,
+    }) {
+      return db.customInsert(
+        'INSERT OR REPLACE INTO users (id, full_name, email, password_hash, role, company_id, active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        variables: [
+          Variable(generateId()),
+          Variable(fullName),
+          Variable(email),
+          Variable(BCrypt.hashpw('password123', BCrypt.gensalt())),
+          Variable(role),
+          Variable(companyId),
+          const Variable(true),
+          Variable(now),
+          Variable(now),
+        ],
+      );
+    }
+
+    await insertUser(
+      fullName: 'Carlos Comprador',
+      email: 'buyer@test.com',
+      role: UserRole.buyer.name,
+      companyId: 'c1',
+    );
+    await insertUser(
+      fullName: 'Representante Mock',
+      email: 'rep@test.com',
+      role: UserRole.representative.name,
+    );
+    await insertUser(
+      fullName: 'Financeiro Mock',
+      email: 'finance@test.com',
+      role: UserRole.finance.name,
+    );
+  }
 
   // Seed Products
   final productRepo = DriftProductRepository(db);

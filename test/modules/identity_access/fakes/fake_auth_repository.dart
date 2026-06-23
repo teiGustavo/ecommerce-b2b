@@ -6,37 +6,42 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/user_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/email_address.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/id_generator.dart';
+import 'package:bcrypt/bcrypt.dart';
 
 class FakeAuthRepository implements AuthRepository {
   UserSession? _currentSession;
+  late final Map<String, _FakeUserRecord> _users = {
+    'buyer@test.com': _FakeUserRecord(
+      userId: UserId(generateId()),
+      role: UserRole.buyer,
+      companyId: CompanyId('c1'),
+      passwordHash: BCrypt.hashpw('password123', BCrypt.gensalt()),
+    ),
+    'rep@test.com': _FakeUserRecord(
+      userId: UserId(generateId()),
+      role: UserRole.representative,
+      passwordHash: BCrypt.hashpw('password123', BCrypt.gensalt()),
+    ),
+    'finance@test.com': _FakeUserRecord(
+      userId: UserId(generateId()),
+      role: UserRole.finance,
+      passwordHash: BCrypt.hashpw('password123', BCrypt.gensalt()),
+    ),
+  };
 
   @override
   Future<Result<UserSession, AuthError>> login(EmailAddress email, String password) async {
-    if (password != 'password123') {
+    final user = _users[email.value];
+    if (user == null || !BCrypt.checkpw(password, user.passwordHash)) {
       return Failure(InvalidCredentialsError());
     }
 
-    final emailStr = email.value;
-
-    if (emailStr.contains('buyer')) {
-      _currentSession = UserSession(
-        userId: const UserId('buyer-123'),
-        role: UserRole.buyer,
-        companyId: const CompanyId('company-abc'),
-      );
-    } else if (emailStr.contains('rep')) {
-      _currentSession = UserSession(
-        userId: const UserId('rep-456'),
-        role: UserRole.representative,
-      );
-    } else if (emailStr.contains('finance')) {
-      _currentSession = UserSession(
-        userId: const UserId('finance-789'),
-        role: UserRole.finance,
-      );
-    } else {
-      return Failure(InvalidCredentialsError());
-    }
+    _currentSession = UserSession(
+      userId: user.userId,
+      role: user.role,
+      companyId: user.companyId,
+    );
 
     return Success(_currentSession!);
   }
@@ -51,3 +56,18 @@ class FakeAuthRepository implements AuthRepository {
     _currentSession = null;
   }
 }
+
+class _FakeUserRecord {
+  final UserId userId;
+  final UserRole role;
+  final CompanyId? companyId;
+  final String passwordHash;
+
+  _FakeUserRecord({
+    required this.userId,
+    required this.role,
+    this.companyId,
+    required this.passwordHash,
+  });
+}
+

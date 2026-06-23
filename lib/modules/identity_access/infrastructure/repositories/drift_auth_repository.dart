@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:bcrypt/bcrypt.dart';
 import 'package:ecommerce_b2b/modules/identity_access/domain/enums/user_role.dart';
 import 'package:ecommerce_b2b/modules/identity_access/domain/repositories/auth_repository.dart';
 import 'package:ecommerce_b2b/modules/identity_access/domain/user_session.dart';
@@ -16,32 +17,29 @@ class DriftAuthRepository implements AuthRepository {
 
   @override
   Future<Result<UserSession, AuthError>> login(EmailAddress email, String password) async {
-    if (password != 'password123') {
+    final queryResult = await _db.customSelect(
+      'SELECT id, role, company_id, password_hash FROM users WHERE email = ? AND active = 1 LIMIT 1',
+      variables: [Variable(email.value)],
+    ).getSingleOrNull();
+
+    if (queryResult == null) {
       return Failure(InvalidCredentialsError());
     }
 
-    final emailStr = email.value;
-    UserSession session;
+    final userId = queryResult.read<String>('id');
+    final role = queryResult.read<String>('role');
+    final companyId = queryResult.data['company_id'] as String?;
+    final passwordHash = queryResult.read<String>('password_hash');
 
-    if (emailStr.contains('buyer')) {
-      session = UserSession(
-        userId: const UserId('buyer-123'),
-        role: UserRole.buyer,
-        companyId: const CompanyId('company-abc'),
-      );
-    } else if (emailStr.contains('rep')) {
-      session = UserSession(
-        userId: const UserId('rep-456'),
-        role: UserRole.representative,
-      );
-    } else if (emailStr.contains('finance')) {
-      session = UserSession(
-        userId: const UserId('finance-789'),
-        role: UserRole.finance,
-      );
-    } else {
+    if (!BCrypt.checkpw(password, passwordHash)) {
       return Failure(InvalidCredentialsError());
     }
+
+    final session = UserSession(
+      userId: UserId(userId),
+      role: UserRole.values.firstWhere((r) => r.name == role),
+      companyId: companyId != null ? CompanyId(companyId) : null,
+    );
 
     await _db.transaction(() async {
       // Deactivate any active sessions

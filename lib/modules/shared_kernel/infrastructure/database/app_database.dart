@@ -108,6 +108,22 @@ class UserSessions extends Table {
   Set<Column> get primaryKey => {userId};
 }
 
+@DataClassName('UserRow')
+class Users extends Table {
+  TextColumn get id => text()();
+  TextColumn get fullName => text()();
+  TextColumn get email => text().unique()();
+  TextColumn get passwordHash => text()();
+  TextColumn get role => text()();
+  TextColumn get companyId => text().nullable()();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DataClassName('ProductRow')
 class Products extends Table {
   TextColumn get id => text()();
@@ -229,6 +245,7 @@ class QuoteItemsTable extends Table {
   SalesOrdersTable,
   OrderItemsTable,
   UserSessions,
+  Users,
   Products,
   ProductVariants,
   PriceTables,
@@ -244,12 +261,13 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) async {
           await m.createAll();
+          await _createUsersTable(m);
         },
         onUpgrade: (m, from, to) async {
           if (from < 2) {
@@ -278,8 +296,27 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(quotesTable);
             await m.createTable(quoteItemsTable);
           }
+          if (from < 8) {
+            await _createUsersTable(m);
+          }
         },
       );
+}
+
+Future<void> _createUsersTable(Migrator m) async {
+  await m.database.customStatement('''
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT NOT NULL PRIMARY KEY,
+      full_name TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL,
+      company_id TEXT,
+      active INTEGER NOT NULL DEFAULT 1,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    );
+  ''');
 }
 
 LazyDatabase openConnection() {

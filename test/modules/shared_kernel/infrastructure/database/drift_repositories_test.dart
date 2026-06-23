@@ -1,4 +1,6 @@
+import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
+import 'package:bcrypt/bcrypt.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/authorized_buyer.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/customer_credit_account.dart';
@@ -6,6 +8,7 @@ import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_o
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/inscricao_estadual.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/infrastructure/repositories/drift_company_repository.dart';
 import 'package:ecommerce_b2b/modules/identity_access/infrastructure/repositories/drift_auth_repository.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/auth/errors/auth_errors.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/enums/finance_decision.dart';
@@ -19,6 +22,7 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.d
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/address.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/buyer_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/id_generator.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
@@ -43,7 +47,7 @@ void main() {
   late DriftAuthRepository authRepository;
   late DriftQuoteRepository quoteRepository;
 
-  setUp(() {
+  setUp(() async {
     // Start with an in-memory SQLite database connection for testing
     database = AppDatabase(NativeDatabase.memory());
     companyRepository = DriftCompanyRepository(database);
@@ -51,6 +55,22 @@ void main() {
     salesOrderRepository = DriftSalesOrderRepository(database);
     authRepository = DriftAuthRepository(database);
     quoteRepository = DriftQuoteRepository(database);
+
+    final now = DateTime(2026, 6, 23);
+    await database.customInsert(
+      'INSERT OR REPLACE INTO users (id, full_name, email, password_hash, role, company_id, active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      variables: [
+        Variable(generateId()),
+        const Variable('Buyer Test'),
+        const Variable('buyer@test.com'),
+        Variable(BCrypt.hashpw('password123', BCrypt.gensalt())),
+        const Variable('buyer'),
+        Variable(generateId()),
+        const Variable(true),
+        Variable(now),
+        Variable(now),
+      ],
+    );
   });
 
   tearDown(() async {
@@ -87,8 +107,8 @@ void main() {
         state: State.rioDeJaneiro,
         creditLimit: Money.create(150000).getOrThrow(),
         authorizedBuyers: [
-          AuthorizedBuyer(
-            id: const BuyerId('buyer-99'),
+              AuthorizedBuyer(
+                     id: BuyerId(generateId()),
             fullName: 'John Buyer',
             email: EmailAddress.create('john@b2btrade.com').getOrThrow(),
             phone: PhoneNumber.create('21988887777').getOrThrow(),
@@ -109,7 +129,7 @@ void main() {
       // Find company
       final fetched = await companyRepository.findById(companyId);
 
-      expect(fetched, isNotNull);
+      expect(fetched != null, isTrue);
       expect(fetched!.tradeName, 'B2B Trade');
       expect(fetched.cnpj.value, '12345678000195');
       expect(fetched.creditLimit.amount, 150000);
@@ -119,7 +139,11 @@ void main() {
 
       expect(fetched.authorizedBuyers.length, 1);
       expect(fetched.authorizedBuyers.first.fullName, 'John Buyer');
-      expect(fetched.authorizedBuyers.first.id.value, 'buyer-99');
+      // IDs should be UUIDs (v7) after migration — just assert format and non-empty
+      final buyerIdValue = fetched.authorizedBuyers.first.id.value;
+      final uuidV7Regex = RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' , caseSensitive: false);
+      expect(buyerIdValue, isNotEmpty);
+      expect(uuidV7Regex.hasMatch(buyerIdValue), isTrue);
     });
 
     test('should find all companies and by representative id', () async {
@@ -167,7 +191,7 @@ void main() {
       await representativeRepository.save(rep);
 
       final fetched = await representativeRepository.findById(repId);
-      expect(fetched, isNotNull);
+      expect(fetched != null, isTrue);
       expect(fetched!.fullName, 'Jane Representative');
       expect(fetched.email.value, 'jane@company.com');
       expect(fetched.commissionRate.value, 8.5);
@@ -216,7 +240,7 @@ void main() {
       expect(companyOrders.first.items.first.productId, const ProductId('prod-1'));
       expect(companyOrders.first.items.first.quantity.value, 5);
       expect(companyOrders.first.items.first.unitPriceSnapshot.amount, 120.0);
-      expect(companyOrders.first.financeReview, isNotNull);
+      expect(companyOrders.first.financeReview != null, isTrue);
       expect(companyOrders.first.financeReview!.reviewerId, 'finance-user-1');
       expect(companyOrders.first.financeReview!.reviewedAt, fixedDate);
 
@@ -235,15 +259,30 @@ void main() {
       expect(result.isSuccess, isTrue);
       
       final session = await authRepository.getCurrentSession();
-      expect(session, isNotNull);
-      expect(session!.userId.value, 'buyer-123');
+      expect(session != null, isTrue);
+      // After migration, session ids should be UUID v7 values
+      final sessionUserId = session!.userId.value;
+      final sessionCompanyId = session.companyId?.value;
+      final uuidV7Regex = RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' , caseSensitive: false);
+      expect(uuidV7Regex.hasMatch(sessionUserId), isTrue);
       expect(session.isBuyer, isTrue);
-      expect(session.companyId?.value, 'company-abc');
+      expect(sessionCompanyId != null, isTrue);
+      expect(uuidV7Regex.hasMatch(sessionCompanyId!), isTrue);
 
       await authRepository.logout();
       
       final loggedOutSession = await authRepository.getCurrentSession();
-      expect(loggedOutSession, isNull);
+      expect(loggedOutSession == null, isTrue);
+    });
+
+    test('should reject invalid password for stored user hash', () async {
+      final email = EmailAddress.create('buyer@test.com').getOrThrow();
+
+      final result = await authRepository.login(email, 'wrongpassword');
+
+      expect(result.isFailure, isTrue);
+      expect(result.getFailureOrThrow(), isA<InvalidCredentialsError>());
+      expect(await authRepository.getCurrentSession() == null, isTrue);
     });
   });
 
@@ -270,7 +309,7 @@ void main() {
       await quoteRepository.save(quote);
 
       final fetched = await quoteRepository.getById(quoteId);
-      expect(fetched, isNotNull);
+      expect(fetched != null, isTrue);
       expect(fetched!.id, quoteId);
       expect(fetched.status, QuoteStatus.draft);
       expect(fetched.items.length, 2);
