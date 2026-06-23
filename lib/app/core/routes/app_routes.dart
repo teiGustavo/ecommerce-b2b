@@ -1,22 +1,78 @@
+import 'dart:async';
+import 'package:ecommerce_b2b/app/core/di/service_locator.dart';
 import 'package:ecommerce_b2b/app/core/routes/app_pages.dart';
 import 'package:ecommerce_b2b/app/presentation/layouts/main_layout.dart';
 import 'package:ecommerce_b2b/app/presentation/pages/home_page.dart';
+import 'package:ecommerce_b2b/modules/identity_access/domain/enums/user_role.dart';
+import 'package:ecommerce_b2b/modules/identity_access/presentation/cubit/auth_cubit.dart';
+import 'package:ecommerce_b2b/modules/identity_access/presentation/pages/login_page.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/presentation/pages/buyer_home_page.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 final appRouter = GoRouter(
   initialLocation: AppPage.home.path,
+  refreshListenable: _AuthRefreshListenable(getIt<AuthCubit>()),
+  redirect: (context, state) {
+    final authState = context.read<AuthCubit>().state;
+    final isLoggingIn = state.matchedLocation == AppPage.login.path;
+
+    if (authState is AuthUnauthenticated || authState is AuthInitial) {
+      return isLoggingIn ? null : AppPage.login.path;
+    }
+
+    if (isLoggingIn && authState is AuthAuthenticated) {
+      return AppPage.home.path;
+    }
+
+    return null;
+  },
   routes: [
+    GoRoute(
+      path: AppPage.login.path,
+      builder: (context, state) => const LoginPage(),
+    ),
     ShellRoute(
       builder: (context, state, child) {
-        // Envolve todas as páginas internas dentro do layout lateral fixo
+        final authState = context.watch<AuthCubit>().state;
+        
+        // Se for comprador, não mostra o MainLayout (que parece ser para representantes/admin)
+        if (authState is AuthAuthenticated && authState.session.role == UserRole.buyer) {
+          return child;
+        }
+
         return MainLayout(child: child);
       },
       routes: [
         GoRoute(
           path: AppPage.home.path,
-          builder: (context, state) => const HomePage(),
+          builder: (context, state) {
+            final authState = context.watch<AuthCubit>().state;
+            if (authState is AuthAuthenticated && authState.session.role == UserRole.buyer) {
+              return const BuyerHomePage();
+            }
+            return const HomePage();
+          },
         ),
       ],
     ),
   ],
 );
+
+/// Helper para notificar o GoRouter quando o estado do Cubit mudar
+class _AuthRefreshListenable extends ChangeNotifier {
+  late final StreamSubscription _subscription;
+
+  _AuthRefreshListenable(AuthCubit cubit) {
+    _subscription = cubit.stream.listen((state) {
+      notifyListeners();
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}

@@ -1,3 +1,4 @@
+import 'package:ecommerce_b2b/app/presentation/widgets/user_profile_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ecommerce_b2b/app/core/routes/app_pages.dart';
@@ -11,7 +12,7 @@ class HomePage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     final cardPages = AppPage.values
-        .where((page) => page != AppPage.home)
+        .where((page) => page != AppPage.home && page != AppPage.login)
         .toList();
 
     return Scaffold(
@@ -24,33 +25,8 @@ class HomePage extends StatelessWidget {
           ),
         ),
         centerTitle: false,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12.0),
-            child: InkWell(
-              onTap: () {},
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: colorScheme.outlineVariant,
-                    width: 1,
-                  ),
-                ),
-                child: CircleAvatar(
-                  radius: 16,
-                  backgroundColor: colorScheme.secondaryContainer,
-                  child: Icon(
-                    Icons.person_outline_rounded,
-                    size: 20,
-                    color: colorScheme.onSecondaryContainer,
-                  ),
-                ),
-              ),
-            ),
-          ),
+        actions: const [
+          UserProfileDropdown(),
         ],
         elevation: 0,
         scrolledUnderElevation: 3,

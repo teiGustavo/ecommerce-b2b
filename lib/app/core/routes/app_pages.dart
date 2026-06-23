@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
 enum AppPage {
+  login(
+    path: '/login',
+    label: 'Login',
+    subtitle: 'Autenticação',
+    icon: Icons.login_rounded,
+    colorType: CardColorType.primary,
+  ),
   home(
     path: '/',
     label: 'Home',

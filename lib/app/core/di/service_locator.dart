@@ -33,6 +33,7 @@ import 'package:ecommerce_b2b/modules/customer_portal/return_request/application
 import 'package:ecommerce_b2b/modules/identity_access/application/login/login_use_case.dart';
 import 'package:ecommerce_b2b/modules/sales_team/application/get_commissions/get_representative_commissions_use_case.dart';
 import 'package:ecommerce_b2b/modules/sales_team/application/get_customers/get_customer_portfolio_use_case.dart';
+import 'package:ecommerce_b2b/modules/identity_access/presentation/cubit/auth_cubit.dart';
 
 
 final getIt = GetIt.instance;
@@ -93,5 +94,11 @@ void setupServiceLocator() {
 
   getIt.registerLazySingleton(() => GetPurchaseHistoryUseCase(
     getIt<SalesOrderRepository>(),
+  ));
+
+  // --- Cubits ---
+  getIt.registerLazySingleton(() => AuthCubit(
+    loginUseCase: getIt<LoginUseCase>(),
+    authRepository: getIt<AuthRepository>(),
   ));
 }

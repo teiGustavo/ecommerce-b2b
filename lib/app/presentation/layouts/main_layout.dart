@@ -15,7 +15,7 @@ class MainLayout extends StatelessWidget {
   /// Calcula dinamicamente o índice correto do menu baseado no path atual da URL
   int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).uri.toString();
-    final pages = AppPage.values;
+    final pages = AppPage.values.where((p) => p != AppPage.login).toList();
 
     for (int i = 0; i < pages.length; i++) {
       if (location == pages[i].path) {
@@ -27,7 +27,8 @@ class MainLayout extends StatelessWidget {
 
   /// Navega dinamicamente usando a estrutura de rotas do GoRouter
   void _onDestinationSelected(BuildContext context, int index) {
-    final destinationPage = AppPage.values[index];
+    final pages = AppPage.values.where((p) => p != AppPage.login).toList();
+    final destinationPage = pages[index];
     context.go(destinationPage.path);
   }
 
@@ -50,7 +51,9 @@ class MainLayout extends StatelessWidget {
                 height: 56,
               ),
             ),
-            destinations: AppPage.values.map((page) {
+            destinations: AppPage.values
+                .where((page) => page != AppPage.login)
+                .map((page) {
               return NavigationRailDestination(
                 icon: Icon(page.icon),
                 selectedIcon: Icon(page.icon),

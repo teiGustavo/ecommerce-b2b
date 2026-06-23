@@ -10,7 +10,8 @@ class LoginUseCase {
   LoginUseCase(this._authRepository);
 
   Future<Result<UserSession, AuthError>> execute(String email, String password) async {
-    final emailResult = EmailAddress.create(email);
+    final trimmedEmail = email.trim();
+    final emailResult = EmailAddress.create(trimmedEmail);
     
     if (emailResult.isFailure) {
       return Failure(InvalidCredentialsError());
