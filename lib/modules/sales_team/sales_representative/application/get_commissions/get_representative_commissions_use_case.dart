@@ -20,7 +20,7 @@ class GetRepresentativeCommissionsUseCase {
     UserSession currentSession,
   ) async {
     // 1. Verificação de Identidade (RN2)
-    final isSelf = currentSession.userId == targetRepId;
+    final isSelf = currentSession.userId.value == targetRepId.value;
 
     if (isSelf) {
       final rep = await _representativeRepository.findById(targetRepId);

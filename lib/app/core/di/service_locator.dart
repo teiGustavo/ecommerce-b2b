@@ -99,6 +99,7 @@ import 'package:ecommerce_b2b/modules/customer_management/company/application/ad
 import 'package:ecommerce_b2b/modules/customer_management/company/presentation/cubit/company_management_cubit.dart';
 import 'package:ecommerce_b2b/modules/catalog/price_table/presentation/cubit/price_table_cubit.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/presentation/cubit/catalog_cubit.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/presentation/cubit/quote_cubit.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/domain/product.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
 
@@ -245,17 +246,25 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
     getIt<GetPriceTablesUseCase>(),
     getIt<SavePriceTableUseCase>(),
   ));
+
+  getIt.registerFactory(() => QuoteCubit(
+    getIt<QuoteRepository>(),
+  ));
 }
 
 Future<void> _seedDatabase(AppDatabase db) async {
   final companiesList = await db.select(db.companies).get();
   final usersList = await db.customSelect('SELECT id FROM users LIMIT 1').get();
+  final repsList = await db.select(db.salesRepresentativesTable).get();
+  final ordersList = await db.select(db.salesOrdersTable).get();
+  final commissionsList = await db.select(db.commissionsTable).get();
+  final quotesList = await db.select(db.quotesTable).get();
 
   final companyRepo = DriftCompanyRepository(db);
   final repRepo = DriftSalesRepresentativeRepository(db);
   final orderRepo = DriftSalesOrderRepository(db);
 
-  if (companiesList.isEmpty) {
+  if (repsList.isEmpty) {
     // Seed Sales Representative
     final rep = SalesRepresentative(
       id: const RepresentativeId('rep-456'),
@@ -264,7 +273,9 @@ Future<void> _seedDatabase(AppDatabase db) async {
       commissionRate: Percentage.create(5).getOrThrow(),
     );
     await repRepo.save(rep);
+  }
 
+  if (companiesList.isEmpty) {
     // Seed Companies
     final company1 = Company(
       id: const CompanyId('c1'),
@@ -356,7 +367,9 @@ Future<void> _seedDatabase(AppDatabase db) async {
 
     await companyRepo.save(company1);
     await companyRepo.save(company2);
+  }
 
+  if (ordersList.isEmpty) {
     // Seed Sales Orders
     final order1 = SalesOrder(
       id: const OrderId('order-101'),
@@ -375,7 +388,9 @@ Future<void> _seedDatabase(AppDatabase db) async {
 
     await orderRepo.save(order1);
     await orderRepo.save(order2);
+  }
 
+  if (commissionsList.isEmpty) {
     // Seed Commissions
     await db.into(db.commissionsTable).insert(CommissionsTableCompanion.insert(
       representativeId: 'rep-456',
@@ -393,7 +408,9 @@ Future<void> _seedDatabase(AppDatabase db) async {
       status: 'pending',
       createdAt: DateTime.now().subtract(const Duration(days: 1)),
     ));
+  }
 
+  if (quotesList.isEmpty) {
     // Seed Quotes
     await db.into(db.quotesTable).insert(QuotesTableCompanion.insert(
       id: 'quote-001',

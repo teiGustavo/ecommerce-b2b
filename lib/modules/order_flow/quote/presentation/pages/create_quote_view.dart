@@ -1,13 +1,16 @@
 import 'package:ecommerce_b2b/app/core/di/service_locator.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/domain/product.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/domain/repositories/product_repository.dart';
+import 'package:ecommerce_b2b/modules/identity_access/presentation/cubit/auth_cubit.dart';
 import 'package:ecommerce_b2b/modules/order_flow/quote/domain/quote.dart';
 import 'package:ecommerce_b2b/modules/order_flow/quote/domain/quote_item.dart';
 import 'package:ecommerce_b2b/modules/order_flow/quote/domain/enums/quote_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/quote/domain/repositories/quote_repository.dart';
+import 'package:ecommerce_b2b/modules/order_flow/quote/presentation/cubit/quote_cubit.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/quote_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
@@ -51,21 +54,29 @@ class _CreateQuoteViewState extends State<CreateQuoteView> {
   Future<void> _saveQuote() async {
     if (_items.isEmpty) return;
 
+    final authState = context.read<AuthCubit>().state;
+    if (authState is! AuthAuthenticated) return;
+
     final quote = Quote(
       id: QuoteId(const Uuid().v4()),
+      representativeId: authState.session.userId.value,
       status: QuoteStatus.draft,
       items: _items,
     );
 
-    await getIt<QuoteRepository>().save(quote);
+    await context.read<QuoteCubit>().saveQuote(quote, authState.session);
+    
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Orçamento salvo com sucesso!')),
       );
-      // Aqui poderíamos limpar os itens ou navegar para a lista
+      
       setState(() {
         _items.clear();
       });
+
+      final tabController = DefaultTabController.of(context);
+      tabController.animateTo(1);
     }
   }
 
