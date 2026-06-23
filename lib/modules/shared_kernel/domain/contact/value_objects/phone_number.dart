@@ -36,6 +36,26 @@ class PhoneNumber extends ValueObject {
     return Success(PhoneNumber._(formatted));
   }
 
+  String get formatted {
+    if (!value.startsWith('+55')) {
+      return value;
+    }
+
+    final digits = value.replaceAll(RegExp(r'\D'), '');
+    final ddd = digits.substring(2, 4);
+    final subscriber = digits.substring(4);
+
+    if (subscriber.length == 9) {
+      return '($ddd) ${subscriber.substring(0, 5)}-${subscriber.substring(5)}';
+    }
+
+    if (subscriber.length == 8) {
+      return '($ddd) ${subscriber.substring(0, 4)}-${subscriber.substring(4)}';
+    }
+
+    return value;
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

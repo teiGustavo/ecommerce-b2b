@@ -135,7 +135,7 @@ class CompanyListPage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            subtitle: Text('CNPJ: ${company.cnpj.value}'),
+            subtitle: Text('CNPJ: ${company.cnpj.formatted}'),
             children: [
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -150,13 +150,13 @@ class CompanyListPage extends StatelessWidget {
                       company.inscricaoEstadual.value,
                     ),
                     _buildInfoRow('E-mail de Contato', company.email.value),
-                    _buildInfoRow('Telefone', company.phone.value),
+                    _buildInfoRow('Telefone', company.phone.formatted),
                     const SizedBox(height: 12),
                     _buildSectionTitle(theme, 'Endereço de Faturamento'),
                     Text(
                       '${company.billingAddress.street.value}, ${company.billingAddress.number.value}'
                       '${company.billingAddress.complement != null ? " - ${company.billingAddress.complement!.value}" : ""}\n'
-                      '${company.billingAddress.neighborhood.value} - ${company.billingAddress.city.value}/${company.billingAddress.state.code} - CEP: ${company.billingAddress.zipCode.value}',
+                      '${company.billingAddress.neighborhood.value} - ${company.billingAddress.city.value}/${company.billingAddress.state.code} - CEP: ${company.billingAddress.zipCode.formatted}',
                       style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 12),
