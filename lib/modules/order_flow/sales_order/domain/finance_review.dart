@@ -5,11 +5,15 @@ import 'package:flutter/foundation.dart';
 @immutable
 class FinanceReview extends ValueObject {
   final FinanceDecision decision;
-  final String reason;
+  final String reviewerId;
+  final DateTime reviewedAt;
+  final String justification;
 
   const FinanceReview({
     required this.decision,
-    required this.reason,
+    required this.reviewerId,
+    required this.reviewedAt,
+    required this.justification,
   });
 
   @override
@@ -18,8 +22,14 @@ class FinanceReview extends ValueObject {
       other is FinanceReview &&
           runtimeType == other.runtimeType &&
           decision == other.decision &&
-          reason == other.reason;
+          reviewerId == other.reviewerId &&
+          reviewedAt == other.reviewedAt &&
+          justification == other.justification;
 
   @override
-  int get hashCode => decision.hashCode ^ reason.hashCode;
+  int get hashCode =>
+      decision.hashCode ^
+      reviewerId.hashCode ^
+      reviewedAt.hashCode ^
+      justification.hashCode;
 }

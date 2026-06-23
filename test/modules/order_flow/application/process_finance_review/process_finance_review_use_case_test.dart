@@ -56,7 +56,12 @@ void main() {
       final stateMachine = MockOrderStateMachine();
       final inventoryAllocator = MockInventoryAllocator();
       final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator);
-      final review = FinanceReview(decision: FinanceDecision.approved, reason: 'OK');
+      final review = FinanceReview(
+        decision: FinanceDecision.approved,
+        reviewerId: 'admin',
+        reviewedAt: DateTime.now(),
+        justification: 'OK',
+      );
 
       useCase.execute(order: order, review: review, warehouses: [warehouse]);
 
@@ -70,7 +75,12 @@ void main() {
       final stateMachine = MockOrderStateMachine();
       final inventoryAllocator = MockInventoryAllocator();
       final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator);
-      final review = FinanceReview(decision: FinanceDecision.rejected, reason: 'No credit');
+      final review = FinanceReview(
+        decision: FinanceDecision.rejected,
+        reviewerId: 'admin',
+        reviewedAt: DateTime.now(),
+        justification: 'No credit',
+      );
 
       useCase.execute(order: order, review: review, warehouses: [warehouse]);
 
@@ -83,7 +93,12 @@ void main() {
       final stateMachine = MockOrderStateMachine();
       final inventoryAllocator = MockInventoryAllocator();
       final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator);
-      final review = FinanceReview(decision: FinanceDecision.approved, reason: 'OK');
+      final review = FinanceReview(
+        decision: FinanceDecision.approved,
+        reviewerId: 'admin',
+        reviewedAt: DateTime.now(),
+        justification: 'OK',
+      );
 
       order.updateStatus(OrderStatus.pendingFinanceApproval);
 
