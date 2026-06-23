@@ -57,6 +57,30 @@ class Money extends ValueObject {
     return Money._(result, currency: currency);
   }
 
+  String get formatted {
+    final String decimalSeparator = currency == Currency.brazil ? ',' : '.';
+    final String thousandSeparator = currency == Currency.brazil ? '.' : ',';
+    final String units = (amountInCents ~/ 100).toString();
+    final String cents = (amountInCents % 100).toString().padLeft(2, '0');
+    final String formattedUnits = _formatUnits(units, thousandSeparator);
+
+    return '${currency.symbol} $formattedUnits$decimalSeparator$cents';
+  }
+
+  String _formatUnits(String value, String separator) {
+    final buffer = StringBuffer();
+    final reversed = value.split('').reversed.toList();
+
+    for (var i = 0; i < reversed.length; i++) {
+      if (i != 0 && i % 3 == 0) {
+        buffer.write(separator);
+      }
+      buffer.write(reversed[i]);
+    }
+
+    return buffer.toString().split('').reversed.join();
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -69,5 +93,5 @@ class Money extends ValueObject {
   int get hashCode => amountInCents.hashCode ^ currency.hashCode;
 
   @override
-  String toString() => '${currency.symbol} ${amount.toStringAsFixed(2)}';
+  String toString() => formatted;
 }
