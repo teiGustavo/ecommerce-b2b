@@ -97,18 +97,42 @@ class OrderItemsTable extends Table {
   TextColumn get currency => text()();
 }
 
+@DataClassName('UserSessionRow')
+class UserSessions extends Table {
+  TextColumn get userId => text()();
+  TextColumn get role => text()();
+  TextColumn get companyId => text().nullable()();
+  BoolColumn get isActive => boolean()();
+
+  @override
+  Set<Column> get primaryKey => {userId};
+}
+
 @DriftDatabase(tables: [
   Companies,
   AuthorizedBuyersTable,
   SalesRepresentativesTable,
   SalesOrdersTable,
   OrderItemsTable,
+  UserSessions,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) async {
+          await m.createAll();
+        },
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.createTable(userSessions);
+          }
+        },
+      );
 }
 
 LazyDatabase openConnection() {

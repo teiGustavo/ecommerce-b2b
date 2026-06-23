@@ -5,6 +5,7 @@ import 'package:ecommerce_b2b/modules/shared_kernel/infrastructure/database/app_
 import 'package:ecommerce_b2b/modules/customer_management/company/infrastructure/repositories/drift_company_repository.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/infrastructure/repositories/drift_sales_representative_repository.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/infrastructure/repositories/drift_sales_order_repository.dart';
+import 'package:ecommerce_b2b/modules/identity_access/infrastructure/repositories/drift_auth_repository.dart';
 
 // Domain entities for seeding
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
@@ -46,12 +47,8 @@ import 'package:ecommerce_b2b/modules/identity_access/domain/repositories/auth_r
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/repositories/sales_representative_repository.dart';
 
 // Adapters (Implementations)
-import 'package:ecommerce_b2b/modules/customer_management/company/infrastructure/repositories/adapters/mock/mock_company_adapter.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_tracking_adapter.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_freight_adapter.dart';
-import 'package:ecommerce_b2b/modules/identity_access/infrastructure/repositories/adapters/mock/mock_auth_adapter.dart';
-import 'package:ecommerce_b2b/modules/order_flow/sales_order/infrastructure/repositories/adapters/mock/mock_sales_order_adapter.dart';
-import 'package:ecommerce_b2b/modules/sales_team/sales_representative/infrastructure/repositories/adapters/mock/mock_representative_adapter.dart';
 
 // Use Cases
 import 'package:ecommerce_b2b/modules/logistics/application/procces_order/process_order_shipment_use_case.dart';
@@ -94,7 +91,7 @@ Future<void> setupServiceLocator() async {
   getIt.registerLazySingleton<CompanyRepository>(() => DriftCompanyRepository(getIt<AppDatabase>()));
   getIt.registerLazySingleton<TrackingRepository>(() => MockTrackingAdapter());
   getIt.registerLazySingleton<FreightRepository>(() => MockFreightAdapter());
-  getIt.registerLazySingleton<AuthRepository>(() => MockAuthAdapter());
+  getIt.registerLazySingleton<AuthRepository>(() => DriftAuthRepository(getIt<AppDatabase>()));
   getIt.registerLazySingleton<SalesRepresentativeRepository>(() => DriftSalesRepresentativeRepository(getIt<AppDatabase>()));
   getIt.registerLazySingleton<SalesOrderRepository>(() => DriftSalesOrderRepository(getIt<AppDatabase>()));
 

@@ -1,14 +1,14 @@
 import 'package:ecommerce_b2b/modules/identity_access/application/login/login_use_case.dart';
-import 'package:ecommerce_b2b/modules/identity_access/infrastructure/repositories/adapters/mock/mock_auth_adapter.dart';
+import '../../fakes/fake_auth_repository.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/auth/errors/auth_errors.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  late MockAuthAdapter authRepository;
+  late FakeAuthRepository authRepository;
   late LoginUseCase loginUseCase;
 
   setUp(() {
-    authRepository = MockAuthAdapter();
+    authRepository = FakeAuthRepository();
     loginUseCase = LoginUseCase(authRepository);
   });
 

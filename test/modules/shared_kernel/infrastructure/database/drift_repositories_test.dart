@@ -5,6 +5,7 @@ import 'package:ecommerce_b2b/modules/customer_management/company/domain/custome
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/cnpj.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/inscricao_estadual.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/infrastructure/repositories/drift_company_repository.dart';
+import 'package:ecommerce_b2b/modules/identity_access/infrastructure/repositories/drift_auth_repository.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/enums/finance_decision.dart';
@@ -34,6 +35,7 @@ void main() {
   late DriftCompanyRepository companyRepository;
   late DriftSalesRepresentativeRepository representativeRepository;
   late DriftSalesOrderRepository salesOrderRepository;
+  late DriftAuthRepository authRepository;
 
   setUp(() {
     // Start with an in-memory SQLite database connection for testing
@@ -41,6 +43,7 @@ void main() {
     companyRepository = DriftCompanyRepository(database);
     representativeRepository = DriftSalesRepresentativeRepository(database);
     salesOrderRepository = DriftSalesOrderRepository(database);
+    authRepository = DriftAuthRepository(database);
   });
 
   tearDown(() async {
@@ -237,6 +240,26 @@ void main() {
       final statusOrders = await salesOrderRepository.findByStatus(OrderStatus.pendingFinanceApproval);
       expect(statusOrders.length, 1);
       expect(statusOrders.first.id, orderId);
+    });
+  });
+
+  group('DriftAuthRepository Integration Tests', () {
+    test('should persist active user session on login and clear on logout', () async {
+      final email = EmailAddress.create('buyer@test.com').getOrThrow();
+      
+      final result = await authRepository.login(email, 'password123');
+      expect(result.isSuccess, isTrue);
+      
+      final session = await authRepository.getCurrentSession();
+      expect(session, isNotNull);
+      expect(session!.userId.value, 'buyer-123');
+      expect(session.isBuyer, isTrue);
+      expect(session.companyId?.value, 'company-abc');
+
+      await authRepository.logout();
+      
+      final loggedOutSession = await authRepository.getCurrentSession();
+      expect(loggedOutSession, isNull);
     });
   });
 }
