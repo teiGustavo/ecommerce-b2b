@@ -5,7 +5,8 @@ import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_o
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/inscricao_estadual.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/presentation/cubit/company_management_cubit.dart';
 import 'package:ecommerce_b2b/modules/identity_access/presentation/cubit/auth_cubit.dart';
-import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.dart' as address_state;
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.dart'
+    as address_state;
 import 'package:ecommerce_b2b/modules/shared_kernel/presentation/formz/email_input.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/presentation/formz/money_input.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/presentation/formz/not_empty_input.dart';
@@ -24,15 +25,14 @@ class CompanyListPage extends StatelessWidget {
     final authState = context.watch<AuthCubit>().state;
 
     if (authState is! AuthAuthenticated) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final session = authState.session;
 
     return BlocProvider(
-      create: (context) => getIt<CompanyManagementCubit>()..loadCompanies(session),
+      create: (context) =>
+          getIt<CompanyManagementCubit>()..loadCompanies(session),
       child: BlocConsumer<CompanyManagementCubit, CompanyManagementState>(
         listener: (context, state) {
           if (state is CompanyManagementSuccess) {
@@ -60,22 +60,25 @@ class CompanyListPage extends StatelessWidget {
             floatingActionButton: session.isBuyer
                 ? null
                 : FloatingActionButton.extended(
-                    onPressed: () => _showRegisterCompanyDialog(context, session),
+                    onPressed: () =>
+                        _showRegisterCompanyDialog(context, session),
                     icon: const Icon(Icons.add_business_rounded),
                     label: const Text('Nova Empresa'),
                   ),
             body: RefreshIndicator(
-              onRefresh: () => context.read<CompanyManagementCubit>().loadCompanies(session),
+              onRefresh: () =>
+                  context.read<CompanyManagementCubit>().loadCompanies(session),
               child: state is CompanyManagementLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : state is CompanyManagementFailure && state is! CompanyManagementLoaded
-                      ? Center(
-                          child: Text(
-                            state.message,
-                            style: TextStyle(color: colorScheme.error),
-                          ),
-                        )
-                      : _buildContent(context, state, session, theme, colorScheme),
+                  : state is CompanyManagementFailure &&
+                        state is! CompanyManagementLoaded
+                  ? Center(
+                      child: Text(
+                        state.message,
+                        style: TextStyle(color: colorScheme.error),
+                      ),
+                    )
+                  : _buildContent(context, state, session, theme, colorScheme),
             ),
           );
         },
@@ -115,15 +118,22 @@ class CompanyListPage extends StatelessWidget {
         return Card(
           margin: const EdgeInsets.only(bottom: 16.0),
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: ExpansionTile(
             leading: CircleAvatar(
               backgroundColor: colorScheme.primaryContainer,
-              child: Icon(Icons.business_rounded, color: colorScheme.onPrimaryContainer),
+              child: Icon(
+                Icons.business_rounded,
+                color: colorScheme.onPrimaryContainer,
+              ),
             ),
             title: Text(
               company.tradeName,
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             subtitle: Text('CNPJ: ${company.cnpj.value}'),
             children: [
@@ -135,7 +145,10 @@ class CompanyListPage extends StatelessWidget {
                     const Divider(),
                     _buildSectionTitle(theme, 'Informações Gerais'),
                     _buildInfoRow('Razão Social', company.legalName),
-                    _buildInfoRow('Inscrição Estadual', company.inscricaoEstadual.value),
+                    _buildInfoRow(
+                      'Inscrição Estadual',
+                      company.inscricaoEstadual.value,
+                    ),
                     _buildInfoRow('E-mail de Contato', company.email.value),
                     _buildInfoRow('Telefone', company.phone.value),
                     const SizedBox(height: 12),
@@ -148,9 +161,18 @@ class CompanyListPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     _buildSectionTitle(theme, 'Crédito e Limites'),
-                    _buildInfoRow('Limite Total', company.creditLimit.toString()),
-                    _buildInfoRow('Saldo Devedor', company.creditAccount.openBalance.toString()),
-                    _buildInfoRow('Pedidos Pendentes', company.creditAccount.pendingOrdersBalance.toString()),
+                    _buildInfoRow(
+                      'Limite Total',
+                      company.creditLimit.toString(),
+                    ),
+                    _buildInfoRow(
+                      'Saldo Devedor',
+                      company.creditAccount.openBalance.toString(),
+                    ),
+                    _buildInfoRow(
+                      'Pedidos Pendentes',
+                      company.creditAccount.pendingOrdersBalance.toString(),
+                    ),
                     _buildInfoRow(
                       'Limite Disponível',
                       company.creditAccount.availableLimit.toString(),
@@ -164,8 +186,12 @@ class CompanyListPage extends StatelessWidget {
                         _buildSectionTitle(theme, 'Compradores Autorizados'),
                         if (!session.isBuyer)
                           TextButton.icon(
-                            onPressed: () => _showAddBuyerDialog(context, company, session),
-                            icon: const Icon(Icons.person_add_rounded, size: 18),
+                            onPressed: () =>
+                                _showAddBuyerDialog(context, company, session),
+                            icon: const Icon(
+                              Icons.person_add_rounded,
+                              size: 18,
+                            ),
                             label: const Text('Adicionar'),
                           ),
                       ],
@@ -183,11 +209,26 @@ class CompanyListPage extends StatelessWidget {
                           child: ListTile(
                             dense: true,
                             leading: const Icon(Icons.person_outline_rounded),
-                            title: Text(buyer.fullName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Text('${buyer.positionTitle} • ${buyer.email.value} • ${buyer.phone.value}'),
+                            title: Text(
+                              buyer.fullName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              '${buyer.positionTitle} • ${buyer.email.value} • ${buyer.phone.value}',
+                            ),
                             trailing: buyer.active
-                                ? Icon(Icons.check_circle_rounded, color: Colors.green.shade600, size: 18)
-                                : const Icon(Icons.cancel_rounded, color: Colors.grey, size: 18),
+                                ? Icon(
+                                    Icons.check_circle_rounded,
+                                    color: Colors.green.shade600,
+                                    size: 18,
+                                  )
+                                : const Icon(
+                                    Icons.cancel_rounded,
+                                    color: Colors.grey,
+                                    size: 18,
+                                  ),
                           ),
                         ),
                       ),
@@ -206,12 +247,19 @@ class CompanyListPage extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 6.0),
       child: Text(
         title,
-        style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900),
+        style: theme.textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.w900,
+        ),
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {Color? valueColor, bool isBold = false}) {
+  Widget _buildInfoRow(
+    String label,
+    String value, {
+    Color? valueColor,
+    bool isBold = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
@@ -250,15 +298,15 @@ class CompanyListPage extends StatelessWidget {
 
     final cnpjFormatter = MaskTextInputFormatter(
       mask: '##.###.###/####-##',
-      filter: { "#": RegExp(r'[0-9]') },
+      filter: {"#": RegExp(r'[0-9]')},
     );
     final phoneFormatter = MaskTextInputFormatter(
       mask: '(##) #####-####',
-      filter: { "#": RegExp(r'[0-9]') },
+      filter: {"#": RegExp(r'[0-9]')},
     );
     final zipCodeFormatter = MaskTextInputFormatter(
       mask: '#####-###',
-      filter: { "#": RegExp(r'[0-9]') },
+      filter: {"#": RegExp(r'[0-9]')},
     );
 
     bool hasSubmitted = false;
@@ -315,9 +363,13 @@ class CompanyListPage extends StatelessWidget {
                             prefixIcon: Icon(Icons.badge_rounded),
                           ),
                           validator: (v) {
-                            if (v == null || v.isEmpty) return 'Campo obrigatório';
+                            if (v == null || v.isEmpty) {
+                              return 'Campo obrigatório';
+                            }
                             final res = Cnpj.create(v);
-                            if (res.isFailure) return res.getFailureOrThrow().message;
+                            if (res.isFailure) {
+                              return res.getFailureOrThrow().message;
+                            }
                             return null;
                           },
                         ),
@@ -329,9 +381,13 @@ class CompanyListPage extends StatelessWidget {
                             prefixIcon: Icon(Icons.corporate_fare_rounded),
                           ),
                           validator: (v) {
-                            if (v == null || v.isEmpty) return 'Campo obrigatório';
+                            if (v == null || v.isEmpty) {
+                              return 'Campo obrigatório';
+                            }
                             final res = InscricaoEstadual.create(v);
-                            if (res.isFailure) return res.getFailureOrThrow().message;
+                            if (res.isFailure) {
+                              return res.getFailureOrThrow().message;
+                            }
                             return null;
                           },
                         ),
@@ -365,16 +421,22 @@ class CompanyListPage extends StatelessWidget {
                         TextFormField(
                           controller: creditLimitCtrl,
                           inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d*\.?\d*'),
+                            ),
                           ],
                           decoration: const InputDecoration(
                             labelText: 'Limite de Crédito pré-aprovado *',
                             prefixIcon: Icon(Icons.attach_money_rounded),
                           ),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
                           validator: (v) {
                             final input = MoneyInput.dirty(v ?? '');
-                            return input.isValid ? null : 'Limite de crédito inválido';
+                            return input.isValid
+                                ? null
+                                : 'Limite de crédito inválido';
                           },
                         ),
                         const Divider(height: 48),
@@ -382,7 +444,10 @@ class CompanyListPage extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           child: Padding(
                             padding: EdgeInsets.only(bottom: 16.0),
-                            child: Text('Endereço de Faturamento', style: TextStyle(fontWeight: FontWeight.bold)),
+                            child: Text(
+                              'Endereço de Faturamento',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ),
                         TextFormField(
@@ -448,7 +513,9 @@ class CompanyListPage extends StatelessWidget {
                             prefixIcon: Icon(Icons.map_rounded),
                           ),
                           validator: (v) {
-                            if (v == null || v.isEmpty) return 'Campo obrigatório';
+                            if (v == null || v.isEmpty) {
+                              return 'Campo obrigatório';
+                            }
                             final res = address_state.State.fromString(v);
                             if (res.isFailure) return 'UF inválida (ex: SP)';
                             return null;
@@ -484,30 +551,35 @@ class CompanyListPage extends StatelessWidget {
                       hasSubmitted = true;
                     });
                     if (formKey.currentState?.validate() ?? false) {
-                      diagCtx.read<CompanyManagementCubit>().registerCompany(
-                            currentSession: session,
-                            legalName: legalNameCtrl.text,
-                            tradeName: tradeNameCtrl.text,
-                            cnpj: cnpjCtrl.text,
-                            inscricaoEstadual: ieCtrl.text,
-                            email: emailCtrl.text,
-                            phone: phoneCtrl.text,
-                            billingStreet: streetCtrl.text,
-                            billingNumber: numberCtrl.text,
-                            billingComplement: complementCtrl.text.isEmpty ? null : complementCtrl.text,
-                            billingNeighborhood: neighborhoodCtrl.text,
-                            billingCity: cityCtrl.text,
-                            billingState: stateCtrl.text,
-                            billingZipCode: zipCodeCtrl.text,
-                            shippingStreet: streetCtrl.text,
-                            shippingNumber: numberCtrl.text,
-                            shippingComplement: complementCtrl.text.isEmpty ? null : complementCtrl.text,
-                            shippingNeighborhood: neighborhoodCtrl.text,
-                            shippingCity: cityCtrl.text,
-                            shippingState: stateCtrl.text,
-                            shippingZipCode: zipCodeCtrl.text,
-                            creditLimit: double.tryParse(creditLimitCtrl.text) ?? 0.0,
-                          );
+                      context.read<CompanyManagementCubit>().registerCompany(
+                        currentSession: session,
+                        legalName: legalNameCtrl.text,
+                        tradeName: tradeNameCtrl.text,
+                        cnpj: cnpjCtrl.text,
+                        inscricaoEstadual: ieCtrl.text,
+                        email: emailCtrl.text,
+                        phone: phoneCtrl.text,
+                        billingStreet: streetCtrl.text,
+                        billingNumber: numberCtrl.text,
+                        billingComplement: complementCtrl.text.isEmpty
+                            ? null
+                            : complementCtrl.text,
+                        billingNeighborhood: neighborhoodCtrl.text,
+                        billingCity: cityCtrl.text,
+                        billingState: stateCtrl.text,
+                        billingZipCode: zipCodeCtrl.text,
+                        shippingStreet: streetCtrl.text,
+                        shippingNumber: numberCtrl.text,
+                        shippingComplement: complementCtrl.text.isEmpty
+                            ? null
+                            : complementCtrl.text,
+                        shippingNeighborhood: neighborhoodCtrl.text,
+                        shippingCity: cityCtrl.text,
+                        shippingState: stateCtrl.text,
+                        shippingZipCode: zipCodeCtrl.text,
+                        creditLimit:
+                            double.tryParse(creditLimitCtrl.text) ?? 0.0,
+                      );
                       Navigator.pop(diagCtx);
                     }
                   },
@@ -521,7 +593,11 @@ class CompanyListPage extends StatelessWidget {
     );
   }
 
-  void _showAddBuyerDialog(BuildContext context, Company company, dynamic session) {
+  void _showAddBuyerDialog(
+    BuildContext context,
+    Company company,
+    dynamic session,
+  ) {
     final formKey = GlobalKey<FormState>();
     final fullNameCtrl = TextEditingController();
     final emailCtrl = TextEditingController();
@@ -530,7 +606,7 @@ class CompanyListPage extends StatelessWidget {
 
     final phoneFormatter = MaskTextInputFormatter(
       mask: '(##) #####-####',
-      filter: { "#": RegExp(r'[0-9]') },
+      filter: {"#": RegExp(r'[0-9]')},
     );
 
     bool hasSubmitted = false;
@@ -618,14 +694,14 @@ class CompanyListPage extends StatelessWidget {
                       hasSubmitted = true;
                     });
                     if (formKey.currentState?.validate() ?? false) {
-                      diagCtx.read<CompanyManagementCubit>().addAuthorizedBuyer(
-                            currentSession: session,
-                            companyId: company.id,
-                            fullName: fullNameCtrl.text,
-                            email: emailCtrl.text,
-                            phone: phoneCtrl.text,
-                            positionTitle: positionCtrl.text,
-                          );
+                      context.read<CompanyManagementCubit>().addAuthorizedBuyer(
+                        currentSession: session,
+                        companyId: company.id,
+                        fullName: fullNameCtrl.text,
+                        email: emailCtrl.text,
+                        phone: phoneCtrl.text,
+                        positionTitle: positionCtrl.text,
+                      );
                       Navigator.pop(diagCtx);
                     }
                   },
