@@ -14,10 +14,13 @@ import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/tra
 import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/freight_repository.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/repositories/sales_order_repository.dart';
 import 'package:ecommerce_b2b/modules/customer_portal/boleto/domain/repositories/boleto_repository.dart';
+import 'package:ecommerce_b2b/modules/identity_access/domain/repositories/auth_repository.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/repositories/sales_representative_repository.dart';
 
 // Adapters (Implementations)
 import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_tracking_adapter.dart';
 import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/adapters/mock/mock_freight_adapter.dart';
+import 'package:ecommerce_b2b/modules/identity_access/infrastructure/repositories/adapters/mock/mock_auth_adapter.dart';
 
 // Use Cases
 import 'package:ecommerce_b2b/modules/logistics/application/procces_order/process_order_shipment_use_case.dart';
@@ -27,6 +30,9 @@ import 'package:ecommerce_b2b/modules/order_flow/sales_order/application/process
 import 'package:ecommerce_b2b/modules/customer_portal/boleto/application/download_boleto/download_boleto_use_case.dart';
 import 'package:ecommerce_b2b/modules/customer_portal/purchase_history/application/get_purchase_history/get_purchase_history_use_case.dart';
 import 'package:ecommerce_b2b/modules/customer_portal/return_request/application/open_return_request/open_return_request_use_case.dart';
+import 'package:ecommerce_b2b/modules/identity_access/application/login/login_use_case.dart';
+import 'package:ecommerce_b2b/modules/sales_team/application/get_commissions/get_representative_commissions_use_case.dart';
+import 'package:ecommerce_b2b/modules/sales_team/application/get_customers/get_customer_portfolio_use_case.dart';
 
 
 final getIt = GetIt.instance;
@@ -43,8 +49,22 @@ void setupServiceLocator() {
   // --- Infrastructure / Adapters ---
   getIt.registerLazySingleton<TrackingRepository>(() => MockTrackingAdapter());
   getIt.registerLazySingleton<FreightRepository>(() => MockFreightAdapter());
+  getIt.registerLazySingleton<AuthRepository>(() => MockAuthAdapter());
 
   // --- Use Cases ---
+  getIt.registerLazySingleton(() => LoginUseCase(
+    getIt<AuthRepository>(),
+  ));
+
+  getIt.registerLazySingleton(() => GetRepresentativeCommissionsUseCase(
+    getIt<SalesRepresentativeRepository>(),
+    getIt<SalesHierarchyDomainService>(),
+  ));
+
+  getIt.registerLazySingleton(() => GetCustomerPortfolioUseCase(
+    getIt<SalesRepresentativeRepository>(),
+    getIt<SalesHierarchyDomainService>(),
+  ));
   getIt.registerLazySingleton(() => CreateQuoteUseCase(
     getIt<OrderPricingDomainService>(),
   ));
