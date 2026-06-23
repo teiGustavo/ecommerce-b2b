@@ -1,5 +1,32 @@
 import 'package:get_it/get_it.dart';
 
+// Drift and Database
+import 'package:ecommerce_b2b/modules/shared_kernel/infrastructure/database/app_database.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/infrastructure/repositories/drift_company_repository.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/infrastructure/repositories/drift_sales_representative_repository.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/infrastructure/repositories/drift_sales_order_repository.dart';
+
+// Domain entities for seeding
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/cnpj.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/inscricao_estadual.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/address.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/buyer_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/email_address.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/phone_number.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/authorized_buyer.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/customer_credit_account.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_representative.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/percentage.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/sales_order.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
+import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
+import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
+
 // Domain Services
 import 'package:ecommerce_b2b/modules/catalog/price_table/domain/services/order_pricing_domain_service.dart';
 import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/services/inventory_allocator_domain_service.dart';
@@ -49,7 +76,12 @@ import 'package:ecommerce_b2b/modules/customer_management/company/presentation/c
 
 final getIt = GetIt.instance;
 
-void setupServiceLocator() {
+Future<void> setupServiceLocator() async {
+  // --- Database ---
+  final db = AppDatabase(openConnection());
+  getIt.registerSingleton<AppDatabase>(db);
+  await _seedDatabase(db);
+
   // --- Domain Services ---
   getIt.registerLazySingleton(() => OrderPricingDomainService());
   getIt.registerLazySingleton(() => InventoryAllocatorDomainService());
@@ -59,12 +91,12 @@ void setupServiceLocator() {
   getIt.registerLazySingleton(() => SalesHierarchyDomainService());
 
   // --- Infrastructure / Adapters ---
-  getIt.registerLazySingleton<CompanyRepository>(() => MockCompanyAdapter());
+  getIt.registerLazySingleton<CompanyRepository>(() => DriftCompanyRepository(getIt<AppDatabase>()));
   getIt.registerLazySingleton<TrackingRepository>(() => MockTrackingAdapter());
   getIt.registerLazySingleton<FreightRepository>(() => MockFreightAdapter());
   getIt.registerLazySingleton<AuthRepository>(() => MockAuthAdapter());
-  getIt.registerLazySingleton<SalesRepresentativeRepository>(() => MockRepresentativeAdapter());
-  getIt.registerLazySingleton<SalesOrderRepository>(() => MockSalesOrderAdapter());
+  getIt.registerLazySingleton<SalesRepresentativeRepository>(() => DriftSalesRepresentativeRepository(getIt<AppDatabase>()));
+  getIt.registerLazySingleton<SalesOrderRepository>(() => DriftSalesOrderRepository(getIt<AppDatabase>()));
 
   // --- Use Cases ---
   getIt.registerLazySingleton(() => LoginUseCase(
@@ -144,4 +176,129 @@ void setupServiceLocator() {
     registerCompanyUseCase: getIt<RegisterCompanyUseCase>(),
     addAuthorizedBuyerUseCase: getIt<AddAuthorizedBuyerUseCase>(),
   ));
+}
+
+Future<void> _seedDatabase(AppDatabase db) async {
+  final companiesList = await db.select(db.companies).get();
+  if (companiesList.isNotEmpty) return;
+
+  final companyRepo = DriftCompanyRepository(db);
+  final repRepo = DriftSalesRepresentativeRepository(db);
+  final orderRepo = DriftSalesOrderRepository(db);
+
+  // Seed Sales Representative
+  final rep = SalesRepresentative(
+    id: const RepresentativeId('rep-456'),
+    fullName: 'Representante Mock',
+    email: EmailAddress.create('rep@test.com').getOrThrow(),
+    commissionRate: Percentage.create(5).getOrThrow(),
+  );
+  await repRepo.save(rep);
+
+  // Seed Companies
+  final company1 = Company(
+    id: const CompanyId('c1'),
+    legalName: 'Acme Corporation Ltda',
+    tradeName: 'Acme Corp',
+    cnpj: Cnpj.create('12345678000195').getOrThrow(),
+    inscricaoEstadual: InscricaoEstadual.create('123456789').getOrThrow(),
+    email: EmailAddress.create('contato@acme.com').getOrThrow(),
+    phone: PhoneNumber.create('11999999999').getOrThrow(),
+    billingAddress: Address.create(
+      street: 'Avenida Paulista',
+      number: '1000',
+      neighborhood: 'Bela Vista',
+      city: 'São Paulo',
+      state: 'SP',
+      zipCode: '01310100',
+    ).getOrThrow(),
+    shippingAddress: Address.create(
+      street: 'Avenida Paulista',
+      number: '1000',
+      neighborhood: 'Bela Vista',
+      city: 'São Paulo',
+      state: 'SP',
+      zipCode: '01310100',
+    ).getOrThrow(),
+    state: State.saoPaulo,
+    creditLimit: Money.create(100000).getOrThrow(),
+    authorizedBuyers: [
+      AuthorizedBuyer(
+        id: const BuyerId('buyer-1'),
+        fullName: 'Carlos Comprador',
+        email: EmailAddress.create('carlos@acme.com').getOrThrow(),
+        phone: PhoneNumber.create('11988888888').getOrThrow(),
+        positionTitle: 'Diretor de Compras',
+        active: true,
+      ),
+    ],
+    creditAccount: CustomerCreditAccount(
+      preApprovedLimit: Money.create(100000).getOrThrow(),
+      openBalance: Money.create(15000).getOrThrow(),
+      pendingOrdersBalance: Money.create(5000).getOrThrow(),
+    ),
+  );
+
+  final company2 = Company(
+    id: const CompanyId('c2'),
+    legalName: 'Indústrias Stark S.A.',
+    tradeName: 'Stark Industries',
+    cnpj: Cnpj.create('60746948000112').getOrThrow(),
+    inscricaoEstadual: InscricaoEstadual.create('987654321').getOrThrow(),
+    email: EmailAddress.create('contact@stark.com').getOrThrow(),
+    phone: PhoneNumber.create('21999999999').getOrThrow(),
+    billingAddress: Address.create(
+      street: 'Avenida Atlântica',
+      number: '400',
+      neighborhood: 'Copacabana',
+      city: 'Rio de Janeiro',
+      state: 'RJ',
+      zipCode: '22010000',
+    ).getOrThrow(),
+    shippingAddress: Address.create(
+      street: 'Avenida Atlântica',
+      number: '400',
+      neighborhood: 'Copacabana',
+      city: 'Rio de Janeiro',
+      state: 'RJ',
+      zipCode: '22010000',
+    ).getOrThrow(),
+    state: State.rioDeJaneiro,
+    creditLimit: Money.create(500000).getOrThrow(),
+    authorizedBuyers: [
+      AuthorizedBuyer(
+        id: const BuyerId('buyer-2'),
+        fullName: 'Pepper Potts',
+        email: EmailAddress.create('pepper@stark.com').getOrThrow(),
+        phone: PhoneNumber.create('21988888888').getOrThrow(),
+        positionTitle: 'CEO',
+        active: true,
+      ),
+    ],
+    creditAccount: CustomerCreditAccount(
+      preApprovedLimit: Money.create(500000).getOrThrow(),
+      openBalance: Money.create(0).getOrThrow(),
+      pendingOrdersBalance: Money.create(45000).getOrThrow(),
+    ),
+  );
+
+  await companyRepo.save(company1);
+  await companyRepo.save(company2);
+
+  // Seed Sales Orders
+  final order1 = SalesOrder(
+    id: const OrderId('order-101'),
+    status: OrderStatus.blockedByFinance,
+    creditStatus: CreditStatus.blocked,
+    items: [],
+  );
+  final order2 = SalesOrder(
+    id: const OrderId('order-102'),
+    status: OrderStatus.pendingFinanceApproval,
+    creditStatus: CreditStatus.approved,
+    items: [],
+  );
+
+  await orderRepo.save(order1, companyId: const CompanyId('c1'));
+  await orderRepo.save(order2, companyId: const CompanyId('c2'));
 }

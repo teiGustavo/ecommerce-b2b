@@ -1,0 +1,242 @@
+import 'package:drift/native.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/authorized_buyer.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/customer_credit_account.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/cnpj.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/inscricao_estadual.dart';
+import 'package:ecommerce_b2b/modules/customer_management/company/infrastructure/repositories/drift_company_repository.dart';
+import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
+import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/enums/finance_decision.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/finance_review.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/order_item.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/sales_order.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/infrastructure/repositories/drift_sales_order_repository.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_representative.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/infrastructure/repositories/drift_sales_representative_repository.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/enums/state.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/address/value_objects/address.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/buyer_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/email_address.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/phone_number.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/percentage.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/infrastructure/database/app_database.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  late AppDatabase database;
+  late DriftCompanyRepository companyRepository;
+  late DriftSalesRepresentativeRepository representativeRepository;
+  late DriftSalesOrderRepository salesOrderRepository;
+
+  setUp(() {
+    // Start with an in-memory SQLite database connection for testing
+    database = AppDatabase(NativeDatabase.memory());
+    companyRepository = DriftCompanyRepository(database);
+    representativeRepository = DriftSalesRepresentativeRepository(database);
+    salesOrderRepository = DriftSalesOrderRepository(database);
+  });
+
+  tearDown(() async {
+    await database.close();
+  });
+
+  group('DriftCompanyRepository Integration Tests', () {
+    test('should save and find a company by id with authorized buyers', () async {
+      final companyId = const CompanyId('comp-test-123');
+      final company = Company(
+        id: companyId,
+        legalName: 'Super B2B Trade S.A.',
+        tradeName: 'B2B Trade',
+        cnpj: Cnpj.create('12345678000195').getOrThrow(),
+        inscricaoEstadual: InscricaoEstadual.create('123456789').getOrThrow(),
+        email: EmailAddress.create('contato@b2btrade.com').getOrThrow(),
+        phone: PhoneNumber.create('11999999999').getOrThrow(),
+        billingAddress: Address.create(
+          street: 'Avenida Brasil',
+          number: '123',
+          neighborhood: 'Centro',
+          city: 'Rio de Janeiro',
+          state: 'RJ',
+          zipCode: '20040000',
+        ).getOrThrow(),
+        shippingAddress: Address.create(
+          street: 'Avenida Brasil',
+          number: '123',
+          neighborhood: 'Centro',
+          city: 'Rio de Janeiro',
+          state: 'RJ',
+          zipCode: '20040000',
+        ).getOrThrow(),
+        state: State.rioDeJaneiro,
+        creditLimit: Money.create(150000).getOrThrow(),
+        authorizedBuyers: [
+          AuthorizedBuyer(
+            id: const BuyerId('buyer-99'),
+            fullName: 'John Buyer',
+            email: EmailAddress.create('john@b2btrade.com').getOrThrow(),
+            phone: PhoneNumber.create('21988887777').getOrThrow(),
+            positionTitle: 'Purchaser',
+            active: true,
+          ),
+        ],
+        creditAccount: CustomerCreditAccount(
+          preApprovedLimit: Money.create(150000).getOrThrow(),
+          openBalance: Money.create(20000).getOrThrow(),
+          pendingOrdersBalance: Money.create(10000).getOrThrow(),
+        ),
+      );
+
+      // Save company
+      await companyRepository.save(company);
+
+      // Find company
+      final fetched = await companyRepository.findById(companyId);
+
+      expect(fetched, isNotNull);
+      expect(fetched!.tradeName, 'B2B Trade');
+      expect(fetched.cnpj.value, '12345678000195');
+      expect(fetched.creditLimit.amount, 150000);
+      expect(fetched.creditAccount.openBalance.amount, 20000);
+      expect(fetched.creditAccount.pendingOrdersBalance.amount, 10000);
+      expect(fetched.creditAccount.availableLimit.amount, 120000);
+
+      expect(fetched.authorizedBuyers.length, 1);
+      expect(fetched.authorizedBuyers.first.fullName, 'John Buyer');
+      expect(fetched.authorizedBuyers.first.id.value, 'buyer-99');
+    });
+
+    test('should find all companies and by representative id', () async {
+      final company1 = Company(
+        id: const CompanyId('c1'),
+        legalName: 'First S.A.',
+        tradeName: 'First',
+        cnpj: Cnpj.create('12345678000195').getOrThrow(),
+        inscricaoEstadual: InscricaoEstadual.create('123456789').getOrThrow(),
+        email: EmailAddress.create('c1@test.com').getOrThrow(),
+        phone: PhoneNumber.create('11999999999').getOrThrow(),
+        billingAddress: Address.create(street: 'Rua 1', number: '1', neighborhood: 'B', city: 'C', state: 'SP', zipCode: '01000000').getOrThrow(),
+        shippingAddress: Address.create(street: 'Rua 1', number: '1', neighborhood: 'B', city: 'C', state: 'SP', zipCode: '01000000').getOrThrow(),
+        state: State.saoPaulo,
+        creditLimit: Money.create(5000).getOrThrow(),
+        authorizedBuyers: [],
+        creditAccount: CustomerCreditAccount(
+          preApprovedLimit: Money.create(5000).getOrThrow(),
+          openBalance: Money.create(0).getOrThrow(),
+          pendingOrdersBalance: Money.create(0).getOrThrow(),
+        ),
+      );
+
+      await companyRepository.save(company1);
+
+      final list = await companyRepository.findAll();
+      expect(list.length, 1);
+      expect(list.first.tradeName, 'First');
+
+      final repList = await companyRepository.findByRepresentativeId('rep-456');
+      expect(repList.length, 1);
+    });
+  });
+
+  group('DriftSalesRepresentativeRepository Integration Tests', () {
+    test('should save and find sales representative by id', () async {
+      final repId = const RepresentativeId('rep-test-01');
+      final rep = SalesRepresentative(
+        id: repId,
+        fullName: 'Jane Representative',
+        email: EmailAddress.create('jane@company.com').getOrThrow(),
+        commissionRate: Percentage.create(8.5).getOrThrow(),
+      );
+
+      await representativeRepository.save(rep);
+
+      final fetched = await representativeRepository.findById(repId);
+      expect(fetched, isNotNull);
+      expect(fetched!.fullName, 'Jane Representative');
+      expect(fetched.email.value, 'jane@company.com');
+      expect(fetched.commissionRate.value, 8.5);
+
+      final list = await representativeRepository.findAll();
+      expect(list.length, 1);
+    });
+  });
+
+  group('DriftSalesOrderRepository Integration Tests', () {
+    test('should save and find sales orders by company id and status', () async {
+      final orderId = const OrderId('order-test-555');
+      final companyId = const CompanyId('comp-test-2');
+
+      final order = SalesOrder(
+        id: orderId,
+        status: OrderStatus.pendingFinanceApproval,
+        creditStatus: CreditStatus.approved,
+        items: [
+          OrderItem(
+            productId: const ProductId('prod-1'),
+            quantity: Quantity.create(5).getOrThrow(),
+            unitPriceSnapshot: Money.create(120.0).getOrThrow(),
+          ),
+          OrderItem(
+            productId: const ProductId('prod-2'),
+            quantity: Quantity.create(2).getOrThrow(),
+            unitPriceSnapshot: Money.create(50.0).getOrThrow(),
+          ),
+        ],
+        financeReview: FinanceReview(
+          decision: FinanceDecision.approved,
+          reviewerId: 'finance-user-1',
+          reviewedAt: DateTime.now(),
+          justification: 'Approved automatically',
+        ),
+      );
+
+      // Create a non-null date for testing persistence
+      final fixedDate = DateTime(2026, 6, 23, 10, 0, 0);
+      final orderWithFixedDate = SalesOrder(
+        id: orderId,
+        status: OrderStatus.pendingFinanceApproval,
+        creditStatus: CreditStatus.approved,
+        items: [
+          OrderItem(
+            productId: const ProductId('prod-1'),
+            quantity: Quantity.create(5).getOrThrow(),
+            unitPriceSnapshot: Money.create(120.0).getOrThrow(),
+          ),
+        ],
+        financeReview: FinanceReview(
+          decision: FinanceDecision.approved,
+          reviewerId: 'finance-user-1',
+          reviewedAt: fixedDate,
+          justification: 'Approved automatically',
+        ),
+      );
+
+      await salesOrderRepository.save(orderWithFixedDate, companyId: companyId);
+
+      // Retrieve by company id
+      final companyOrders = await salesOrderRepository.findByCompanyId(companyId);
+      expect(companyOrders.length, 1);
+      expect(companyOrders.first.id, orderId);
+      expect(companyOrders.first.status, OrderStatus.pendingFinanceApproval);
+      expect(companyOrders.first.creditStatus, CreditStatus.approved);
+      expect(companyOrders.first.items.length, 1);
+      expect(companyOrders.first.items.first.productId, const ProductId('prod-1'));
+      expect(companyOrders.first.items.first.quantity.value, 5);
+      expect(companyOrders.first.items.first.unitPriceSnapshot.amount, 120.0);
+      expect(companyOrders.first.financeReview, isNotNull);
+      expect(companyOrders.first.financeReview!.reviewerId, 'finance-user-1');
+      expect(companyOrders.first.financeReview!.reviewedAt, fixedDate);
+
+      // Retrieve by status
+      final statusOrders = await salesOrderRepository.findByStatus(OrderStatus.pendingFinanceApproval);
+      expect(statusOrders.length, 1);
+      expect(statusOrders.first.id, orderId);
+    });
+  });
+}

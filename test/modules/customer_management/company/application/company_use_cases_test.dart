@@ -2,7 +2,7 @@ import 'package:ecommerce_b2b/modules/customer_management/company/application/ad
 import 'package:ecommerce_b2b/modules/customer_management/company/application/get_companies/get_companies_use_case.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/application/register_company/register_company_use_case.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/errors/cnpj_errors.dart';
-import 'package:ecommerce_b2b/modules/customer_management/company/infrastructure/repositories/adapters/mock/mock_company_adapter.dart';
+import '../fakes/fake_company_repository.dart';
 import 'package:ecommerce_b2b/modules/identity_access/domain/enums/user_role.dart';
 import 'package:ecommerce_b2b/modules/identity_access/domain/user_session.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
@@ -11,13 +11,13 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/auth/errors/auth_erro
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  late MockCompanyAdapter companyRepository;
+  late FakeCompanyRepository companyRepository;
   late GetCompaniesUseCase getCompaniesUseCase;
   late RegisterCompanyUseCase registerCompanyUseCase;
   late AddAuthorizedBuyerUseCase addAuthorizedBuyerUseCase;
 
   setUp(() {
-    companyRepository = MockCompanyAdapter();
+    companyRepository = FakeCompanyRepository();
     getCompaniesUseCase = GetCompaniesUseCase(companyRepository);
     registerCompanyUseCase = RegisterCompanyUseCase(companyRepository);
     addAuthorizedBuyerUseCase = AddAuthorizedBuyerUseCase(companyRepository);

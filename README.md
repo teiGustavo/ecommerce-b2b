@@ -2,20 +2,39 @@
 
 Um projeto Flutter para E-commerce B2B (Atacado).
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## Como Executar o Projeto
 
-A few resources to get you started if this is your first Flutter project:
+Este projeto utiliza o **Drift** com SQLite para persistência local e necessita de geração de código para funcionar corretamente. Siga as instruções abaixo para configurar e rodar o projeto:
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+### Pré-requisitos
+Certifique-se de ter o Flutter instalado em sua máquina (compatível com Dart `^3.12.2` / Flutter `^3.22.0` ou superior).
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 1. Obter dependências do Flutter
+No diretório raiz do projeto, execute:
+```bash
+flutter pub get
+```
 
+### 2. Gerar o banco de dados (Drift / Build Runner)
+Como o arquivo gerado do banco de dados `app_database.g.dart` está listado no `.gitignore`, você precisa gerar as classes do Drift localmente antes de executar ou testar o projeto:
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+> **Dica**: Durante o desenvolvimento, você pode usar `dart run build_runner watch --delete-conflicting-outputs` para regenerar os arquivos automaticamente sempre que fizer alterações nas tabelas.
+
+### 3. Executar os testes
+Para rodar a suíte completa de testes unitários e de integração (incluindo testes específicos com SQLite em memória para os repositórios do Drift):
+```bash
+flutter test
+```
+
+### 4. Executar o aplicativo
+Para rodar o aplicativo em um emulador ou dispositivo conectado:
+```bash
+flutter run
+```
 ---
 
 ## Arquitetura Modelo:
@@ -50,26 +69,29 @@ lib/
             └── widgets/             # Componentes visuais exclusivos dessa feature
 ```
 
-No desenvolvimento Flutter, a comunidade acabou adotando uma fusão:
-Uniu-se o conceito de três camadas principais da Clean Architecture (presentation, domain, data) 
-com as ferramentas táticas do DDD (entities, value_objects) dentro da camada de domínio.
+---
+
+## Divisão dos módulos
 
 ```Plaintext
 lib/modules/
-├── customer_management/      # Gestão de Empresas, Compradores e Crédito
-├── sales_team/               # Representantes, Supervisão, Carteira e Comissões
-├── catalog/                  # Produtos, Grades, Estoque e Tabelas de Preço
-├── order_flow/               # Orçamentos, Pedidos e Aprovação Financeira
-├── logistics/                # Picking, Packing, Etiquetas e Cálculo de Frete (Mock API)
-└── customer_portal/          # Portal do Cliente, Segunda Via de Boleto e RMA
+├── customer_management/      # Gestão de Empresas (Clientes B2B), Compradores Autorizados e Limite de Crédito
+├── sales_team/               # Representantes de Venda, Hierarquia de Supervisão, Carteira e Comissões
+├── catalog/                  # Produtos, Grades de Itens e Tabelas de Preço
+├── inventory/                # Controle de Estoque, Alocação, Reservas de Itens e Gestão de Armazém (Warehouse)
+├── order_flow/               # Fluxo de Orçamentos (Quotes), Pedidos de Venda (Sales Orders) e Liberação Financeira
+├── logistics/                # Fluxo de Expedição (Picking, Packing), Etiquetas, Rastreamento e Frete
+├── customer_portal/          # Portal do Cliente, Histórico de Compras, Download de Boletos e Devoluções (RMA)
+├── identity_access/          # Controle de Autenticação, Login, Gerenciamento de Sessão e Perfis de Acesso (Roles)
+└── shared_kernel/            # Núcleo Compartilhado: Classes base de DDD (Entity, ValueObject) e Objetos comuns (Cnpj, Money, Address)
 ```
 
-Ordem de Implementação: 
+---
 
-1. customer_management
-2. sales_team
-3. catalog
-4. inventory
-5. order_flow
-6. logistics
-7. customer_portal
+## Persistência de Dados (SQLite & Drift)
+
+O aplicativo utiliza o **SQLite** como banco de dados embarcado local, gerenciado de forma reativa pelo ORM **Drift**.
+
+* **Funcionamento:** Toda a persistência de dados ocorre diretamente no dispositivo do usuário de maneira embarcada. Não é necessário baixar ou instalar nenhum servidor de banco de dados externo.
+* **Armazenamento:** O arquivo físico do banco de dados (`db.sqlite`) reside em uma pasta de sistema privada e segura atribuída ao aplicativo pelo sistema operacional (via `path_provider`).
+* **Ambiente de Testes:** Durante a execução de testes automatizados (`flutter test`), o SQLite roda **100% em memória RAM** (`NativeDatabase.memory()`). Isso garante que os testes sejam rápidos, isolados e que o banco seja descartado imediatamente após a conclusão dos testes.
