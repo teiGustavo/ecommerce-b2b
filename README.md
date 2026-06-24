@@ -40,6 +40,19 @@ Para rodar o aplicativo em um emulador ou dispositivo conectado:
 ```bash
 flutter run
 ```
+
+---
+
+## Credenciais de Acesso (Testes):
+
+| E-mail             | Perfil (Role)                  |
+|--------------------|--------------------------------|
+| `buyer@test.com`   | `UserRole.buyer.name`          |
+| `rep@test.com`     | `UserRole.representative.name` |
+| `finance@test.com` | `UserRole.finance.name`        |
+
+> A senha para todos é: `password123`.
+
 ---
 
 ## Arquitetura Modelo:
