@@ -24,7 +24,7 @@ class GetCompaniesUseCase {
   }) async {
     if (currentSession.isBuyer) {
       if (currentSession.companyId == null) {
-        return Failure(UnauthorizedError('Buyer user session has no company associated.'));
+        return Failure(UnauthorizedError('Sessão de comprador não possui empresa associada.'));
       }
       final company = await _companyRepository.findById(currentSession.companyId!);
       if (company != null) {
@@ -54,10 +54,10 @@ class GetCompaniesUseCase {
           );
 
           if (!hasAccess) {
-            return Failure(UnauthorizedError('You do not have permission to view this customer portfolio.'));
+            return Failure(UnauthorizedError('Você não tem permissão para visualizar este portfólio de clientes.'));
           }
         } else {
-          return Failure(UnauthorizedError('Supervisor not found.'));
+          return Failure(UnauthorizedError('Supervisor não encontrado.'));
         }
       }
 
@@ -65,6 +65,6 @@ class GetCompaniesUseCase {
       return Success(companies);
     }
 
-    return Failure(UnauthorizedError('You do not have permission to view companies.'));
+    return Failure(UnauthorizedError('Você não tem permissão para visualizar empresas.'));
   }
 }

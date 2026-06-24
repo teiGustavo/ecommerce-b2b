@@ -133,7 +133,26 @@ class ProductListView extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              subtitle: Text('SKU: ${product.sku} | Preço Base: ${product.basePrice.formatted}'),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('SKU: ${product.sku} | Preço Base: ${product.basePrice.formatted}'),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.inventory_2_outlined, size: 14, color: Colors.blueGrey),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Estoque Disponível: ${state.stockMap[product.id.value] ?? 0} un',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: (state.stockMap[product.id.value] ?? 0) > 0 ? Colors.green.shade700 : Colors.red.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

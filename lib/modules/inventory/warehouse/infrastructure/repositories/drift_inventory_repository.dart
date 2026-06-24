@@ -81,7 +81,8 @@ class DriftInventoryRepository implements InventoryRepository {
   @override
   Future<List<StockItem>> getConsolidatedStock() async {
     final query = _db.selectOnly(_db.stocks)
-      ..addColumns([_db.stocks.variantId, _db.stocks.quantity.sum()]);
+      ..addColumns([_db.stocks.variantId, _db.stocks.quantity.sum()])
+      ..groupBy([_db.stocks.variantId]);
     
     final results = await query.get();
     

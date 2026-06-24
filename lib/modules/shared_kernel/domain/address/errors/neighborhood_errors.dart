@@ -5,9 +5,9 @@ class NeighborhoodError extends DomainError {
 }
 
 class NeighborhoodEmptyError extends EmptyError implements NeighborhoodError {
-  const NeighborhoodEmptyError() : super('Neighborhood');
+  const NeighborhoodEmptyError() : super('O bairro não pode ser vazio');
 }
 
 class NeighborhoodTooLongError extends NeighborhoodError {
-  const NeighborhoodTooLongError() : super('Neighborhood cannot be longer than 70 characters.');
+  const NeighborhoodTooLongError() : super('O bairro não pode ter mais de 70 caracteres.');
 }

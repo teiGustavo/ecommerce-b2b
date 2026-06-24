@@ -49,6 +49,6 @@ class GetRecentQuotesUseCase {
       }
     }
 
-    return Failure(UnauthorizedError('You do not have permission to view these quotes.'));
+    return Failure(UnauthorizedError('Você não tem permissão para visualizar estes orçamentos.'));
   }
 }

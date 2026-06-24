@@ -4,14 +4,14 @@ sealed class AuthError extends DomainError {
   AuthError(super.message);
 }
 
-class UnauthorizedError extends AuthError {
-  UnauthorizedError([super.message = 'Access denied. You do not have permission to perform this action.']);
-}
-
 class InvalidCredentialsError extends AuthError {
-  InvalidCredentialsError() : super('Invalid email or password.');
+  InvalidCredentialsError() : super('E-mail ou senha inválidos.');
 }
 
 class SessionExpiredError extends AuthError {
-  SessionExpiredError() : super('Session has expired. Please login again.');
+  SessionExpiredError() : super('A sessão expirou. Por favor, faça login novamente.');
+}
+
+class UnauthorizedError extends AuthError {
+  UnauthorizedError(super.message);
 }

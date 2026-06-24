@@ -1,3 +1,4 @@
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/repositories/inventory_repository.dart';
 import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/warehouse.dart';
 import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/services/inventory_allocator_domain_service.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/finance_review.dart';
@@ -12,11 +13,13 @@ class ProcessFinanceReviewUseCase {
   final OrderStateMachineDomainService _stateMachine;
   final InventoryAllocatorDomainService _inventoryAllocator;
   final SalesOrderRepository _orderRepository;
+  final InventoryRepository _inventoryRepository;
 
   ProcessFinanceReviewUseCase(
     this._stateMachine,
     this._inventoryAllocator,
     this._orderRepository,
+    this._inventoryRepository,
   );
 
   /// Aplica a decisão financeira ao pedido bloqueado e persiste no banco.
@@ -40,6 +43,11 @@ class ProcessFinanceReviewUseCase {
       // Tenta alocar estoque agora que foi aprovado.
       for (final item in order.items) {
         _inventoryAllocator.allocateStock(warehouses, order.id, item.productId, item.quantity);
+      }
+
+      // Salva os depósitos com as novas reservas.
+      for (final wh in warehouses) {
+        await _inventoryRepository.save(wh);
       }
     } else {
       // Se reprovado, o pedido pode ser cancelado ou mantido como bloqueado (aqui vamos cancelar).

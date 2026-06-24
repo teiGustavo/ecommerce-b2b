@@ -10,7 +10,7 @@ class TrackingCode extends ValueObject {
 
   static Result<TrackingCode, String> create(String value) {
     if (value.isEmpty) {
-      return Failure('Tracking code cannot be empty');
+      return Failure('Código de rastreamento não pode ser vazio');
     }
     return Success(TrackingCode._(value));
   }

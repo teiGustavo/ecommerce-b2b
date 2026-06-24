@@ -11,7 +11,7 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/auth/errors/auth_erro
 import 'package:ecommerce_b2b/modules/shared_kernel/functional/result.dart';
 
 class CompanyNotFoundError extends DomainError {
-  CompanyNotFoundError() : super('Company not found.');
+  CompanyNotFoundError() : super('Empresa não encontrada.');
 }
 
 class AddAuthorizedBuyerUseCase {
@@ -28,7 +28,7 @@ class AddAuthorizedBuyerUseCase {
     required String positionTitle,
   }) async {
     if (currentSession.isBuyer) {
-      return Failure(UnauthorizedError('Buyers are not authorized to add other buyers.'));
+      return Failure(UnauthorizedError('Compradores não são autorizados a adicionar outros compradores.'));
     }
 
     final company = await _companyRepository.findById(companyId);

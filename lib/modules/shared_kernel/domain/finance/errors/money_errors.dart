@@ -5,9 +5,9 @@ sealed class MoneyError extends DomainError {
 }
 
 class MoneyNegativeError extends MoneyError {
-  MoneyNegativeError() : super('Money amount cannot be negative.');
+  MoneyNegativeError() : super('O valor monetário não pode ser negativo.');
 }
 
 class MoneyCurrencyMismatchError extends MoneyError {
-  MoneyCurrencyMismatchError() : super('Cannot perform operation on different currencies.');
+  MoneyCurrencyMismatchError() : super('Não é possível realizar operações em moedas diferentes.');
 }

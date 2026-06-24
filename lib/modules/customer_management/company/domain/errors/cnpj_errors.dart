@@ -5,21 +5,21 @@ sealed class CnpjError extends DomainError {
 }
 
 class CnpjEmptyError extends CnpjError {
-  CnpjEmptyError() : super('CNPJ cannot be empty.');
+  CnpjEmptyError() : super('O CNPJ não pode ser vazio.');
 }
 
 class CnpjInvalidLengthError extends CnpjError {
   final int currentLength;
   CnpjInvalidLengthError(this.currentLength)
-      : super('CNPJ must contain exactly 14 digits (found $currentLength).');
+      : super('O CNPJ deve conter exatamente 14 dígitos (encontrados $currentLength).');
 }
 
 class CnpjInvalidVerificationDigitsError extends CnpjError {
   CnpjInvalidVerificationDigitsError()
-      : super('The CNPJ number is invalid (verification digits mismatch).');
+      : super('O número do CNPJ é inválido (dígitos verificadores não coincidem).');
 }
 
 class CnpjInvalidError extends CnpjError {
   CnpjInvalidError()
-      : super('The CNPJ number is invalid.');
+      : super('O número do CNPJ é inválido.');
 }

@@ -44,7 +44,7 @@ class RegisterCompanyUseCase {
     required double creditLimit,
   }) async {
     if (currentSession.isBuyer) {
-      return Failure(UnauthorizedError('Buyers are not authorized to register companies.'));
+      return Failure(UnauthorizedError('Compradores não são autorizados a cadastrar empresas.'));
     }
 
     final cnpjResult = Cnpj.create(cnpj);

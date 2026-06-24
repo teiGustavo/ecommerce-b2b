@@ -5,9 +5,9 @@ sealed class InscricaoEstadualError extends DomainError {
 }
 
 class InscricaoEstadualEmptyError extends InscricaoEstadualError {
-  InscricaoEstadualEmptyError() : super('Inscrição Estadual cannot be empty.');
+  InscricaoEstadualEmptyError() : super('A inscrição estadual não pode ser vazia.');
 }
 
 class InscricaoEstadualInvalidError extends InscricaoEstadualError {
-  InscricaoEstadualInvalidError() : super('The Inscrição Estadual is invalid.');
+  InscricaoEstadualInvalidError() : super('A inscrição estadual é inválida.');
 }

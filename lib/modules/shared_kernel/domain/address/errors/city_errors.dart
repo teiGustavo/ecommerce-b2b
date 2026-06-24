@@ -5,9 +5,9 @@ class CityError extends DomainError {
 }
 
 class CityEmptyError extends EmptyError implements CityError {
-  const CityEmptyError() : super('City');
+  const CityEmptyError() : super('A cidade não pode ser vazia.');
 }
 
 class CityTooLongError extends CityError {
-  const CityTooLongError() : super('City cannot be longer than 100 characters.');
+  const CityTooLongError() : super('A cidade não pode ter mais de 100 caracteres.');
 }

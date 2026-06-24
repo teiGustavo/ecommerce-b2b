@@ -5,5 +5,5 @@ sealed class WeightError extends DomainError {
 }
 
 class WeightNegativeError extends WeightError {
-  WeightNegativeError() : super('Weight cannot be negative.');
+  WeightNegativeError() : super('O peso não pode ser negativo.');
 }

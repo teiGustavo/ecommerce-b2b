@@ -23,7 +23,7 @@ class GetReturnRequestsUseCase {
   ) async {
     // Regra de Autorização: Comprador só pode ver RMAs da sua própria empresa.
     if (currentSession.isBuyer && currentSession.companyId != companyId) {
-      return Failure(UnauthorizedError('You can only access return requests for your own company.'));
+      return Failure(UnauthorizedError('Você só pode acessar solicitações de devolução da sua própria empresa.'));
     }
 
     // Busca todos os pedidos da empresa

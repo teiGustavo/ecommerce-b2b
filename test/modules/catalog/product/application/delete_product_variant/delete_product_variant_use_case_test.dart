@@ -11,6 +11,11 @@ import 'package:mocktail/mocktail.dart';
 class MockProductRepository extends Mock implements ProductRepository {}
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(const ProductId(''));
+    registerFallbackValue(const ProductVariantId(''));
+  });
+
   late MockProductRepository productRepository;
   late DeleteProductVariantUseCase useCase;
   const productId = ProductId('prod-1');

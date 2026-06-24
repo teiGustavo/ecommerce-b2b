@@ -1,6 +1,7 @@
 import 'package:ecommerce_b2b/modules/logistics/picking/picking_list.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/picking_list_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/warehouse_id.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -9,10 +10,12 @@ void main() {
     test('should create picking list', () {
       const id = PickingListId('pl1');
       const orderId = OrderId('o1');
-      final pickingList = PickingList(id: id, orderId: orderId);
+      const warehouseId = WarehouseId('w1');
+      final pickingList = PickingList(id: id, orderId: orderId, warehouseId: warehouseId);
 
       expect(pickingList.id, id);
       expect(pickingList.orderId, orderId);
+      expect(pickingList.warehouseId, warehouseId);
     });
   });
 }

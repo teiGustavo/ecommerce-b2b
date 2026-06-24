@@ -7,7 +7,7 @@ class ValidationFailure {
 
   @override
   String toString() {
-    final buffer = StringBuffer('ValidationFailure (${errors.length} errors):\n');
+    final buffer = StringBuffer('Falha de Validação (${errors.length} erros):\n');
     for (var i = 0; i < errors.length; i++) {
       buffer.writeln('  [${i + 1}] ${errors[i]}');
     }

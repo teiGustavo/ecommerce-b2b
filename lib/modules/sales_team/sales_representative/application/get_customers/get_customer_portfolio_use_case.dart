@@ -48,6 +48,6 @@ class GetCustomerPortfolioUseCase {
       }
     }
 
-    return Failure(UnauthorizedError('You do not have permission to view this customer portfolio.'));
+    return Failure(UnauthorizedError('Você não tem permissão para visualizar este portfólio de clientes.'));
   }
 }

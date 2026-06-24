@@ -4,6 +4,7 @@ import 'package:ecommerce_b2b/modules/catalog/product/presentation/cubit/catalog
 import 'package:ecommerce_b2b/modules/catalog/product/presentation/cubit/catalog_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 /// Catálogo somente-leitura para compradores.
 ///
@@ -45,11 +46,15 @@ class _BuyerCatalogViewState extends State<_BuyerCatalogView> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/'),
+          tooltip: 'Voltar para Home',
+        ),
         title: const Text(
           'Catálogo de Produtos',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        // O botão de voltar é adicionado automaticamente pelo Navigator
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
         elevation: 0,

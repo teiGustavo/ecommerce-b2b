@@ -7,6 +7,8 @@ import 'package:ecommerce_b2b/modules/sales_team/sales_representative/infrastruc
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/infrastructure/repositories/drift_sales_order_repository.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/infrastructure/repositories/drift_product_repository.dart';
 import 'package:ecommerce_b2b/modules/catalog/price_table/infrastructure/repositories/drift_price_table_repository.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/infrastructure/repositories/drift_inventory_repository.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/infrastructure/repositories/drift_shipment_repository.dart';
 
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/value_objects/cnpj.dart';
@@ -37,6 +39,15 @@ import 'package:ecommerce_b2b/modules/catalog/price_table/domain/price_table.dar
 import 'package:ecommerce_b2b/modules/catalog/price_table/domain/price_rule.dart';
 import 'package:ecommerce_b2b/modules/catalog/price_table/domain/enums/price_scope_type.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/price_table_id.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/warehouse.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/warehouse_id.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/stock_item.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/stock_reservation.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/domain/shipment.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/shipment_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/logistics/value_objects/tracking_code.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/domain/enums/shipment_status.dart';
+import 'package:ecommerce_b2b/modules/logistics/shipment/domain/shipping_label.dart';
 
 class DatabaseSeeder {
   static Future<void> seed(AppDatabase db) async {
@@ -212,9 +223,44 @@ class DatabaseSeeder {
         ],
       );
 
+      final order4 = SalesOrder(
+        id: const OrderId('order-104'),
+        companyId: 'c2',
+        status: OrderStatus.pickingPacking,
+        creditStatus: CreditStatus.approved,
+        items: [
+          OrderItem(
+            productId: const ProductId('p2'),
+            quantity: Quantity.create(1).getOrThrow(),
+            unitPriceSnapshot: Money.create(2800).getOrThrow(),
+          ),
+        ],
+      );
+
+      final order5 = SalesOrder(
+        id: const OrderId('order-105'),
+        companyId: 'c1',
+        status: OrderStatus.pickingPacking,
+        creditStatus: CreditStatus.approved,
+        items: [
+          OrderItem(
+            productId: const ProductId('p1'),
+            quantity: Quantity.create(2).getOrThrow(),
+            unitPriceSnapshot: Money.create(5000).getOrThrow(),
+          ),
+          OrderItem(
+            productId: const ProductId('p2'),
+            quantity: Quantity.create(3).getOrThrow(),
+            unitPriceSnapshot: Money.create(2800).getOrThrow(),
+          ),
+        ],
+      );
+
       await orderRepo.save(order1);
       await orderRepo.save(order2);
       await orderRepo.save(order3);
+      await orderRepo.save(order4);
+      await orderRepo.save(order5);
     }
 
     if (commissionsList.isEmpty) {
@@ -358,6 +404,69 @@ class DatabaseSeeder {
         ],
       );
       await priceTableRepo.save(table1);
+    }
+
+    // Seed Inventory (Warehouses & Stock)
+    final inventoryRepo = DriftInventoryRepository(db);
+    final warehouses = await inventoryRepo.getAll();
+    if (warehouses.isEmpty) {
+      final wh1 = Warehouse(
+        id: const WarehouseId('wh-main'),
+        code: 'MAIN',
+        name: 'Depósito Central',
+        stockItems: [
+          StockItem(
+            productId: const ProductId('p1'),
+            physicalQuantity: Quantity.create(100).getOrThrow(),
+            reservations: [
+              StockReservation(orderId: const OrderId('order-105'), quantity: Quantity.create(2).getOrThrow()),
+            ],
+          ),
+          StockItem(
+            productId: const ProductId('p2'),
+            physicalQuantity: Quantity.create(50).getOrThrow(),
+            reservations: [
+              StockReservation(orderId: const OrderId('order-104'), quantity: Quantity.create(1).getOrThrow()),
+              StockReservation(orderId: const OrderId('order-105'), quantity: Quantity.create(2).getOrThrow()),
+            ],
+          ),
+        ],
+      );
+      await inventoryRepo.save(wh1);
+
+      final wh2 = Warehouse(
+        id: const WarehouseId('wh-secondary'),
+        code: 'SEC',
+        name: 'Depósito Secundário (Sul)',
+        stockItems: [
+          StockItem(
+            productId: const ProductId('p1'),
+            physicalQuantity: Quantity.create(25).getOrThrow(),
+          ),
+          StockItem(
+            productId: const ProductId('p2'),
+            physicalQuantity: Quantity.create(10).getOrThrow(),
+            reservations: [
+              StockReservation(orderId: const OrderId('order-105'), quantity: Quantity.create(1).getOrThrow()),
+            ],
+          ),
+        ],
+      );
+      await inventoryRepo.save(wh2);
+    }
+
+    // Seed Logistics (Shipments)
+    final shipmentRepo = DriftShipmentRepository(db);
+    final shipments = await db.select(db.shipments).get();
+    if (shipments.isEmpty) {
+      final shipment1 = Shipment(
+        id: const ShipmentId('sh-001'),
+        orderId: 'order-103',
+        trackingCode: TrackingCode.create('BR123456789X').getOrThrow(),
+        status: ShipmentStatus.shipped,
+        shippingLabel: const ShippingLabel('sh-001'),
+      );
+      await shipmentRepo.save(shipment1);
     }
   }
 }

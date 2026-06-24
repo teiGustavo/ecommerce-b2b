@@ -31,6 +31,7 @@ import 'package:ecommerce_b2b/modules/order_flow/sales_order/application/process
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/finance_review.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/enums/finance_decision.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/order_state_machine_domain_service.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/repositories/inventory_repository.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/repositories/sales_order_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -63,6 +64,29 @@ class FakeSalesOrderRepository implements SalesOrderRepository {
   }
 }
 
+class FakeInventoryRepository implements InventoryRepository {
+  final Map<WarehouseId, Warehouse> _warehouses = {};
+
+  @override
+  Future<void> save(Warehouse warehouse) async {
+    _warehouses[warehouse.id] = warehouse;
+  }
+
+  @override
+  Future<Warehouse?> getById(WarehouseId id) async => _warehouses[id];
+
+  @override
+  Future<List<Warehouse>> getAll() async => _warehouses.values.toList();
+
+  @override
+  Future<List<StockItem>> getConsolidatedStock() async => []; // Not needed for this test
+
+  @override
+  Future<StockItem?> getStock(WarehouseId warehouseId, ProductId productId) async {
+    return _warehouses[warehouseId]?.getStockItem(productId);
+  }
+}
+
 void main() {
   group('Order Flow Integration', () {
     /// deve realizar fluxo completo de orçamento até pedido com aprovação de crédito
@@ -74,8 +98,9 @@ void main() {
       final createQuote = CreateQuoteUseCase(pricingService);
       final convertQuote = ConvertQuoteToOrderUseCase(creditPolicy, inventoryAllocator);
       final orderRepository = FakeSalesOrderRepository();
+      final inventoryRepository = FakeInventoryRepository();
       final stateMachine = OrderStateMachineDomainService();
-      final processFinanceReview = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator, orderRepository);
+      final processFinanceReview = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator, orderRepository, inventoryRepository);
 
       final company = Company(
         id: const CompanyId('c1'),

@@ -65,6 +65,13 @@ enum AppPage {
     icon: Icons.local_shipping_rounded,
     colorType: CardColorType.surfaceVariant,
   ),
+  inventory(
+    path: '/inventory',
+    label: 'Estoque',
+    subtitle: 'Níveis de inventário',
+    icon: Icons.inventory_rounded,
+    colorType: CardColorType.surfaceVariant,
+  ),
   portal(
     path: '/portal',
     label: 'Portal',
@@ -96,6 +103,7 @@ enum AppPage {
           AppPage.catalog,
           AppPage.quotes,
           AppPage.logistics,
+          AppPage.inventory,
         ],
       UserRole.finance => [
           AppPage.home,

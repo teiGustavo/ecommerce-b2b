@@ -5,5 +5,5 @@ sealed class PercentageError extends DomainError {
 }
 
 class PercentageOutOfRangeError extends PercentageError {
-  PercentageOutOfRangeError() : super('Percentage must be between 0 and 100.');
+  PercentageOutOfRangeError() : super('A porcentagem deve estar entre 0 e 100.');
 }

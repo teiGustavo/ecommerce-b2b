@@ -14,11 +14,12 @@ class CatalogLoading extends CatalogState {}
 
 class CatalogLoaded extends CatalogState {
   final List<Product> products;
+  final Map<String, int> stockMap;
 
-  const CatalogLoaded(this.products);
+  const CatalogLoaded(this.products, {this.stockMap = const {}});
 
   @override
-  List<Object?> get props => [products];
+  List<Object?> get props => [products, stockMap];
 }
 
 class CatalogError extends CatalogState {

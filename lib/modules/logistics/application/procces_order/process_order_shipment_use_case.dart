@@ -11,6 +11,7 @@ import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/ord
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/packing_session_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/picking_list_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/shipment_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/warehouse_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/logistics/value_objects/tracking_code.dart';
 
 /// Caso de Uso responsável por orquestrar a expedição: Picking -> Packing -> Shipment (RF13, RF14, RF15).
@@ -33,13 +34,18 @@ class ProcessOrderShipmentUseCase {
     required ShipmentId shipmentId,
     required TrackingCode trackingCode,
     required String labelNumber,
+    WarehouseId? warehouseId, // Tornar opcional ou remover se for multi-depósito
   }) async {
     if (order.status != OrderStatus.pickingPacking) {
       throw StateError('O pedido deve estar em separação/embalagem para ser enviado.');
     }
 
     // 1. Gera Lista de Separação (Picking) - RF13
-    final picking = PickingList(id: pickingId, orderId: order.id);
+    final picking = PickingList(
+      id: pickingId,
+      orderId: order.id,
+      warehouseId: warehouseId ?? const WarehouseId('unknown'),
+    );
 
     // 2. Inicia Sessão de Embalagem (Packing) - RF14
     final packing = PackingSession(id: packingId);
@@ -49,7 +55,7 @@ class ProcessOrderShipmentUseCase {
       id: shipmentId,
       orderId: order.id.value,
       trackingCode: trackingCode,
-      status: ShipmentStatus.pending,
+      status: ShipmentStatus.shipped, // Alterado para shipped para refletir o despacho
       shippingLabel: ShippingLabel(labelNumber),
     );
 

@@ -224,7 +224,7 @@ class BuyerHomePage extends StatelessWidget {
                               Icons.add_rounded,
                               colorScheme.tertiaryContainer,
                               colorScheme.onTertiaryContainer,
-                              () => context.go('/buyer-catalog'),
+                              () => context.push('/buyer-catalog'),
                             ),
                             _buildActionButton(
                               context,
@@ -248,7 +248,7 @@ class BuyerHomePage extends StatelessWidget {
                               Icons.grid_view_rounded,
                               colorScheme.surfaceContainerHigh,
                               colorScheme.onSurface,
-                              () => context.go('/buyer-catalog'),
+                              () => context.push('/buyer-catalog'),
                             ),
                           ],
                         ),
@@ -732,7 +732,7 @@ class BuyerHomePage extends StatelessWidget {
         builder: (dialogContext) => AlertDialog(
           title: const Text('Abrir RMA (Troca/Devolução)'),
           content: const Text(
-            'Você não possui nenhum pedido com status "Entregue" associado à sua conta.\n\nSó é possível abrir solicitações de RMA para pedidos já entregues física ou logicamente (RN11).',
+            'Você não possui nenhum pedido com status "Entregue" associado à sua conta.\n\nSó é possível abrir solicitações de RMA para pedidos já entregues.',
           ),
           actions: [
             TextButton(

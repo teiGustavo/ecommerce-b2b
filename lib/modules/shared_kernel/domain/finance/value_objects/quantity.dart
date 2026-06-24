@@ -26,7 +26,7 @@ class Quantity extends ValueObject {
   Quantity operator -(Quantity other) {
     final result = value - other.value;
     if (result < 0) {
-      throw StateError('Quantity cannot be negative after subtraction');
+      throw StateError('A quantidade não pode ser negativa após a subtração');
     }
     return Quantity._(result);
   }

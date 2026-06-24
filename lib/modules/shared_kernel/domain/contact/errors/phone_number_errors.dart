@@ -5,9 +5,9 @@ sealed class PhoneNumberError extends DomainError {
 }
 
 class PhoneNumberEmptyError extends PhoneNumberError {
-  PhoneNumberEmptyError() : super('Phone number cannot be empty.');
+  PhoneNumberEmptyError() : super('O telefone não pode ser vazio.');
 }
 
 class PhoneNumberInvalidError extends PhoneNumberError {
-  PhoneNumberInvalidError() : super('The phone number is invalid.');
+  PhoneNumberInvalidError() : super('O número de telefone é inválido.');
 }

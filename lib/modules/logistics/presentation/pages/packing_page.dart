@@ -3,10 +3,12 @@ import 'package:ecommerce_b2b/app/presentation/widgets/b2b_app_bar.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/repositories/sales_order_repository.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/sales_order.dart';
-import 'package:ecommerce_b2b/modules/logistics/shipment/domain/enums/shipment_status.dart';
-import 'package:ecommerce_b2b/modules/logistics/shipment/domain/shipment.dart';
-import 'package:ecommerce_b2b/modules/logistics/shipment/domain/shipping_label.dart';
-import 'package:ecommerce_b2b/modules/logistics/shipment/domain/repositories/shipment_repository.dart';
+import 'package:ecommerce_b2b/modules/catalog/product/domain/repositories/product_repository.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/repositories/inventory_repository.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/warehouse.dart';
+import 'package:ecommerce_b2b/modules/logistics/application/procces_order/process_order_shipment_use_case.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/packing_session_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/picking_list_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/shipment_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/logistics/value_objects/tracking_code.dart';
 import 'package:flutter/material.dart';
@@ -21,38 +23,75 @@ class PackingPage extends StatefulWidget {
 
 class _PackingPageState extends State<PackingPage> {
   List<SalesOrder> _orders = [];
+  Map<String, String> _productNames = {};
+  List<Warehouse> _warehouses = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadOrders();
+    _loadData();
   }
 
-  Future<void> _loadOrders() async {
-    final allOrders = await getIt<SalesOrderRepository>().getAll();
+  Future<void> _loadData() async {
+    final orderRepo = getIt<SalesOrderRepository>();
+    final productRepo = getIt<ProductRepository>();
+    final inventoryRepo = getIt<InventoryRepository>();
+
+    final allOrders = await orderRepo.getAll();
+    final allProducts = await productRepo.getAll();
+    final allWarehouses = await inventoryRepo.getAll();
+
+    final Map<String, String> names = {
+      for (var p in allProducts) p.id.value: p.name
+    };
+
     setState(() {
       _orders = allOrders.where((o) => o.status == OrderStatus.pickingPacking).toList();
+      _productNames = names;
+      _warehouses = allWarehouses;
       _isLoading = false;
     });
   }
 
+  String _getSourceWarehouses(SalesOrder order, dynamic productId) {
+    final List<String> sources = [];
+    for (var wh in _warehouses) {
+      final stockItem = wh.getStockItem(productId);
+      if (stockItem != null) {
+        final reservation = stockItem.reservations.where((r) => r.orderId == order.id);
+        if (reservation.isNotEmpty) {
+          int qty = reservation.fold(0, (sum, r) => sum + r.quantity.value);
+          sources.add('${wh.name} ($qty)');
+        }
+      }
+    }
+    return sources.isEmpty ? 'Não alocado' : sources.join(', ');
+  }
+
   Future<void> _shipOrder(SalesOrder order) async {
-    final shipmentId = ShipmentId(const Uuid().v4());
-    final shipment = Shipment(
-      id: shipmentId,
-      orderId: order.id.value,
-      trackingCode: TrackingCode.create('TRK-${const Uuid().v4().substring(0, 8)}').getOrThrow(),
-      status: ShipmentStatus.shipped,
-      shippingLabel: ShippingLabel('LABEL-${order.id.value.substring(0, 8)}'),
-    );
+    try {
+      final useCase = getIt<ProcessOrderShipmentUseCase>();
+      
+      await useCase.execute(
+        order: order,
+        pickingId: PickingListId(const Uuid().v4()),
+        packingId: PackingSessionId(const Uuid().v4()),
+        shipmentId: ShipmentId(const Uuid().v4()),
+        trackingCode: TrackingCode.create('TRK-${const Uuid().v4().substring(0, 8).toUpperCase()}').getOrThrow(),
+        labelNumber: 'LABEL-${order.id.value.substring(0, 8)}',
+      );
 
-    await getIt<ShipmentRepository>().save(shipment);
-    
-    order.updateStatus(OrderStatus.inTransit);
-    await getIt<SalesOrderRepository>().save(order);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Pedido #${order.id.value.substring(0, 8)} despachado com sucesso!')),
+      );
 
-    _loadOrders();
+      _loadData();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao despachar pedido: $e')),
+      );
+    }
   }
 
   @override
@@ -61,25 +100,72 @@ class _PackingPageState extends State<PackingPage> {
       appBar: const B2BAppBar(title: 'Expedição (Picking & Packing)'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _orders.isEmpty
-              ? const Center(child: Text('Nenhum pedido para expedir.'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _orders.length,
-                  itemBuilder: (context, index) {
-                    final order = _orders[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text('Pedido #${order.id.value.substring(0, 8)}'),
-                        subtitle: Text('Itens: ${order.items.length}'),
-                        trailing: ElevatedButton(
-                          onPressed: () => _shipOrder(order),
-                          child: const Text('Despachar'),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+          : RefreshIndicator(
+              onRefresh: _loadData,
+              child: _orders.isEmpty
+                  ? const Center(child: Text('Nenhum pedido pendente de expedição.'))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _orders.length,
+                      itemBuilder: (context, index) {
+                        final order = _orders[index];
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Pedido #${order.id.value.substring(0, 8)}',
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                    ),
+                                    ElevatedButton.icon(
+                                      onPressed: () => _shipOrder(order),
+                                      icon: const Icon(Icons.local_shipping_rounded),
+                                      label: const Text('Despachar'),
+                                    ),
+                                  ],
+                                ),
+                                const Divider(),
+                                const Text('Itens do Pedido:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                ...order.items.map((item) {
+                                  final name = _productNames[item.productId.value] ?? 'Produto #${item.productId.value}';
+                                  final sources = _getSourceWarehouses(order, item.productId);
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 4),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.check_circle_outline, size: 16, color: Colors.green),
+                                            const SizedBox(width: 8),
+                                            Expanded(child: Text(name)),
+                                            Text('x${item.quantity.value}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                          ],
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 24.0, bottom: 4.0),
+                                          child: Text(
+                                            'Origem (Picking): $sources',
+                                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
     );
   }
 }

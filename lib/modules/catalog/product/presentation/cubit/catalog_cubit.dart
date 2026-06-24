@@ -4,6 +4,7 @@ import 'package:ecommerce_b2b/modules/catalog/product/application/get_products/g
 import 'package:ecommerce_b2b/modules/catalog/product/application/save_product/save_product_use_case.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/domain/product.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/presentation/cubit/catalog_state.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/repositories/inventory_repository.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_variant_id.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,21 +14,28 @@ class CatalogCubit extends Cubit<CatalogState> {
   final SaveProductUseCase _saveProductUseCase;
   final DeleteProductUseCase _deleteProductUseCase;
   final DeleteProductVariantUseCase _deleteProductVariantUseCase;
+  final InventoryRepository _inventoryRepository;
 
   CatalogCubit(
     this._getProductsUseCase,
     this._saveProductUseCase,
     this._deleteProductUseCase,
     this._deleteProductVariantUseCase,
+    this._inventoryRepository,
   ) : super(CatalogInitial());
 
   Future<void> loadProducts({String? query}) async {
     emit(CatalogLoading());
     final result = await _getProductsUseCase.execute(query: query);
+    final consolidatedStock = await _inventoryRepository.getConsolidatedStock();
     
+    final Map<String, int> stockMap = {
+      for (var item in consolidatedStock) item.productId.value: item.physicalQuantity.value
+    };
+
     result.fold(
       (error) => emit(CatalogError(error.toString())),
-      (products) => emit(CatalogLoaded(products)),
+      (products) => emit(CatalogLoaded(products, stockMap: stockMap)),
     );
   }
 

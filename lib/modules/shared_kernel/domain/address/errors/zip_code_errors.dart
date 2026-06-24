@@ -5,9 +5,9 @@ class ZipCodeError extends DomainError {
 }
 
 class ZipCodeEmptyError extends EmptyError implements ZipCodeError {
-  const ZipCodeEmptyError() : super('Zip code');
+  const ZipCodeEmptyError() : super('O CEP não pode ser vazio');
 }
 
 class ZipCodeLengthError extends ZipCodeError {
-  const ZipCodeLengthError() : super('Zip code must have 8 digits.');
+  const ZipCodeLengthError() : super('O CEP deve ter 8 dígitos.');
 }

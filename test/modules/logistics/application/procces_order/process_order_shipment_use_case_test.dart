@@ -10,6 +10,7 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.d
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/packing_session_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/picking_list_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/shipment_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/warehouse_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/logistics/value_objects/tracking_code.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -62,12 +63,14 @@ void main() {
         pickingId: const PickingListId('pick-1'),
         packingId: const PackingSessionId('pack-1'),
         shipmentId: const ShipmentId('ship-1'),
+        warehouseId: const WarehouseId('wh-1'),
         trackingCode: TrackingCode.create('TRK123').getOrThrow(),
         labelNumber: 'LBL-001',
       );
 
       expect(order.status, OrderStatus.inTransit);
       expect(result.picking.id, const PickingListId('pick-1'));
+      expect(result.picking.warehouseId, const WarehouseId('wh-1'));
       expect(result.packing.id, const PackingSessionId('pack-1'));
       expect(result.shipment.id, const ShipmentId('ship-1'));
       expect(result.shipment.trackingCode.value, 'TRK123');
@@ -91,6 +94,7 @@ void main() {
           pickingId: const PickingListId('pick-1'),
           packingId: const PackingSessionId('pack-1'),
           shipmentId: const ShipmentId('ship-1'),
+          warehouseId: const WarehouseId('wh-1'),
           trackingCode: TrackingCode.create('TRK123').getOrThrow(),
           labelNumber: 'LBL-001',
         ),

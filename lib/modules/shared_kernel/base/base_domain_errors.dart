@@ -11,5 +11,5 @@ abstract class DomainError {
 abstract class EmptyError extends DomainError {
   final String fieldName;
 
-  const EmptyError(this.fieldName) : super('$fieldName cannot be empty.');
+  const EmptyError(this.fieldName) : super('$fieldName não pode ser vazio.');
 }

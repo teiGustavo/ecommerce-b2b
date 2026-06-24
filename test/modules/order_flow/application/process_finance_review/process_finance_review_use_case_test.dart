@@ -1,3 +1,4 @@
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/repositories/inventory_repository.dart';
 import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/stock_item.dart';
 import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/warehouse.dart';
 import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/services/inventory_allocator_domain_service.dart';
@@ -34,21 +35,27 @@ class MockInventoryAllocator extends InventoryAllocatorDomainService {
 }
 
 class MockSalesOrderRepository extends Mock implements SalesOrderRepository {}
+class MockInventoryRepository extends Mock implements InventoryRepository {}
 class SalesOrderFake extends Fake implements SalesOrder {}
+class WarehouseFake extends Fake implements Warehouse {}
 
 void main() {
   setUpAll(() {
     registerFallbackValue(SalesOrderFake());
+    registerFallbackValue(WarehouseFake());
   });
 
   group('ProcessFinanceReviewUseCase', () {
     late SalesOrder order;
     late Warehouse warehouse;
     late MockSalesOrderRepository orderRepo;
+    late MockInventoryRepository inventoryRepo;
 
     setUp(() {
       orderRepo = MockSalesOrderRepository();
+      inventoryRepo = MockInventoryRepository();
       when(() => orderRepo.save(any())).thenAnswer((_) async => {});
+      when(() => inventoryRepo.save(any())).thenAnswer((_) async => {});
 
       order = SalesOrder(
         id: const OrderId('o1'),
@@ -67,7 +74,7 @@ void main() {
     test('should approve order, transition status and allocate stock', () async {
       final stateMachine = MockOrderStateMachine();
       final inventoryAllocator = MockInventoryAllocator();
-      final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator, orderRepo);
+      final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator, orderRepo, inventoryRepo);
       final review = FinanceReview(
         decision: FinanceDecision.approved,
         reviewerId: 'admin',
@@ -81,12 +88,13 @@ void main() {
       expect(order.financeReview, review);
       expect(inventoryAllocator.allocateCalled, isTrue);
       verify(() => orderRepo.save(order)).called(1);
+      verify(() => inventoryRepo.save(warehouse)).called(1);
     });
 
     test('should cancel order if rejected by finance', () async {
       final stateMachine = MockOrderStateMachine();
       final inventoryAllocator = MockInventoryAllocator();
-      final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator, orderRepo);
+      final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator, orderRepo, inventoryRepo);
       final review = FinanceReview(
         decision: FinanceDecision.rejected,
         reviewerId: 'admin',
@@ -99,13 +107,14 @@ void main() {
       expect(order.status, OrderStatus.cancelled);
       expect(inventoryAllocator.allocateCalled, isFalse);
       verify(() => orderRepo.save(order)).called(1);
+      verifyNever(() => inventoryRepo.save(any()));
     });
 
     test('should allow processing if order is pending finance approval', () async {
       final stateMachine = MockOrderStateMachine();
       final inventoryAllocator = MockInventoryAllocator();
       final useCase = ProcessFinanceReviewUseCase(
-          stateMachine, inventoryAllocator, orderRepo);
+          stateMachine, inventoryAllocator, orderRepo, inventoryRepo);
       final review = FinanceReview(
         decision: FinanceDecision.approved,
         reviewerId: 'admin',
@@ -120,13 +129,14 @@ void main() {
 
       expect(order.status, OrderStatus.pickingPacking);
       verify(() => orderRepo.save(order)).called(1);
+      verify(() => inventoryRepo.save(warehouse)).called(1);
     });
 
     test('should throw error if order is in terminal state', () async {
       final stateMachine = MockOrderStateMachine();
       final inventoryAllocator = MockInventoryAllocator();
       final useCase = ProcessFinanceReviewUseCase(
-          stateMachine, inventoryAllocator, orderRepo);
+          stateMachine, inventoryAllocator, orderRepo, inventoryRepo);
       final review = FinanceReview(
         decision: FinanceDecision.approved,
         reviewerId: 'admin',
@@ -141,6 +151,7 @@ void main() {
               order: order, review: review, warehouses: [warehouse]),
           throwsStateError);
       verifyNever(() => orderRepo.save(any()));
+      verifyNever(() => inventoryRepo.save(any()));
     });
   });
 }

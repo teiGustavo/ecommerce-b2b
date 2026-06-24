@@ -5,5 +5,5 @@ sealed class StateError extends DomainError {
 }
 
 class StateInvalidError extends StateError {
-  StateInvalidError() : super('Invalid state.');
+  StateInvalidError() : super('O estado é inválido.');
 }

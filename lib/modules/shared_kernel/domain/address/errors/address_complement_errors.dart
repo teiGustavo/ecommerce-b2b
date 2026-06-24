@@ -5,9 +5,9 @@ class AddressComplementError extends DomainError {
 }
 
 class AddressComplementEmptyError extends EmptyError implements AddressComplementError {
-  const AddressComplementEmptyError() : super('Complement');
+  const AddressComplementEmptyError() : super('O complemento não pode ser vazio.');
 }
 
 class AddressComplementTooLongError extends AddressComplementError {
-  const AddressComplementTooLongError() : super('Complement cannot be longer than 60 characters.');
+  const AddressComplementTooLongError() : super('O complemento não pode ter mais de 60 caracteres.');
 }

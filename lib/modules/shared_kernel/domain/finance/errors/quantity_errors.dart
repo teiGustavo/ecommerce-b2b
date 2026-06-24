@@ -5,5 +5,5 @@ sealed class QuantityError extends DomainError {
 }
 
 class QuantityNegativeError extends QuantityError {
-  QuantityNegativeError() : super('Quantity cannot be negative.');
+  QuantityNegativeError() : super('A quantidade não pode ser negativa.');
 }

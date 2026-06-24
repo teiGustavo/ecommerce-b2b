@@ -5,9 +5,9 @@ sealed class EmailError extends DomainError {
 }
 
 class EmailEmptyError extends EmailError {
-  EmailEmptyError() : super('Email cannot be empty.');
+  EmailEmptyError() : super('O e-mail não pode ser vazio.');
 }
 
 class EmailInvalidError extends EmailError {
-  EmailInvalidError() : super('The email address is invalid.');
+  EmailInvalidError() : super('O endereço de e-mail é inválido.');
 }

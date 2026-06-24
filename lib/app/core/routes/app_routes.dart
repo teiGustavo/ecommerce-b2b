@@ -15,6 +15,7 @@ import 'package:ecommerce_b2b/modules/customer_management/company/presentation/p
 import 'package:ecommerce_b2b/modules/catalog/product/presentation/pages/product_list_page.dart';
 import 'package:ecommerce_b2b/modules/order_flow/quote/presentation/pages/quote_page.dart';
 import 'package:ecommerce_b2b/modules/logistics/presentation/pages/packing_page.dart';
+import 'package:ecommerce_b2b/modules/inventory/warehouse/presentation/pages/inventory_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -91,6 +92,10 @@ final appRouter = GoRouter(
         GoRoute(
           path: AppPage.logistics.path,
           builder: (context, state) => const PackingPage(),
+        ),
+        GoRoute(
+          path: AppPage.inventory.path,
+          builder: (context, state) => const InventoryPage(),
         ),
         GoRoute(
           path: '/buyer-catalog',

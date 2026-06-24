@@ -173,6 +173,7 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
     getIt<OrderStateMachineDomainService>(),
     getIt<InventoryAllocatorDomainService>(),
     getIt<SalesOrderRepository>(),
+    getIt<InventoryRepository>(),
   ));
 
   getIt.registerLazySingleton(() => ProcessOrderShipmentUseCase(
@@ -237,6 +238,7 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
     getIt<SaveProductUseCase>(),
     getIt<DeleteProductUseCase>(),
     getIt<DeleteProductVariantUseCase>(),
+    getIt<InventoryRepository>(),
   ));
 
   getIt.registerFactory(() => PriceTableCubit(
@@ -253,5 +255,7 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
     getReturnRequestsUseCase: getIt<GetReturnRequestsUseCase>(),
     downloadBoletoUseCase: getIt<DownloadBoletoUseCase>(),
     openReturnRequestUseCase: getIt<OpenReturnRequestUseCase>(),
+    shipmentRepository: getIt<ShipmentRepository>(),
+    trackingRepository: getIt<TrackingRepository>(),
   ));
 }

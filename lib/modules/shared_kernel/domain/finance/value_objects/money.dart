@@ -51,7 +51,7 @@ class Money extends ValueObject {
 
     final result = amountInCents - other.amountInCents;
     if (result < 0) {
-      throw StateError('Money amount cannot be negative after subtraction');
+      throw StateError('O valor monetário não pode ser negativo após a subtração');
     }
 
     return Money._(result, currency: currency);

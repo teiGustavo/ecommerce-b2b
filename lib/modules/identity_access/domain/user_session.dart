@@ -13,7 +13,7 @@ class UserSession {
     this.companyId,
   }) {
     if (role == UserRole.buyer && companyId == null) {
-      throw ArgumentError('CompanyId is required for buyer role.');
+      throw ArgumentError('O ID da empresa é obrigatório para o perfil de comprador.');
     }
   }
 

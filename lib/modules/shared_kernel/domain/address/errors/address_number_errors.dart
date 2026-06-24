@@ -5,9 +5,9 @@ class AddressNumberError extends DomainError {
 }
 
 class AddressNumberEmptyError extends EmptyError implements AddressNumberError {
-  const AddressNumberEmptyError() : super('Number');
+  const AddressNumberEmptyError() : super('O número não pode ser vazio.');
 }
 
 class AddressNumberTooLongError extends AddressNumberError {
-  const AddressNumberTooLongError() : super('Number cannot be longer than 10 characters.');
+  const AddressNumberTooLongError() : super('O número não pode ter mais de 10 caracteres.');
 }

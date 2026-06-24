@@ -48,6 +48,6 @@ class GetRepresentativeCommissionsUseCase {
       }
     }
 
-    return Failure(UnauthorizedError('You do not have permission to view these commissions.'));
+    return Failure(UnauthorizedError('Você não tem permissão para visualizar estas comissões.'));
   }
 }

@@ -44,7 +44,7 @@ class OrderWorkflowService {
 
   Future<void> approveOrder(OrderId orderId) async {
     final order = await _orderRepository.getById(orderId);
-    if (order == null) throw Exception('Order not found');
+    if (order == null) throw Exception('Pedido não encontrado');
 
     order.updateStatus(OrderStatus.pickingPacking);
     await _orderRepository.save(order);
@@ -52,7 +52,7 @@ class OrderWorkflowService {
 
   Future<void> rejectOrder(OrderId orderId) async {
     final order = await _orderRepository.getById(orderId);
-    if (order == null) throw Exception('Order not found');
+    if (order == null) throw Exception('Pedido não encontrado');
 
     order.updateStatus(OrderStatus.cancelled);
     await _orderRepository.save(order);

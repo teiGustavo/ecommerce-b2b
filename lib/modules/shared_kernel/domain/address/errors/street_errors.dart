@@ -5,9 +5,9 @@ class StreetError extends DomainError {
 }
 
 class StreetEmptyError extends EmptyError implements StreetError {
-  const StreetEmptyError() : super('Street');
+  const StreetEmptyError() : super('O logradouro não pode ser vazio');
 }
 
 class StreetTooLongError extends StreetError {
-  const StreetTooLongError() : super('Street cannot be longer than 100 characters.');
+  const StreetTooLongError() : super('O logradouro não pode ter mais de 100 caracteres.');
 }

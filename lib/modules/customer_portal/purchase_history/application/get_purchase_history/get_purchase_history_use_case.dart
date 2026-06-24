@@ -27,7 +27,7 @@ class GetPurchaseHistoryUseCase {
   ) async {
     // Regra de Autorização: Comprador só pode ver histórico da sua própria empresa.
     if (currentSession.isBuyer && currentSession.companyId != companyId) {
-      return Failure(UnauthorizedError('You can only access purchase history for your own company.'));
+      return Failure(UnauthorizedError('Você só pode acessar o histórico de compras da sua própria empresa.'));
     }
 
     // Regra de Autorização: Representante só pode ver histórico de empresas em sua carteira ou de seus subordinados.
@@ -35,7 +35,7 @@ class GetPurchaseHistoryUseCase {
       final repId = RepresentativeId(currentSession.userId.value);
       final representative = await _representativeRepository.findById(repId);
       if (representative == null) {
-        return Failure(UnauthorizedError('Representative not found.'));
+        return Failure(UnauthorizedError('Representante não encontrado.'));
       }
 
       // Verifica se a empresa está diretamente associada ao representante
@@ -60,7 +60,7 @@ class GetPurchaseHistoryUseCase {
         }
         
         if (!hasSubordinateAccess) {
-          return Failure(UnauthorizedError('You can only access purchase history for companies in your portfolio or your subordinates\' portfolio.'));
+          return Failure(UnauthorizedError('Você só pode acessar o histórico de compras de empresas em sua carteira ou de seus subordinados.'));
         }
       }
     }
