@@ -9,12 +9,14 @@ import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/enums/finance_decision.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/order_state_machine_domain_service.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/repositories/sales_order_repository.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/warehouse_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 class MockOrderStateMachine extends OrderStateMachineDomainService {
   @override
@@ -31,12 +33,23 @@ class MockInventoryAllocator extends InventoryAllocatorDomainService {
   }
 }
 
+class MockSalesOrderRepository extends Mock implements SalesOrderRepository {}
+class SalesOrderFake extends Fake implements SalesOrder {}
+
 void main() {
+  setUpAll(() {
+    registerFallbackValue(SalesOrderFake());
+  });
+
   group('ProcessFinanceReviewUseCase', () {
     late SalesOrder order;
     late Warehouse warehouse;
+    late MockSalesOrderRepository orderRepo;
 
     setUp(() {
+      orderRepo = MockSalesOrderRepository();
+      when(() => orderRepo.save(any())).thenAnswer((_) async => {});
+
       order = SalesOrder(
         id: const OrderId('o1'),
         status: OrderStatus.blockedByFinance,
@@ -51,11 +64,10 @@ void main() {
       ]);
     });
 
-    /// deve aprovar pedido, transicionar status e alocar estoque
-    test('should approve order, transition status and allocate stock', () {
+    test('should approve order, transition status and allocate stock', () async {
       final stateMachine = MockOrderStateMachine();
       final inventoryAllocator = MockInventoryAllocator();
-      final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator);
+      final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator, orderRepo);
       final review = FinanceReview(
         decision: FinanceDecision.approved,
         reviewerId: 'admin',
@@ -63,18 +75,18 @@ void main() {
         justification: 'OK',
       );
 
-      useCase.execute(order: order, review: review, warehouses: [warehouse]);
+      await useCase.execute(order: order, review: review, warehouses: [warehouse]);
 
       expect(order.status, OrderStatus.pickingPacking);
       expect(order.financeReview, review);
       expect(inventoryAllocator.allocateCalled, isTrue);
+      verify(() => orderRepo.save(order)).called(1);
     });
 
-    /// deve cancelar pedido se reprovado pelo financeiro
-    test('should cancel order if rejected by finance', () {
+    test('should cancel order if rejected by finance', () async {
       final stateMachine = MockOrderStateMachine();
       final inventoryAllocator = MockInventoryAllocator();
-      final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator);
+      final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator, orderRepo);
       final review = FinanceReview(
         decision: FinanceDecision.rejected,
         reviewerId: 'admin',
@@ -82,17 +94,17 @@ void main() {
         justification: 'No credit',
       );
 
-      useCase.execute(order: order, review: review, warehouses: [warehouse]);
+      await useCase.execute(order: order, review: review, warehouses: [warehouse]);
 
       expect(order.status, OrderStatus.cancelled);
       expect(inventoryAllocator.allocateCalled, isFalse);
+      verify(() => orderRepo.save(order)).called(1);
     });
 
-    /// deve lançar erro se pedido não estiver bloqueado
-    test('should throw error if order is not blocked', () {
+    test('should throw error if order is not blocked', () async {
       final stateMachine = MockOrderStateMachine();
       final inventoryAllocator = MockInventoryAllocator();
-      final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator);
+      final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator, orderRepo);
       final review = FinanceReview(
         decision: FinanceDecision.approved,
         reviewerId: 'admin',
@@ -103,6 +115,7 @@ void main() {
       order.updateStatus(OrderStatus.pendingFinanceApproval);
 
       expect(() => useCase.execute(order: order, review: review, warehouses: [warehouse]), throwsStateError);
+      verifyNever(() => orderRepo.save(any()));
     });
   });
 }

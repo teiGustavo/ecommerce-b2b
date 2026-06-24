@@ -6,6 +6,7 @@ import 'package:ecommerce_b2b/app/presentation/pages/home_page.dart';
 import 'package:ecommerce_b2b/modules/identity_access/domain/enums/user_role.dart';
 import 'package:ecommerce_b2b/modules/identity_access/presentation/cubit/auth_cubit.dart';
 import 'package:ecommerce_b2b/modules/identity_access/presentation/pages/login_page.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/presentation/pages/buyer_catalog_page.dart';
 import 'package:ecommerce_b2b/modules/customer_portal/presentation/pages/buyer_home_page.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/presentation/pages/representative_home_page.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/presentation/finance_review/pages/finance_home_page.dart';
@@ -89,6 +90,10 @@ final appRouter = GoRouter(
         GoRoute(
           path: AppPage.logistics.path,
           builder: (context, state) => const PackingPage(),
+        ),
+        GoRoute(
+          path: '/buyer-catalog',
+          builder: (context, state) => const BuyerCatalogPage(),
         ),
       ],
     ),

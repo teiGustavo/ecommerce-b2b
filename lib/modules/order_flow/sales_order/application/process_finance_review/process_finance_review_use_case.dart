@@ -5,20 +5,26 @@ import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/sales_order.
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/enums/finance_decision.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/order_state_machine_domain_service.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/repositories/sales_order_repository.dart';
 
 /// Caso de Uso responsável por processar a análise manual do departamento financeiro (RF12).
 class ProcessFinanceReviewUseCase {
   final OrderStateMachineDomainService _stateMachine;
   final InventoryAllocatorDomainService _inventoryAllocator;
+  final SalesOrderRepository _orderRepository;
 
-  ProcessFinanceReviewUseCase(this._stateMachine, this._inventoryAllocator);
+  ProcessFinanceReviewUseCase(
+    this._stateMachine,
+    this._inventoryAllocator,
+    this._orderRepository,
+  );
 
-  /// Aplica a decisão financeira ao pedido bloqueado.
-  void execute({
+  /// Aplica a decisão financeira ao pedido bloqueado e persiste no banco.
+  Future<void> execute({
     required SalesOrder order,
     required FinanceReview review,
     required List<Warehouse> warehouses,
-  }) {
+  }) async {
     if (order.status != OrderStatus.blockedByFinance) {
       throw StateError('Apenas pedidos bloqueados podem passar por análise financeira.');
     }
@@ -37,5 +43,7 @@ class ProcessFinanceReviewUseCase {
       // Se reprovado, o pedido pode ser cancelado ou mantido como bloqueado (aqui vamos cancelar).
       _stateMachine.transitionTo(order, OrderStatus.cancelled);
     }
+
+    await _orderRepository.save(order);
   }
 }

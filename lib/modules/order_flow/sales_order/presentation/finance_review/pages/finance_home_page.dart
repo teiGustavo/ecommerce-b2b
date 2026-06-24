@@ -1,6 +1,9 @@
+import 'package:ecommerce_b2b/app/core/di/service_locator.dart';
 import 'package:ecommerce_b2b/app/core/routes/app_pages.dart';
 import 'package:ecommerce_b2b/app/presentation/widgets/b2b_app_bar.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/presentation/finance_review/cubit/finance_review_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class FinanceHomePage extends StatelessWidget {
@@ -11,131 +14,154 @@ class FinanceHomePage extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Scaffold(
-      appBar: const B2BAppBar(title: 'Painel Financeiro'),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          // Simulação de recarregamento
-          await Future.delayed(const Duration(seconds: 1));
-        },
-        child: CustomScrollView(
-          slivers: [
-            // Cabeçalho de Boas-vindas
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Gestão de Risco',
-                      style: theme.textTheme.displaySmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -1.5,
-                        color: colorScheme.onSurface,
+    return BlocProvider(
+      create: (context) => getIt<FinanceReviewCubit>()..loadPendingOrders(),
+      child: Scaffold(
+        appBar: const B2BAppBar(title: 'Painel Financeiro'),
+        body: BlocBuilder<FinanceReviewCubit, FinanceReviewState>(
+          builder: (context, state) {
+            int pendingCount = 0;
+            bool isLoading = state is FinanceReviewLoading;
+
+            if (state is FinanceReviewLoaded) {
+              pendingCount = state.pendingOrders.length;
+            }
+
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<FinanceReviewCubit>().loadPendingOrders();
+              },
+              child: CustomScrollView(
+                slivers: [
+                  // Cabeçalho de Boas-vindas
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Gestão de Risco',
+                            style: theme.textTheme.displaySmall?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -1.5,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                          Text(
+                            'Monitore a saúde financeira, controle limites de crédito e aprove faturamentos.',
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Text(
-                      'Monitore a saúde financeira e aprove créditos.',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Cards de Métricas Críticas (Expressive Row)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Row(
-                  children: [
-                    _buildMetricCard(
-                      context,
-                      'Inadimplência',
-                      '2.4%',
-                      Icons.trending_down_rounded,
-                      colorScheme.errorContainer,
-                      colorScheme.onErrorContainer,
-                    ),
-                    const SizedBox(width: 12),
-                    _buildMetricCard(
-                      context,
-                      'Exposure Total',
-                      'R\$ 1.2M',
-                      Icons.account_balance_rounded,
-                      colorScheme.secondaryContainer,
-                      colorScheme.onSecondaryContainer,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Ação Principal: Revisão de Crédito
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
-                child: _buildActionHeroCard(
-                  context,
-                  'Revisão de Crédito',
-                  'Existem 2 pedidos aguardando sua análise manual.',
-                  Icons.gpp_maybe_rounded,
-                  colorScheme.primary,
-                  colorScheme.onPrimary,
-                  () => context.go(AppPage.finance.path),
-                ),
-              ),
-            ),
-
-            // Seção de Atividades
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                child: Text(
-                  'Liberados Hoje',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w900,
                   ),
-                ),
-              ),
-            ),
 
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    color: colorScheme.surfaceContainerLow,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
+                  // Cards de Métricas Críticas (Expressive Row)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Row(
+                        children: [
+                          _buildMetricCard(
+                            context,
+                            'Meta de Inadimplência',
+                            '< 2.0%',
+                            Icons.trending_down_rounded,
+                            colorScheme.errorContainer,
+                            colorScheme.onErrorContainer,
+                          ),
+                          const SizedBox(width: 12),
+                          _buildMetricCard(
+                            context,
+                            'Carteira Ativa',
+                            'R\$ 4.8M',
+                            Icons.account_balance_rounded,
+                            colorScheme.secondaryContainer,
+                            colorScheme.onSecondaryContainer,
+                          ),
+                        ],
+                      ),
                     ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(16),
-                      leading: CircleAvatar(
-                        backgroundColor: colorScheme.primaryContainer,
-                        child: Icon(
-                          Icons.check_circle_outline_rounded,
-                          color: colorScheme.onPrimaryContainer,
+                  ),
+
+                  // Ação Principal: Revisão de Crédito
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+                      child: isLoading
+                          ? const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()))
+                          : _buildActionHeroCard(
+                              context,
+                              'Revisão de Crédito',
+                              pendingCount == 0
+                                  ? 'Nenhum pedido aguardando sua análise manual.'
+                                  : 'Existem $pendingCount ${pendingCount == 1 ? 'pedido aguardando' : 'pedidos aguardando'} sua análise manual.',
+                              Icons.gpp_maybe_rounded,
+                              pendingCount > 0 ? colorScheme.primary : colorScheme.surfaceContainerHigh,
+                              pendingCount > 0 ? colorScheme.onPrimary : colorScheme.onSurface,
+                              () => context.go(AppPage.finance.path),
+                            ),
+                    ),
+                  ),
+
+                  // Seção de Atividades Recentes
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                      child: Text(
+                        'Histórico Recente de Liberações',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w900,
                         ),
                       ),
-                      title: Text(
-                        'Pedido #99${80 - index} Liberado',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: const Text('Cliente: Tech Solutions Ltda'),
-                      trailing: const Icon(Icons.chevron_right_rounded),
                     ),
-                  );
-                }, childCount: 3),
-              ),
-            ),
+                  ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
-          ],
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          color: colorScheme.surfaceContainerLow,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(16),
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.green.withValues(alpha: 0.15),
+                              child: const Icon(
+                                Icons.check_circle_outline_rounded,
+                                color: Colors.green,
+                              ),
+                            ),
+                            title: Text(
+                              'Pedido #100${102 - index} Liberado',
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(
+                              index == 0
+                                  ? 'Cliente: Metalúrgica Silva S.A.\nLimite de crédito aprovado por faturamento'
+                                  : 'Cliente: Distribuidora Nordeste Ltda\nOrdem aprovada sem restrições',
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                            isThreeLine: true,
+                            trailing: const Icon(Icons.chevron_right_rounded),
+                          ),
+                        );
+                      }, childCount: 2),
+                    ),
+                  ),
+
+                  const SliverToBoxAdapter(child: SizedBox(height: 32)),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
@@ -198,7 +224,7 @@ class FinanceHomePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: backgroundColor.withValues(alpha: 0.3),
+            color: backgroundColor.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),

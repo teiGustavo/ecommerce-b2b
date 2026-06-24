@@ -165,6 +165,7 @@ void main() {
           openBalance: Money.create(0).getOrThrow(),
           pendingOrdersBalance: Money.create(0).getOrThrow(),
         ),
+        representativeId: 'rep-456',
       );
 
       await companyRepository.save(company1);

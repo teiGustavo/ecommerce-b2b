@@ -37,7 +37,7 @@ class FinanceReviewCubit extends Cubit<FinanceReviewState> {
       );
       
       // Mock de warehouses para o use case.
-      _processReview.execute(order: order, review: review, warehouses: []);
+      await _processReview.execute(order: order, review: review, warehouses: []);
       
       await loadPendingOrders();
     } catch (e) {
@@ -54,7 +54,7 @@ class FinanceReviewCubit extends Cubit<FinanceReviewState> {
         justification: reason,
       );
       
-      _processReview.execute(order: order, review: review, warehouses: []);
+      await _processReview.execute(order: order, review: review, warehouses: []);
       
       await loadPendingOrders();
     } catch (e) {

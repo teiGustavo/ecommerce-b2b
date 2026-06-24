@@ -17,34 +17,45 @@ class RepresentativeDashboardCubit extends Cubit<RepresentativeDashboardState> {
   final GetRecentQuotesUseCase _getRecentQuotesUseCase;
 
   RepresentativeDashboardCubit({
-    required GetRepresentativeCommissionsUseCase getCommissionsUseCase,
-    required GetCustomerPortfolioUseCase getCustomerPortfolioUseCase,
-    required GetRecentQuotesUseCase getRecentQuotesUseCase,
-  })  : _getCommissionsUseCase = getCommissionsUseCase,
-        _getCustomerPortfolioUseCase = getCustomerPortfolioUseCase,
-        _getRecentQuotesUseCase = getRecentQuotesUseCase,
-        super(RepresentativeDashboardInitial());
+    required this._getCommissionsUseCase,
+    required this._getCustomerPortfolioUseCase,
+    required this._getRecentQuotesUseCase,
+  }) : super(RepresentativeDashboardInitial());
 
   Future<void> loadDashboard(UserSession session) async {
     emit(RepresentativeDashboardLoading());
-    
+
     final repId = RepresentativeId(session.userId.value);
-    
-    final commissionsResult = await _getCommissionsUseCase.execute(repId, session);
-    final portfolioResult = await _getCustomerPortfolioUseCase.execute(repId, session);
+
+    final commissionsResult = await _getCommissionsUseCase.execute(
+      repId,
+      session,
+    );
+    final portfolioResult = await _getCustomerPortfolioUseCase.execute(
+      repId,
+      session,
+    );
     final quotesResult = await _getRecentQuotesUseCase.execute(repId, session);
 
-    if (commissionsResult.isSuccess && portfolioResult.isSuccess && quotesResult.isSuccess) {
-      emit(RepresentativeDashboardLoaded(
-        commissions: commissionsResult.getOrThrow(),
-        assignments: portfolioResult.getOrThrow(),
-        recentQuotes: quotesResult.getOrThrow(),
-      ));
+    if (commissionsResult.isSuccess &&
+        portfolioResult.isSuccess &&
+        quotesResult.isSuccess) {
+      emit(
+        RepresentativeDashboardLoaded(
+          commissions: commissionsResult.getOrThrow(),
+          assignments: portfolioResult.getOrThrow(),
+          recentQuotes: quotesResult.getOrThrow(),
+        ),
+      );
     } else {
       String errorMessage = 'Error loading dashboard';
-      if (commissionsResult.isFailure) errorMessage = commissionsResult.getFailureOrThrow().message;
-      else if (portfolioResult.isFailure) errorMessage = portfolioResult.getFailureOrThrow().message;
-      else if (quotesResult.isFailure) errorMessage = quotesResult.getFailureOrThrow().message;
+      if (commissionsResult.isFailure) {
+        errorMessage = commissionsResult.getFailureOrThrow().message;
+      } else if (portfolioResult.isFailure) {
+        errorMessage = portfolioResult.getFailureOrThrow().message;
+      } else if (quotesResult.isFailure) {
+        errorMessage = quotesResult.getFailureOrThrow().message;
+      }
 
       emit(RepresentativeDashboardFailure(errorMessage));
     }

@@ -1,7 +1,6 @@
 import 'package:ecommerce_b2b/app/core/di/service_locator.dart';
 import 'package:ecommerce_b2b/app/presentation/widgets/b2b_app_bar.dart';
 import 'package:ecommerce_b2b/modules/identity_access/presentation/cubit/auth_cubit.dart';
-import 'package:ecommerce_b2b/modules/order_flow/quote/domain/quote.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/commission.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/presentation/cubit/representative_dashboard_cubit.dart';
 import 'package:flutter/material.dart';
@@ -226,30 +225,6 @@ class RepresentativeHomePage extends StatelessWidget {
               Text(label, style: const TextStyle(
                   fontSize: 12, fontWeight: FontWeight.bold)),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionCard(BuildContext context, String label, IconData icon,
-      Color color) {
-    return Expanded(
-      child: Card(
-        color: color,
-        child: InkWell(
-          onTap: () {},
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            child: Column(
-              children: [
-                Icon(icon, size: 32),
-                const SizedBox(height: 8),
-                Text(label, style: const TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center),
-              ],
-            ),
           ),
         ),
       ),

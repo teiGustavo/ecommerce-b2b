@@ -100,8 +100,6 @@ enum AppPage {
       UserRole.finance => [
           AppPage.home,
           AppPage.finance,
-          AppPage.dashboard,
-          AppPage.logistics,
         ],
       UserRole.buyer => [], // Comprador não usa sidebar/MainLayout
     };

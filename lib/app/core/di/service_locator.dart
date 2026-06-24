@@ -46,6 +46,12 @@ import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/ser
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/credit_service.dart';
 import 'package:ecommerce_b2b/modules/order_flow/application/order_workflow_service.dart';
 
+// New Imports for Customer Portal
+import 'package:ecommerce_b2b/modules/customer_portal/presentation/cubit/customer_portal_cubit.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/return_request/application/get_return_requests/get_return_requests_use_case.dart';
+import 'package:ecommerce_b2b/modules/customer_portal/boleto/infrastructure/repositories/mock_boleto_repository.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/order_item.dart';
+
 
 // Repositories (Interfaces)
 import 'package:ecommerce_b2b/modules/catalog/price_table/domain/repositories/price_table_repository.dart';
@@ -135,6 +141,7 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
   getIt.registerLazySingleton<QuoteRepository>(() => DriftQuoteRepository(getIt<AppDatabase>()));
   getIt.registerLazySingleton<ShipmentRepository>(() => DriftShipmentRepository(getIt<AppDatabase>()));
   getIt.registerLazySingleton<ReturnRequestRepository>(() => DriftReturnRequestRepository(getIt<AppDatabase>()));
+  getIt.registerLazySingleton<BoletoRepository>(() => MockBoletoRepository());
 
   // --- Use Cases ---
   getIt.registerLazySingleton(() => LoginUseCase(
@@ -186,6 +193,7 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
   getIt.registerLazySingleton(() => ProcessFinanceReviewUseCase(
     getIt<OrderStateMachineDomainService>(),
     getIt<InventoryAllocatorDomainService>(),
+    getIt<SalesOrderRepository>(),
   ));
 
   getIt.registerLazySingleton(() => ProcessOrderShipmentUseCase(
@@ -208,6 +216,11 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
     getIt<SalesOrderRepository>(),
     getIt<SalesRepresentativeRepository>(),
     getIt<SalesHierarchyDomainService>(),
+  ));
+
+  getIt.registerLazySingleton(() => GetReturnRequestsUseCase(
+    getIt<ReturnRequestRepository>(),
+    getIt<SalesOrderRepository>(),
   ));
 
   getIt.registerLazySingleton(() => GetPendingFinanceReviewsUseCase(
@@ -249,6 +262,13 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
 
   getIt.registerFactory(() => QuoteCubit(
     getIt<QuoteRepository>(),
+  ));
+
+  getIt.registerFactory(() => CustomerPortalCubit(
+    getPurchaseHistoryUseCase: getIt<GetPurchaseHistoryUseCase>(),
+    getReturnRequestsUseCase: getIt<GetReturnRequestsUseCase>(),
+    downloadBoletoUseCase: getIt<DownloadBoletoUseCase>(),
+    openReturnRequestUseCase: getIt<OpenReturnRequestUseCase>(),
   ));
 }
 
@@ -385,9 +405,23 @@ Future<void> _seedDatabase(AppDatabase db) async {
       creditStatus: CreditStatus.approved,
       items: [],
     );
+    final order3 = SalesOrder(
+      id: const OrderId('order-103'),
+      companyId: 'c1',
+      status: OrderStatus.delivered,
+      creditStatus: CreditStatus.approved,
+      items: [
+        OrderItem(
+          productId: const ProductId('p1'),
+          quantity: Quantity.create(2).getOrThrow(),
+          unitPriceSnapshot: Money.create(5000).getOrThrow(),
+        ),
+      ],
+    );
 
     await orderRepo.save(order1);
     await orderRepo.save(order2);
+    await orderRepo.save(order3);
   }
 
   if (commissionsList.isEmpty) {

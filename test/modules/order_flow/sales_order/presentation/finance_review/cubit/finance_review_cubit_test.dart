@@ -98,7 +98,7 @@ void main() {
         order: any(named: 'order'),
         review: any(named: 'review'),
         warehouses: any(named: 'warehouses'),
-      )).thenReturn(null);
+      )).thenAnswer((_) async => {});
 
       when(() => getPendingReviews.execute()).thenAnswer((_) async => []);
 
@@ -125,7 +125,7 @@ void main() {
         order: any(named: 'order'),
         review: any(named: 'review'),
         warehouses: any(named: 'warehouses'),
-      )).thenReturn(null);
+      )).thenAnswer((_) async => {});
 
       when(() => getPendingReviews.execute()).thenAnswer((_) async => []);
 
