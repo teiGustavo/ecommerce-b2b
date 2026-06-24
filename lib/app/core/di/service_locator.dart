@@ -54,6 +54,8 @@ import 'package:ecommerce_b2b/modules/catalog/price_table/application/get_price_
 import 'package:ecommerce_b2b/modules/catalog/price_table/application/save_price_table/save_price_table_use_case.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/application/get_products/get_products_use_case.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/application/save_product/save_product_use_case.dart';
+import 'package:ecommerce_b2b/modules/catalog/product/application/delete_product/delete_product_use_case.dart';
+import 'package:ecommerce_b2b/modules/catalog/product/application/delete_product_variant/delete_product_variant_use_case.dart';
 import 'package:ecommerce_b2b/modules/logistics/application/procces_order/process_order_shipment_use_case.dart';
 import 'package:ecommerce_b2b/modules/order_flow/quote/application/convert_quote/convert_quote_to_order_use_case.dart';
 import 'package:ecommerce_b2b/modules/order_flow/quote/application/create_quote/create_quote_use_case.dart';
@@ -133,6 +135,12 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
     getIt<ProductRepository>(),
   ));
   getIt.registerLazySingleton(() => SaveProductUseCase(
+    getIt<ProductRepository>(),
+  ));
+  getIt.registerLazySingleton(() => DeleteProductUseCase(
+    getIt<ProductRepository>(),
+  ));
+  getIt.registerLazySingleton(() => DeleteProductVariantUseCase(
     getIt<ProductRepository>(),
   ));
   getIt.registerLazySingleton(() => GetPriceTablesUseCase(
@@ -227,6 +235,8 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
   getIt.registerFactory(() => CatalogCubit(
     getIt<GetProductsUseCase>(),
     getIt<SaveProductUseCase>(),
+    getIt<DeleteProductUseCase>(),
+    getIt<DeleteProductVariantUseCase>(),
   ));
 
   getIt.registerFactory(() => PriceTableCubit(

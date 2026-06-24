@@ -48,5 +48,50 @@ void main() {
         color: '', size: '', voltage: '',
       )), throwsUnsupportedError);
     });
+
+    test('should remove variant by ID correctly', () {
+      final product = Product(
+        id: const ProductId('p1'),
+        sku: 'SKU-001',
+        name: 'Product 1',
+        description: 'Description 1',
+        basePrice: Money.create(100).getOrThrow(),
+        active: true,
+        variants: [
+          ProductVariant(
+            id: const ProductVariantId('v1'),
+            variantSku: 'SKU-001-RED',
+            color: 'Red', size: 'G', voltage: 'N/A',
+          ),
+          ProductVariant(
+            id: const ProductVariantId('v2'),
+            variantSku: 'SKU-001-BLUE',
+            color: 'Blue', size: 'M', voltage: 'N/A',
+          ),
+        ],
+      );
+
+      final removed = product.removeVariant(const ProductVariantId('v1'));
+
+      expect(removed, isTrue);
+      expect(product.variants, hasLength(1));
+      expect(product.variants.first.id, const ProductVariantId('v2'));
+    });
+
+    test('removeVariant should return false when variant does not exist', () {
+      final product = Product(
+        id: const ProductId('p1'),
+        sku: 'SKU-001',
+        name: 'Product 1',
+        description: 'Description 1',
+        basePrice: Money.create(100).getOrThrow(),
+        active: true,
+      );
+
+      final removed = product.removeVariant(const ProductVariantId('non-existent'));
+
+      expect(removed, isFalse);
+      expect(product.variants, isEmpty);
+    });
   });
 }

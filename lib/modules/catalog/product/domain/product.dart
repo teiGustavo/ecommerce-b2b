@@ -1,5 +1,6 @@
 import 'package:ecommerce_b2b/modules/shared_kernel/base/base_aggregate_root.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_variant_id.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/domain/product_variant.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 
@@ -35,5 +36,12 @@ class Product extends AggregateRoot<ProductId> {
   /// Adiciona uma nova variante ao produto.
   void addVariant(ProductVariant variant) {
     _variants.add(variant);
+  }
+
+  /// Remove uma variante pelo ID. Retorna true se a variante foi encontrada e removida.
+  bool removeVariant(ProductVariantId variantId) {
+    final lengthBefore = _variants.length;
+    _variants.removeWhere((v) => v.id == variantId);
+    return _variants.length < lengthBefore;
   }
 }

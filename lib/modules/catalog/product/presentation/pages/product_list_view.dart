@@ -20,7 +20,31 @@ class ProductListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<CatalogCubit>()..loadProducts(),
-      child: BlocBuilder<CatalogCubit, CatalogState>(
+      child: BlocConsumer<CatalogCubit, CatalogState>(
+        listener: (context, state) {
+          if (state is CatalogProductDeleted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Produto excluído com sucesso!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else if (state is CatalogVariantDeleted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Variante excluída com sucesso!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else if (state is CatalogError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red.shade700,
+              ),
+            );
+          }
+        },
         builder: (context, state) {
           final theme = Theme.of(context);
           final colorScheme = theme.colorScheme;
@@ -72,15 +96,6 @@ class ProductListView extends StatelessWidget {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (state is CatalogError) {
-      return Center(
-        child: Text(
-          state.message,
-          style: TextStyle(color: colorScheme.error),
-        ),
-      );
-    }
-
     if (state is CatalogLoaded) {
       final products = state.products;
       if (products.isEmpty) {
@@ -119,16 +134,27 @@ class ProductListView extends StatelessWidget {
                 ),
               ),
               subtitle: Text('SKU: ${product.sku} | Preço Base: ${product.basePrice.formatted}'),
-              trailing: Chip(
-                label: Text(
-                  product.active ? 'Ativo' : 'Inativo',
-                  style: TextStyle(
-                    color: product.active ? Colors.green.shade900 : Colors.red.shade900,
-                    fontSize: 12,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Chip(
+                    label: Text(
+                      product.active ? 'Ativo' : 'Inativo',
+                      style: TextStyle(
+                        color: product.active ? Colors.green.shade900 : Colors.red.shade900,
+                        fontSize: 12,
+                      ),
+                    ),
+                    backgroundColor: product.active ? Colors.green.shade100 : Colors.red.shade100,
+                    side: BorderSide.none,
                   ),
-                ),
-                backgroundColor: product.active ? Colors.green.shade100 : Colors.red.shade100,
-                side: BorderSide.none,
+                  const SizedBox(width: 4),
+                  IconButton(
+                    icon: Icon(Icons.delete_outline, color: colorScheme.error),
+                    tooltip: 'Excluir Produto',
+                    onPressed: () => _showDeleteProductDialog(context, product),
+                  ),
+                ],
               ),
               children: [
                 Padding(
@@ -173,14 +199,31 @@ class ProductListView extends StatelessWidget {
                             subtitle: Text(
                               'Cor: ${variant.color} | Tam: ${variant.size} | Voltagem: ${variant.voltage}',
                             ),
-                            trailing: Text(
-                              variant.sameAsParent 
-                                  ? product.basePrice.formatted 
-                                  : (variant.price?.formatted ?? 'N/A'),
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.primary,
-                              ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  variant.sameAsParent 
+                                      ? product.basePrice.formatted 
+                                      : (variant.price?.formatted ?? 'N/A'),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.primary,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.remove_circle_outline,
+                                    color: colorScheme.error,
+                                    size: 20,
+                                  ),
+                                  tooltip: 'Excluir Variante',
+                                  onPressed: () => _showDeleteVariantDialog(
+                                    context, product, variant,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         )),
@@ -205,6 +248,69 @@ class ProductListView extends StatelessWidget {
         style: theme.textTheme.titleSmall?.copyWith(
           fontWeight: FontWeight.w900,
         ),
+      ),
+    );
+  }
+
+  void _showDeleteProductDialog(BuildContext context, Product product) {
+    showDialog(
+      context: context,
+      builder: (diagCtx) => AlertDialog(
+        icon: Icon(Icons.warning_amber_rounded, color: Theme.of(context).colorScheme.error, size: 48),
+        title: const Text('Excluir Produto'),
+        content: Text(
+          'Tem certeza que deseja excluir o produto "${product.name}" (SKU: ${product.sku})?\n\n'
+          'Esta ação não poderá ser desfeita. O produto só será excluído se não possuir vínculos '
+          'ativos (pedidos, cotações ou estoque).',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(diagCtx),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton.tonal(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.errorContainer,
+              foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+            ),
+            onPressed: () {
+              context.read<CatalogCubit>().deleteProduct(product.id);
+              Navigator.pop(diagCtx);
+            },
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteVariantDialog(BuildContext context, Product product, ProductVariant variant) {
+    showDialog(
+      context: context,
+      builder: (diagCtx) => AlertDialog(
+        icon: Icon(Icons.warning_amber_rounded, color: Theme.of(context).colorScheme.error, size: 48),
+        title: const Text('Excluir Variante'),
+        content: Text(
+          'Tem certeza que deseja excluir a variante "${variant.variantSku}" do produto "${product.name}"?\n\n'
+          'Esta ação não poderá ser desfeita.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(diagCtx),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton.tonal(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.errorContainer,
+              foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+            ),
+            onPressed: () {
+              context.read<CatalogCubit>().deleteVariant(product.id, variant.id);
+              Navigator.pop(diagCtx);
+            },
+            child: const Text('Excluir'),
+          ),
+        ],
       ),
     );
   }

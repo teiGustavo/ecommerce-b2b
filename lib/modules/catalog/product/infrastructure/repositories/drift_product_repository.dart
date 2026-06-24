@@ -51,13 +51,63 @@ class DriftProductRepository implements ProductRepository {
   @override
   Future<void> delete(ProductId id) async {
     await _db.transaction(() async {
+      // Deletar regras de preço vinculadas ao produto
+      await (_db.delete(_db.priceRules)
+            ..where((t) => t.productId.equals(id.value)))
+          .go();
+
+      // Deletar variantes do produto
       await (_db.delete(_db.productVariants)
             ..where((t) => t.productId.equals(id.value)))
           .go();
+
+      // Deletar o produto
       await (_db.delete(_db.products)
             ..where((t) => t.id.equals(id.value)))
           .go();
     });
+  }
+
+  @override
+  Future<void> deleteVariant(ProductId productId, ProductVariantId variantId) async {
+    await (_db.delete(_db.productVariants)
+          ..where((t) => t.id.equals(variantId.value) & t.productId.equals(productId.value)))
+        .go();
+  }
+
+  @override
+  Future<bool> hasActiveLinks(ProductId id) async {
+    // Verifica vínculos em itens de pedido (order_items)
+    final orderItemCount = await (_db.selectOnly(_db.orderItemsTable)
+          ..addColumns([_db.orderItemsTable.id])
+          ..where(_db.orderItemsTable.productId.equals(id.value))
+          ..limit(1))
+        .get();
+    if (orderItemCount.isNotEmpty) return true;
+
+    // Verifica vínculos em itens de cotação (quote_items)
+    final quoteItemCount = await (_db.selectOnly(_db.quoteItemsTable)
+          ..addColumns([_db.quoteItemsTable.id])
+          ..where(_db.quoteItemsTable.productId.equals(id.value))
+          ..limit(1))
+        .get();
+    if (quoteItemCount.isNotEmpty) return true;
+
+    // Verifica vínculos em estoque (stocks) — usando variantes do produto
+    final variantRows = await (_db.select(_db.productVariants)
+          ..where((t) => t.productId.equals(id.value)))
+        .get();
+
+    for (final variant in variantRows) {
+      final stockCount = await (_db.selectOnly(_db.stocks)
+            ..addColumns([_db.stocks.warehouseId])
+            ..where(_db.stocks.variantId.equals(variant.id))
+            ..limit(1))
+          .get();
+      if (stockCount.isNotEmpty) return true;
+    }
+
+    return false;
   }
 
   @override

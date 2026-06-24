@@ -29,3 +29,9 @@ class CatalogError extends CatalogState {
   @override
   List<Object?> get props => [message];
 }
+
+/// Estado emitido quando um produto é excluído com sucesso.
+class CatalogProductDeleted extends CatalogState {}
+
+/// Estado emitido quando uma variante é excluída com sucesso.
+class CatalogVariantDeleted extends CatalogState {}

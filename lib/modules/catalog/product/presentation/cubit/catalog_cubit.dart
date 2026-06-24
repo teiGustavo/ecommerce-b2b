@@ -1,16 +1,24 @@
+import 'package:ecommerce_b2b/modules/catalog/product/application/delete_product/delete_product_use_case.dart';
+import 'package:ecommerce_b2b/modules/catalog/product/application/delete_product_variant/delete_product_variant_use_case.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/application/get_products/get_products_use_case.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/application/save_product/save_product_use_case.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/domain/product.dart';
 import 'package:ecommerce_b2b/modules/catalog/product/presentation/cubit/catalog_state.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/product_variant_id.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CatalogCubit extends Cubit<CatalogState> {
   final GetProductsUseCase _getProductsUseCase;
   final SaveProductUseCase _saveProductUseCase;
+  final DeleteProductUseCase _deleteProductUseCase;
+  final DeleteProductVariantUseCase _deleteProductVariantUseCase;
 
   CatalogCubit(
     this._getProductsUseCase,
     this._saveProductUseCase,
+    this._deleteProductUseCase,
+    this._deleteProductVariantUseCase,
   ) : super(CatalogInitial());
 
   Future<void> loadProducts({String? query}) async {
@@ -29,6 +37,30 @@ class CatalogCubit extends Cubit<CatalogState> {
     result.fold(
       (error) => emit(CatalogError(error.toString())),
       (_) => loadProducts(),
+    );
+  }
+
+  Future<void> deleteProduct(ProductId productId) async {
+    final result = await _deleteProductUseCase.execute(productId);
+    
+    result.fold(
+      (error) => emit(CatalogError(error.toString())),
+      (_) {
+        emit(CatalogProductDeleted());
+        loadProducts();
+      },
+    );
+  }
+
+  Future<void> deleteVariant(ProductId productId, ProductVariantId variantId) async {
+    final result = await _deleteProductVariantUseCase.execute(productId, variantId);
+    
+    result.fold(
+      (error) => emit(CatalogError(error.toString())),
+      (_) {
+        emit(CatalogVariantDeleted());
+        loadProducts();
+      },
     );
   }
 }
