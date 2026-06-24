@@ -25,8 +25,10 @@ class ProcessFinanceReviewUseCase {
     required FinanceReview review,
     required List<Warehouse> warehouses,
   }) async {
-    if (order.status != OrderStatus.blockedByFinance) {
-      throw StateError('Apenas pedidos bloqueados podem passar por análise financeira.');
+    if (order.status != OrderStatus.blockedByFinance &&
+        order.status != OrderStatus.pendingFinanceApproval) {
+      throw StateError(
+          'Apenas pedidos em análise ou bloqueados podem passar por análise financeira.');
     }
 
     order.applyFinanceReview(review);

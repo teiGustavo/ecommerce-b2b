@@ -14,8 +14,9 @@ class CreditPolicyDomainService {
       order.updateStatus(OrderStatus.blockedByFinance);
     } else {
       order.updateCreditStatus(CreditStatus.approved);
-      // Se aprovado pelo crédito, segue para o fluxo normal (aguardando separação/expedição).
-      order.updateStatus(OrderStatus.pickingPacking);
+      // Mantém em Aguardando Aprovação Financeira para revisão manual ou processamento posterior,
+      // seguindo a máquina de estados linear (RN11).
+      order.updateStatus(OrderStatus.pendingFinanceApproval);
     }
   }
 }

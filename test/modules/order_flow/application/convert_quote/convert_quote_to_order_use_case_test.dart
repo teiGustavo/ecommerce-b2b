@@ -74,17 +74,17 @@ void main() {
       ]);
     });
 
-    /// deve converter orçamento em pedido e alocar estoque se aprovado pelo crédito
-    test('should convert quote to order and allocate stock if approved by credit', () {
-      final creditPolicy = MockCreditPolicy(targetStatus: OrderStatus.pickingPacking);
+    /// deve converter orçamento em pedido e aguardar aprovação financeira sem alocar estoque ainda
+    test('should convert quote to order and wait for finance approval without allocating stock yet', () {
+      final creditPolicy = MockCreditPolicy(targetStatus: OrderStatus.pendingFinanceApproval);
       final inventoryAllocator = MockInventoryAllocator();
       final useCase = ConvertQuoteToOrderUseCase(creditPolicy, inventoryAllocator);
 
       final order = useCase.execute(orderId: const OrderId('o1'), quote: quote, company: company, warehouses: [warehouse]);
 
-      expect(order.status, OrderStatus.pickingPacking);
+      expect(order.status, OrderStatus.pendingFinanceApproval);
       expect(quote.status, QuoteStatus.convertedToOrder);
-      expect(inventoryAllocator.allocateCalled, isTrue);
+      expect(inventoryAllocator.allocateCalled, isFalse);
     });
 
     /// deve converter orçamento em pedido mas NÃO alocar estoque se bloqueado pelo crédito

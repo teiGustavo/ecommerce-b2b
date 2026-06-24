@@ -101,10 +101,11 @@ void main() {
       verify(() => orderRepo.save(order)).called(1);
     });
 
-    test('should throw error if order is not blocked', () async {
+    test('should allow processing if order is pending finance approval', () async {
       final stateMachine = MockOrderStateMachine();
       final inventoryAllocator = MockInventoryAllocator();
-      final useCase = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator, orderRepo);
+      final useCase = ProcessFinanceReviewUseCase(
+          stateMachine, inventoryAllocator, orderRepo);
       final review = FinanceReview(
         decision: FinanceDecision.approved,
         reviewerId: 'admin',
@@ -114,7 +115,31 @@ void main() {
 
       order.updateStatus(OrderStatus.pendingFinanceApproval);
 
-      expect(() => useCase.execute(order: order, review: review, warehouses: [warehouse]), throwsStateError);
+      await useCase.execute(
+          order: order, review: review, warehouses: [warehouse]);
+
+      expect(order.status, OrderStatus.pickingPacking);
+      verify(() => orderRepo.save(order)).called(1);
+    });
+
+    test('should throw error if order is in terminal state', () async {
+      final stateMachine = MockOrderStateMachine();
+      final inventoryAllocator = MockInventoryAllocator();
+      final useCase = ProcessFinanceReviewUseCase(
+          stateMachine, inventoryAllocator, orderRepo);
+      final review = FinanceReview(
+        decision: FinanceDecision.approved,
+        reviewerId: 'admin',
+        reviewedAt: DateTime.now(),
+        justification: 'OK',
+      );
+
+      order.updateStatus(OrderStatus.delivered);
+
+      expect(
+          () => useCase.execute(
+              order: order, review: review, warehouses: [warehouse]),
+          throwsStateError);
       verifyNever(() => orderRepo.save(any()));
     });
   });

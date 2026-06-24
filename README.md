@@ -2,6 +2,8 @@
 
 Um projeto Flutter para E-commerce B2B (Atacado).
 
+Link para a documentação no Overleaf: [Documentação - Trabalho Final](https://www.overleaf.com/project/6a39c5295711b4fb2b9409be).
+
 ---
 
 ## Como Executar o Projeto

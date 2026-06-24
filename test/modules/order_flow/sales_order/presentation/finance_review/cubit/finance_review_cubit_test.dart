@@ -1,3 +1,4 @@
+import 'package:ecommerce_b2b/modules/inventory/warehouse/domain/repositories/inventory_repository.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/credit_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/domain/enums/order_status.dart';
 import 'package:ecommerce_b2b/modules/order_flow/sales_order/application/get_pending_finance_reviews/get_pending_finance_reviews_use_case.dart';
@@ -9,10 +10,16 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/order_id.d
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockGetPendingFinanceReviewsUseCase extends Mock implements GetPendingFinanceReviewsUseCase {}
-class MockProcessFinanceReviewUseCase extends Mock implements ProcessFinanceReviewUseCase {}
+class MockGetPendingFinanceReviewsUseCase extends Mock
+    implements GetPendingFinanceReviewsUseCase {}
+
+class MockProcessFinanceReviewUseCase extends Mock
+    implements ProcessFinanceReviewUseCase {}
+
+class MockInventoryRepository extends Mock implements InventoryRepository {}
 
 class SalesOrderFake extends Fake implements SalesOrder {}
+
 class FinanceReviewFake extends Fake implements FinanceReview {}
 
 void main() {
@@ -24,14 +31,17 @@ void main() {
   group('FinanceReviewCubit', () {
     late MockGetPendingFinanceReviewsUseCase getPendingReviews;
     late MockProcessFinanceReviewUseCase processReview;
+    late MockInventoryRepository inventoryRepository;
     late FinanceReviewCubit cubit;
 
     setUp(() {
       getPendingReviews = MockGetPendingFinanceReviewsUseCase();
       processReview = MockProcessFinanceReviewUseCase();
+      inventoryRepository = MockInventoryRepository();
       cubit = FinanceReviewCubit(
         getPendingReviews: getPendingReviews,
         processReview: processReview,
+        inventoryRepository: inventoryRepository,
       );
     });
 
@@ -94,21 +104,24 @@ void main() {
         items: [],
       );
 
+      when(() => inventoryRepository.getAll()).thenAnswer((_) async => []);
+
       when(() => processReview.execute(
-        order: any(named: 'order'),
-        review: any(named: 'review'),
-        warehouses: any(named: 'warehouses'),
-      )).thenAnswer((_) async => {});
+            order: any(named: 'order'),
+            review: any(named: 'review'),
+            warehouses: any(named: 'warehouses'),
+          )).thenAnswer((_) async => {});
 
       when(() => getPendingReviews.execute()).thenAnswer((_) async => []);
 
       await cubit.approveOrder(order, 'Approved because risk is low');
 
+      verify(() => inventoryRepository.getAll()).called(1);
       verify(() => processReview.execute(
-        order: order,
-        review: any(named: 'review'),
-        warehouses: [],
-      )).called(1);
+            order: order,
+            review: any(named: 'review'),
+            warehouses: any(named: 'warehouses'),
+          )).called(1);
 
       verify(() => getPendingReviews.execute()).called(1);
     });

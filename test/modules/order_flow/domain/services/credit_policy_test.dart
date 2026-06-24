@@ -78,7 +78,7 @@ void main() {
       creditPolicy.evaluate(order, company);
 
       expect(order.creditStatus, CreditStatus.approved);
-      expect(order.status, OrderStatus.pickingPacking);
+      expect(order.status, OrderStatus.pendingFinanceApproval);
     });
 
     /// deve bloquear pedido quando valor excede limite disponível

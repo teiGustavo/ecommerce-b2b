@@ -242,6 +242,7 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
   getIt.registerFactory(() => FinanceReviewCubit(
     getPendingReviews: getIt<GetPendingFinanceReviewsUseCase>(),
     processReview: getIt<ProcessFinanceReviewUseCase>(),
+    inventoryRepository: getIt<InventoryRepository>(),
   ));
 
   getIt.registerFactory(() => CompanyManagementCubit(
