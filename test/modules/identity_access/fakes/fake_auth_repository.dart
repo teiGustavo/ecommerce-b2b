@@ -19,8 +19,13 @@ class FakeAuthRepository implements AuthRepository {
       passwordHash: BCrypt.hashpw('password123', BCrypt.gensalt()),
     ),
     'rep@test.com': _FakeUserRecord(
-      userId: UserId(generateId()),
+      userId: UserId('rep-456'),
       role: UserRole.representative,
+      passwordHash: BCrypt.hashpw('password123', BCrypt.gensalt()),
+    ),
+    'supervisor@test.com': _FakeUserRecord(
+      userId: UserId('rep-supervisor'),
+      role: UserRole.supervisor,
       passwordHash: BCrypt.hashpw('password123', BCrypt.gensalt()),
     ),
     'finance@test.com': _FakeUserRecord(

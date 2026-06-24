@@ -1,8 +1,10 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/commission.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/customer_assignment.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/enums/commission_status.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/repositories/sales_representative_repository.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_representative.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_hierarchy_link.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/email_address.dart';
@@ -22,6 +24,9 @@ class DriftSalesRepresentativeRepository implements SalesRepresentativeRepositor
         fullName: rep.fullName,
         email: rep.email.value,
         commissionRate: rep.commissionRate.value,
+        supervisorId: rep.supervisorLink != null
+            ? Value(rep.supervisorLink!.supervisorId.value)
+            : const Value.absent(),
       ),
     );
   }
@@ -42,7 +47,11 @@ class DriftSalesRepresentativeRepository implements SalesRepresentativeRepositor
           ..where((t) => t.representativeId.equals(id.value)))
         .get();
 
-    return _mapToDomain(row, companyRows, commissionRows);
+    final subordinateRows = await (_db.select(_db.salesRepresentativesTable)
+          ..where((t) => t.supervisorId.equals(id.value)))
+        .get();
+
+    return _mapToDomain(row, companyRows, commissionRows, subordinateRows);
   }
 
   @override
@@ -56,7 +65,10 @@ class DriftSalesRepresentativeRepository implements SalesRepresentativeRepositor
       final commissionRows = await (_db.select(_db.commissionsTable)
             ..where((t) => t.representativeId.equals(row.id)))
           .get();
-      representatives.add(_mapToDomain(row, companyRows, commissionRows));
+      final subordinateRows = await (_db.select(_db.salesRepresentativesTable)
+            ..where((t) => t.supervisorId.equals(row.id)))
+          .get();
+      representatives.add(_mapToDomain(row, companyRows, commissionRows, subordinateRows));
     }
     return representatives;
   }
@@ -65,7 +77,22 @@ class DriftSalesRepresentativeRepository implements SalesRepresentativeRepositor
     SalesRepresentativeRow row,
     List<CompanyRow> companyRows,
     List<CommissionRow> commissionRows,
+    List<SalesRepresentativeRow> subordinateRows,
   ) {
+    final supervisorLink = row.supervisorId != null
+        ? SalesHierarchyLink(
+            supervisorId: RepresentativeId(row.supervisorId!),
+            subordinateId: RepresentativeId(row.id),
+          )
+        : null;
+
+    final subordinateLinks = subordinateRows
+        .map((sub) => SalesHierarchyLink(
+              supervisorId: RepresentativeId(row.id),
+              subordinateId: RepresentativeId(sub.id),
+            ))
+        .toList();
+
     return SalesRepresentative(
       id: RepresentativeId(row.id),
       fullName: row.fullName,
@@ -78,6 +105,8 @@ class DriftSalesRepresentativeRepository implements SalesRepresentativeRepositor
         amount: Money.create(c.amount).getOrThrow(),
         status: CommissionStatus.values.firstWhere((s) => s.name == c.status),
       )).toList(),
+      supervisorLink: supervisorLink,
+      subordinateLinks: subordinateLinks,
     );
   }
 }

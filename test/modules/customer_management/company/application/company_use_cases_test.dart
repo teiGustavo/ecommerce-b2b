@@ -3,22 +3,28 @@ import 'package:ecommerce_b2b/modules/customer_management/company/application/ge
 import 'package:ecommerce_b2b/modules/customer_management/company/application/register_company/register_company_use_case.dart';
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/errors/cnpj_errors.dart';
 import '../fakes/fake_company_repository.dart';
+import '../fakes/fake_sales_representative_repository.dart';
 import 'package:ecommerce_b2b/modules/identity_access/domain/enums/user_role.dart';
 import 'package:ecommerce_b2b/modules/identity_access/domain/user_session.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/user_id.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/auth/errors/auth_errors.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/services/sales_hierarchy_domain_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   late FakeCompanyRepository companyRepository;
+  late FakeSalesRepresentativeRepository repRepository;
+  late SalesHierarchyDomainService hierarchyService;
   late GetCompaniesUseCase getCompaniesUseCase;
   late RegisterCompanyUseCase registerCompanyUseCase;
   late AddAuthorizedBuyerUseCase addAuthorizedBuyerUseCase;
 
   setUp(() {
     companyRepository = FakeCompanyRepository();
-    getCompaniesUseCase = GetCompaniesUseCase(companyRepository);
+    repRepository = FakeSalesRepresentativeRepository();
+    hierarchyService = SalesHierarchyDomainService();
+    getCompaniesUseCase = GetCompaniesUseCase(companyRepository, repRepository, hierarchyService);
     registerCompanyUseCase = RegisterCompanyUseCase(companyRepository);
     addAuthorizedBuyerUseCase = AddAuthorizedBuyerUseCase(companyRepository);
   });
@@ -48,6 +54,37 @@ void main() {
       expect(result.isSuccess, isTrue);
       final list = result.getOrThrow();
       expect(list.length, 2);
+    });
+
+    test('should return subordinate companies for a supervisor', () async {
+      final session = UserSession(
+        userId: const UserId('rep-supervisor'),
+        role: UserRole.supervisor,
+      );
+
+      final result = await getCompaniesUseCase.execute(
+        session,
+        targetRepresentativeId: 'rep-456',
+      );
+
+      expect(result.isSuccess, isTrue);
+      final list = result.getOrThrow();
+      expect(list.length, 2);
+    });
+
+    test('should return failure for supervisor when targetRepresentativeId is not a subordinate', () async {
+      final session = UserSession(
+        userId: const UserId('rep-supervisor'),
+        role: UserRole.supervisor,
+      );
+
+      final result = await getCompaniesUseCase.execute(
+        session,
+        targetRepresentativeId: 'rep-other',
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(result.getFailureOrThrow(), isA<UnauthorizedError>());
     });
 
     test('should return only own company for buyer', () async {

@@ -6,4 +6,6 @@ enum UserRole {
   representative,
   /// Financeiro
   finance,
+  /// Supervisor
+  supervisor,
 }

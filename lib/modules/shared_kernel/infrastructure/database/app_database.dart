@@ -65,6 +65,7 @@ class SalesRepresentativesTable extends Table {
   TextColumn get fullName => text()();
   TextColumn get email => text()();
   RealColumn get commissionRate => real()();
+  TextColumn get supervisorId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -275,7 +276,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -317,6 +318,9 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(quotesTable, quotesTable.companyId);
             await m.addColumn(quotesTable, quotesTable.representativeId);
             await m.createTable(commissionsTable);
+          }
+          if (from < 10) {
+            await m.addColumn(salesRepresentativesTable, salesRepresentativesTable.supervisorId);
           }
         },
       );

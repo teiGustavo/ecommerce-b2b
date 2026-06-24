@@ -90,7 +90,7 @@ enum AppPage {
   /// Define quais páginas são visíveis para cada papel na barra lateral
   static List<AppPage> sidebarPagesFor(UserRole role) {
     return switch (role) {
-      UserRole.representative => [
+      UserRole.representative || UserRole.supervisor => [
           AppPage.home,
           AppPage.companies, // Carteira de clientes
           AppPage.catalog,

@@ -1,0 +1,53 @@
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/repositories/sales_representative_repository.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_representative.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/email_address.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/percentage.dart';
+
+class FakeSalesRepresentativeRepository implements SalesRepresentativeRepository {
+  final List<SalesRepresentative> _reps = [];
+
+  FakeSalesRepresentativeRepository() {
+    _initializeMockData();
+  }
+
+  void _initializeMockData() {
+    final supervisor = SalesRepresentative(
+      id: const RepresentativeId('rep-supervisor'),
+      fullName: 'Supervisor Mock',
+      email: EmailAddress.create('supervisor@test.com').getOrThrow(),
+      commissionRate: Percentage.create(3).getOrThrow(),
+    );
+
+    final rep456 = SalesRepresentative(
+      id: const RepresentativeId('rep-456'),
+      fullName: 'João Vendedor',
+      email: EmailAddress.create('joao@empresa.com').getOrThrow(),
+      commissionRate: Percentage.create(5).getOrThrow(),
+    );
+
+    supervisor.addSubordinate(rep456.id);
+    rep456.setSupervisor(supervisor.id);
+
+    _reps.addAll([supervisor, rep456]);
+  }
+
+  @override
+  Future<SalesRepresentative?> findById(RepresentativeId id) async {
+    try {
+      return _reps.firstWhere((r) => r.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<List<SalesRepresentative>> findAll() async {
+    return List.from(_reps);
+  }
+
+  /// Helper to add custom reps for specific test scenarios.
+  void addRep(SalesRepresentative rep) {
+    _reps.add(rep);
+  }
+}

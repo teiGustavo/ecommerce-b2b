@@ -18,6 +18,7 @@ class UserSession {
   }
 
   bool get isBuyer => role == UserRole.buyer;
-  bool get isRepresentative => role == UserRole.representative;
+  bool get isRepresentative => role == UserRole.representative || role == UserRole.supervisor;
   bool get isFinance => role == UserRole.finance;
+  bool get isSupervisor => role == UserRole.supervisor;
 }

@@ -2,41 +2,59 @@
 
 Um projeto Flutter para E-commerce B2B (Atacado).
 
-Documentação do Projeto: 
+Documentação do Projeto:
+
 - Arquivo: [Documentação Trabalho Final - PDF](./documentacao_trabalho_final_flutter.pdf).
 
-- Overleaf: [Documentação Trabalho Final - Overleaf](https://www.overleaf.com/project/6a39c5295711b4fb2b9409be).
+-
+Overleaf: [Documentação Trabalho Final - Overleaf](https://www.overleaf.com/project/6a39c5295711b4fb2b9409be).
 
 ---
 
 ## Como Executar o Projeto
 
-Este projeto utiliza o **Drift** com SQLite para persistência local e necessita de geração de código para funcionar corretamente. Siga as instruções abaixo para configurar e rodar o projeto:
+Este projeto utiliza o **Drift** com SQLite para persistência local e necessita de geração de código
+para funcionar corretamente. Siga as instruções abaixo para configurar e rodar o projeto:
 
 ### Pré-requisitos
-Certifique-se de ter o Flutter instalado em sua máquina (compatível com Dart `^3.12.2` / Flutter `^3.22.0` ou superior).
+
+Certifique-se de ter o Flutter instalado em sua máquina (compatível com Dart `^3.12.2` / Flutter
+`^3.22.0` ou superior).
 
 ### 1. Obter dependências do Flutter
+
 No diretório raiz do projeto, execute:
+
 ```bash
 flutter pub get
 ```
 
 ### 2. Gerar o banco de dados (Drift / Build Runner)
-Como o arquivo gerado do banco de dados `app_database.g.dart` está listado no `.gitignore`, você precisa gerar as classes do Drift localmente antes de executar ou testar o projeto:
+
+Como o arquivo gerado do banco de dados `app_database.g.dart` está listado no `.gitignore`, você
+precisa gerar as classes do Drift localmente antes de executar ou testar o projeto:
+
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
-> **Dica**: Durante o desenvolvimento, você pode usar `dart run build_runner watch --delete-conflicting-outputs` para regenerar os arquivos automaticamente sempre que fizer alterações nas tabelas.
+
+> **Dica**: Durante o desenvolvimento, você pode usar
+`dart run build_runner watch --delete-conflicting-outputs` para regenerar os arquivos
+> automaticamente sempre que fizer alterações nas tabelas.
 
 ### 3. Executar os testes
-Para rodar a suíte completa de testes unitários e de integração (incluindo testes específicos com SQLite em memória para os repositórios do Drift):
+
+Para rodar a suíte completa de testes unitários e de integração (incluindo testes específicos com
+SQLite em memória para os repositórios do Drift):
+
 ```bash
 flutter test
 ```
 
 ### 4. Executar o aplicativo
+
 Para rodar o aplicativo em um emulador ou dispositivo conectado:
+
 ```bash
 flutter run
 ```
@@ -45,11 +63,12 @@ flutter run
 
 ## Credenciais de Acesso (Testes):
 
-| E-mail             | Perfil (Role)                  |
-|--------------------|--------------------------------|
-| `buyer@test.com`   | `UserRole.buyer.name`          |
-| `rep@test.com`     | `UserRole.representative.name` |
-| `finance@test.com` | `UserRole.finance.name`        |
+| E-mail              | Perfil (Role)                            |
+|---------------------|------------------------------------------|
+| buyer@test.com      | Buyer (Comprador)                        |
+| rep@test.com        | Representative (Representante Comercial) |
+| supervisor@test.com | Supervisor                               |
+| finance@test.com    | Finance (Financeiro)                     |
 
 > A senha para todos é: `password123`.
 
@@ -108,8 +127,13 @@ lib/modules/
 
 ## Persistência de Dados (SQLite & Drift)
 
-O aplicativo utiliza o **SQLite** como banco de dados embarcado local, gerenciado de forma reativa pelo ORM **Drift**.
+O aplicativo utiliza o **SQLite** como banco de dados embarcado local, gerenciado de forma reativa
+pelo ORM **Drift**.
 
-* **Funcionamento:** Toda a persistência de dados ocorre diretamente no dispositivo do usuário de maneira embarcada. Não é necessário baixar ou instalar nenhum servidor de banco de dados externo.
-* **Armazenamento:** O arquivo físico do banco de dados (`db.sqlite`) reside em uma pasta de sistema privada e segura atribuída ao aplicativo pelo sistema operacional (via `path_provider`).
-* **Ambiente de Testes:** Durante a execução de testes automatizados (`flutter test`), o SQLite roda **100% em memória RAM** (`NativeDatabase.memory()`). Isso garante que os testes sejam rápidos, isolados e que o banco seja descartado imediatamente após a conclusão dos testes.
+* **Funcionamento:** Toda a persistência de dados ocorre diretamente no dispositivo do usuário de
+  maneira embarcada. Não é necessário baixar ou instalar nenhum servidor de banco de dados externo.
+* **Armazenamento:** O arquivo físico do banco de dados (`db.sqlite`) reside em uma pasta de sistema
+  privada e segura atribuída ao aplicativo pelo sistema operacional (via `path_provider`).
+* **Ambiente de Testes:** Durante a execução de testes automatizados (`flutter test`), o SQLite roda
+  **100% em memória RAM** (`NativeDatabase.memory()`). Isso garante que os testes sejam rápidos,
+  isolados e que o banco seja descartado imediatamente após a conclusão dos testes.

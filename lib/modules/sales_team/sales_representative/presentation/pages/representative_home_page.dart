@@ -3,6 +3,7 @@ import 'package:ecommerce_b2b/app/presentation/widgets/b2b_app_bar.dart';
 import 'package:ecommerce_b2b/modules/identity_access/presentation/cubit/auth_cubit.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/commission.dart';
 import 'package:ecommerce_b2b/modules/sales_team/sales_representative/presentation/cubit/representative_dashboard_cubit.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -47,9 +48,66 @@ class RepresentativeHomePage extends StatelessWidget {
                   onRefresh: () =>
                       context
                           .read<RepresentativeDashboardCubit>()
-                          .loadDashboard(session),
+                          .loadDashboard(session, targetRepId: state.selectedRepId),
                   child: CustomScrollView(
                     slivers: [
+                      // Supervisor Team Selector
+                      if (session.isSupervisor && state.subordinates.isNotEmpty)
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                            child: Card(
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.supervised_user_circle_rounded, color: colorScheme.primary),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Visualizar Equipe',
+                                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          DropdownButtonHideUnderline(
+                                            child: DropdownButton<RepresentativeId>(
+                                              isExpanded: true,
+                                              value: state.selectedRepId,
+                                              items: [
+                                                DropdownMenuItem(
+                                                  value: RepresentativeId(session.userId.value),
+                                                  child: const Text('Meu Painel (Pessoal)', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                ),
+                                                ...state.subordinates.map((sub) => DropdownMenuItem(
+                                                  value: sub.id,
+                                                  child: Text(sub.fullName),
+                                                )),
+                                              ],
+                                              onChanged: (newRepId) {
+                                                if (newRepId != null) {
+                                                  context.read<RepresentativeDashboardCubit>().loadDashboard(
+                                                    session,
+                                                    targetRepId: newRepId,
+                                                  );
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
                       // Resumo Expressivo
                       SliverToBoxAdapter(
                         child: Padding(
@@ -58,7 +116,9 @@ class RepresentativeHomePage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Seu Desempenho',
+                                state.selectedRepId.value == session.userId.value
+                                    ? 'Seu Desempenho'
+                                    : 'Desempenho: ${state.selectedRepName}',
                                 style: theme.textTheme.headlineSmall?.copyWith(
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: -1,

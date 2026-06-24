@@ -159,6 +159,8 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
   ));
   getIt.registerLazySingleton(() => GetRecentQuotesUseCase(
     getIt<QuoteRepository>(),
+    getIt<SalesRepresentativeRepository>(),
+    getIt<SalesHierarchyDomainService>(),
   ));
   getIt.registerLazySingleton(() => GetProductsUseCase(
     getIt<ProductRepository>(),
@@ -174,6 +176,8 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
   ));
   getIt.registerLazySingleton(() => GetCompaniesUseCase(
     getIt<CompanyRepository>(),
+    getIt<SalesRepresentativeRepository>(),
+    getIt<SalesHierarchyDomainService>(),
   ));
   getIt.registerLazySingleton(() => RegisterCompanyUseCase(
     getIt<CompanyRepository>(),
@@ -237,6 +241,7 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
     getCommissionsUseCase: getIt<GetRepresentativeCommissionsUseCase>(),
     getCustomerPortfolioUseCase: getIt<GetCustomerPortfolioUseCase>(),
     getRecentQuotesUseCase: getIt<GetRecentQuotesUseCase>(),
+    representativeRepository: getIt<SalesRepresentativeRepository>(),
   ));
 
   getIt.registerFactory(() => FinanceReviewCubit(
@@ -249,6 +254,7 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
     getCompaniesUseCase: getIt<GetCompaniesUseCase>(),
     registerCompanyUseCase: getIt<RegisterCompanyUseCase>(),
     addAuthorizedBuyerUseCase: getIt<AddAuthorizedBuyerUseCase>(),
+    representativeRepository: getIt<SalesRepresentativeRepository>(),
   ));
 
   getIt.registerFactory(() => CatalogCubit(
@@ -275,7 +281,7 @@ Future<void> setupServiceLocator({QueryExecutor? connection}) async {
 
 Future<void> _seedDatabase(AppDatabase db) async {
   final companiesList = await db.select(db.companies).get();
-  final usersList = await db.customSelect('SELECT id FROM users LIMIT 1').get();
+  await db.customSelect('SELECT id FROM users LIMIT 1').get();
   final repsList = await db.select(db.salesRepresentativesTable).get();
   final ordersList = await db.select(db.salesOrdersTable).get();
   final commissionsList = await db.select(db.commissionsTable).get();
@@ -285,15 +291,41 @@ Future<void> _seedDatabase(AppDatabase db) async {
   final repRepo = DriftSalesRepresentativeRepository(db);
   final orderRepo = DriftSalesOrderRepository(db);
 
-  if (repsList.isEmpty) {
-    // Seed Sales Representative
+  // Seed Sales Representatives & Supervisor Hierarchy
+  final hasRep456 = repsList.any((r) => r.id == 'rep-456');
+  final hasSupervisor = repsList.any((r) => r.id == 'rep-supervisor');
+
+  if (!hasSupervisor) {
+    final supervisor = SalesRepresentative(
+      id: const RepresentativeId('rep-supervisor'),
+      fullName: 'Supervisor Mock',
+      email: EmailAddress.create('supervisor@test.com').getOrThrow(),
+      commissionRate: Percentage.create(3).getOrThrow(),
+    );
+    await repRepo.save(supervisor);
+  }
+
+  if (!hasRep456) {
     final rep = SalesRepresentative(
       id: const RepresentativeId('rep-456'),
       fullName: 'Representante Mock',
       email: EmailAddress.create('rep@test.com').getOrThrow(),
       commissionRate: Percentage.create(5).getOrThrow(),
     );
+    rep.setSupervisor(const RepresentativeId('rep-supervisor'));
     await repRepo.save(rep);
+  } else {
+    final repRow = repsList.firstWhere((r) => r.id == 'rep-456');
+    if (repRow.supervisorId == null) {
+      final rep = SalesRepresentative(
+        id: const RepresentativeId('rep-456'),
+        fullName: repRow.fullName,
+        email: EmailAddress.create(repRow.email).getOrThrow(),
+        commissionRate: Percentage.create(repRow.commissionRate).getOrThrow(),
+      );
+      rep.setSupervisor(const RepresentativeId('rep-supervisor'));
+      await repRepo.save(rep);
+    }
   }
 
   if (companiesList.isEmpty) {
@@ -463,16 +495,17 @@ Future<void> _seedDatabase(AppDatabase db) async {
     ));
   }
 
-  if (usersList.isEmpty) {
-    final now = DateTime.now();
-    Future<void> insertUser({
-      required String fullName,
-      required String email,
-      required String role,
-      String? companyId,
-      String? userId,
-    }) {
-      return db.customInsert(
+  final now = DateTime.now();
+  Future<void> insertUser({
+    required String fullName,
+    required String email,
+    required String role,
+    String? companyId,
+    String? userId,
+  }) async {
+    final existing = await db.customSelect('SELECT id FROM users WHERE email = ?', variables: [Variable(email)]).get();
+    if (existing.isEmpty) {
+      await db.customInsert(
         'INSERT OR REPLACE INTO users (id, full_name, email, password_hash, role, company_id, active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
         variables: [
           Variable(userId ?? generateId()),
@@ -487,25 +520,31 @@ Future<void> _seedDatabase(AppDatabase db) async {
         ],
       );
     }
-
-    await insertUser(
-      fullName: 'Carlos Comprador',
-      email: 'buyer@test.com',
-      role: UserRole.buyer.name,
-      companyId: 'c1',
-    );
-    await insertUser(
-      fullName: 'Representante Mock',
-      email: 'rep@test.com',
-      role: UserRole.representative.name,
-      userId: 'rep-456',
-    );
-    await insertUser(
-      fullName: 'Financeiro Mock',
-      email: 'finance@test.com',
-      role: UserRole.finance.name,
-    );
   }
+
+  await insertUser(
+    fullName: 'Carlos Comprador',
+    email: 'buyer@test.com',
+    role: UserRole.buyer.name,
+    companyId: 'c1',
+  );
+  await insertUser(
+    fullName: 'Representante Mock',
+    email: 'rep@test.com',
+    role: UserRole.representative.name,
+    userId: 'rep-456',
+  );
+  await insertUser(
+    fullName: 'Supervisor Mock',
+    email: 'supervisor@test.com',
+    role: UserRole.supervisor.name,
+    userId: 'rep-supervisor',
+  );
+  await insertUser(
+    fullName: 'Financeiro Mock',
+    email: 'finance@test.com',
+    role: UserRole.finance.name,
+  );
 
   // Seed Products
   final productRepo = DriftProductRepository(db);

@@ -24,6 +24,7 @@ class UserProfileDropdown extends StatelessWidget {
         UserRole.buyer => 'Comprador',
         UserRole.representative => 'Representante',
         UserRole.finance => 'Gestor Financeiro',
+        UserRole.supervisor => 'Supervisor',
       };
     }
 
@@ -81,13 +82,14 @@ class UserProfileDropdown extends StatelessWidget {
         ),
         PopupMenuItem<void>(
           onTap: () {
+            final brightness = MediaQuery.of(context).platformBrightness;
             // Pequeno delay para permitir que o menu feche antes de mudar o tema,
             // evitando glitch visual em alguns dispositivos.
             Future.delayed(Duration.zero, () {
               final currentMode = themeNotifier.value;
               final isDark = currentMode == ThemeMode.dark ||
                   (currentMode == ThemeMode.system &&
-                      MediaQuery.of(context).platformBrightness == Brightness.dark);
+                      brightness == Brightness.dark);
               themeNotifier.value = isDark ? ThemeMode.light : ThemeMode.dark;
             });
           },

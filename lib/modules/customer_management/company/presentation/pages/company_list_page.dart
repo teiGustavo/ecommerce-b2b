@@ -66,8 +66,14 @@ class CompanyListPage extends StatelessWidget {
                     label: const Text('Nova Empresa'),
                   ),
             body: RefreshIndicator(
-              onRefresh: () =>
-                  context.read<CompanyManagementCubit>().loadCompanies(session),
+              onRefresh: () {
+                final targetRepId = state is CompanyManagementLoaded
+                    ? state.selectedRepresentativeId
+                    : null;
+                return context
+                    .read<CompanyManagementCubit>()
+                    .loadCompanies(session, targetRepresentativeId: targetRepId);
+              },
               child: state is CompanyManagementLoading
                   ? const Center(child: CircularProgressIndicator())
                   : state is CompanyManagementFailure &&
@@ -94,151 +100,221 @@ class CompanyListPage extends StatelessWidget {
     ColorScheme colorScheme,
   ) {
     List<Company> companies = [];
+    List<dynamic> subordinates = [];
+    String? selectedRepId;
     if (state is CompanyManagementLoaded) {
       companies = state.companies;
+      subordinates = state.subordinates;
+      selectedRepId = state.selectedRepresentativeId;
     }
 
+    final hasSubordinates = session.isSupervisor && subordinates.isNotEmpty;
+
+    Widget mainContent;
     if (companies.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32.0),
-          child: Text(
-            'Nenhuma empresa cadastrada.',
-            style: TextStyle(fontSize: 16),
+      mainContent = const Expanded(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(32.0),
+            child: Text(
+              'Nenhuma empresa cadastrada.',
+              style: TextStyle(fontSize: 16),
+            ),
           ),
+        ),
+      );
+    } else {
+      mainContent = Expanded(
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16.0),
+          itemCount: companies.length,
+          itemBuilder: (context, index) {
+            final company = companies[index];
+            return Card(
+              margin: const EdgeInsets.only(bottom: 16.0),
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ExpansionTile(
+                leading: CircleAvatar(
+                  backgroundColor: colorScheme.primaryContainer,
+                  child: Icon(
+                    Icons.business_rounded,
+                    color: colorScheme.onPrimaryContainer,
+                  ),
+                ),
+                title: Text(
+                  company.tradeName,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Text('CNPJ: ${company.cnpj.formatted}'),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Divider(),
+                        _buildSectionTitle(theme, 'Informações Gerais'),
+                        _buildInfoRow('Razão Social', company.legalName),
+                        _buildInfoRow(
+                          'Inscrição Estadual',
+                          company.inscricaoEstadual.value,
+                        ),
+                        _buildInfoRow('E-mail de Contato', company.email.value),
+                        _buildInfoRow('Telefone', company.phone.formatted),
+                        const SizedBox(height: 12),
+                        _buildSectionTitle(theme, 'Endereço de Faturamento'),
+                        Text(
+                          '${company.billingAddress.street.value}, ${company.billingAddress.number.value}'
+                          '${company.billingAddress.complement != null ? " - ${company.billingAddress.complement!.value}" : ""}\n'
+                          '${company.billingAddress.neighborhood.value} - ${company.billingAddress.city.value}/${company.billingAddress.state.code} - CEP: ${company.billingAddress.zipCode.formatted}',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildSectionTitle(theme, 'Crédito e Limites'),
+                        _buildInfoRow(
+                          'Limite Total',
+                          company.creditLimit.toString(),
+                        ),
+                        _buildInfoRow(
+                          'Saldo Devedor',
+                          company.creditAccount.openBalance.toString(),
+                        ),
+                        _buildInfoRow(
+                          'Pedidos Pendentes',
+                          company.creditAccount.pendingOrdersBalance.toString(),
+                        ),
+                        _buildInfoRow(
+                          'Limite Disponível',
+                          company.creditAccount.availableLimit.toString(),
+                          valueColor: colorScheme.primary,
+                          isBold: true,
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _buildSectionTitle(theme, 'Compradores Autorizados'),
+                            if (!session.isBuyer)
+                              TextButton.icon(
+                                onPressed: () =>
+                                    _showAddBuyerDialog(context, company, session),
+                                icon: const Icon(
+                                  Icons.person_add_rounded,
+                                  size: 18,
+                                ),
+                                label: const Text('Adicionar'),
+                              ),
+                          ],
+                        ),
+                        if (company.authorizedBuyers.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text('Nenhum comprador autorizado cadastrado.'),
+                          )
+                        else
+                          ...company.authorizedBuyers.map(
+                            (buyer) => Card(
+                              color: colorScheme.surfaceContainerLow,
+                              margin: const EdgeInsets.only(top: 8.0),
+                              child: ListTile(
+                                dense: true,
+                                leading: const Icon(Icons.person_outline_rounded),
+                                title: Text(
+                                  buyer.fullName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  '${buyer.positionTitle} • ${buyer.email.value} • ${buyer.phone.value}',
+                                ),
+                                trailing: buyer.active
+                                    ? Icon(
+                                        Icons.check_circle_rounded,
+                                        color: Colors.green.shade600,
+                                        size: 18,
+                                      )
+                                    : const Icon(
+                                        Icons.cancel_rounded,
+                                        color: Colors.grey,
+                                        size: 18,
+                                      ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
-      itemCount: companies.length,
-      itemBuilder: (context, index) {
-        final company = companies[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 16.0),
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ExpansionTile(
-            leading: CircleAvatar(
-              backgroundColor: colorScheme.primaryContainer,
-              child: Icon(
-                Icons.business_rounded,
-                color: colorScheme.onPrimaryContainer,
-              ),
-            ),
-            title: Text(
-              company.tradeName,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            subtitle: Text('CNPJ: ${company.cnpj.formatted}'),
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      children: [
+        if (hasSubordinates)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
                   children: [
-                    const Divider(),
-                    _buildSectionTitle(theme, 'Informações Gerais'),
-                    _buildInfoRow('Razão Social', company.legalName),
-                    _buildInfoRow(
-                      'Inscrição Estadual',
-                      company.inscricaoEstadual.value,
-                    ),
-                    _buildInfoRow('E-mail de Contato', company.email.value),
-                    _buildInfoRow('Telefone', company.phone.formatted),
-                    const SizedBox(height: 12),
-                    _buildSectionTitle(theme, 'Endereço de Faturamento'),
-                    Text(
-                      '${company.billingAddress.street.value}, ${company.billingAddress.number.value}'
-                      '${company.billingAddress.complement != null ? " - ${company.billingAddress.complement!.value}" : ""}\n'
-                      '${company.billingAddress.neighborhood.value} - ${company.billingAddress.city.value}/${company.billingAddress.state.code} - CEP: ${company.billingAddress.zipCode.formatted}',
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildSectionTitle(theme, 'Crédito e Limites'),
-                    _buildInfoRow(
-                      'Limite Total',
-                      company.creditLimit.toString(),
-                    ),
-                    _buildInfoRow(
-                      'Saldo Devedor',
-                      company.creditAccount.openBalance.toString(),
-                    ),
-                    _buildInfoRow(
-                      'Pedidos Pendentes',
-                      company.creditAccount.pendingOrdersBalance.toString(),
-                    ),
-                    _buildInfoRow(
-                      'Limite Disponível',
-                      company.creditAccount.availableLimit.toString(),
-                      valueColor: colorScheme.primary,
-                      isBold: true,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildSectionTitle(theme, 'Compradores Autorizados'),
-                        if (!session.isBuyer)
-                          TextButton.icon(
-                            onPressed: () =>
-                                _showAddBuyerDialog(context, company, session),
-                            icon: const Icon(
-                              Icons.person_add_rounded,
-                              size: 18,
-                            ),
-                            label: const Text('Adicionar'),
+                    Icon(Icons.supervised_user_circle_rounded, color: colorScheme.primary),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Filtrar Carteira por Representante',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
                           ),
-                      ],
-                    ),
-                    if (company.authorizedBuyers.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text('Nenhum comprador autorizado cadastrado.'),
-                      )
-                    else
-                      ...company.authorizedBuyers.map(
-                        (buyer) => Card(
-                          color: colorScheme.surfaceContainerLow,
-                          margin: const EdgeInsets.only(top: 8.0),
-                          child: ListTile(
-                            dense: true,
-                            leading: const Icon(Icons.person_outline_rounded),
-                            title: Text(
-                              buyer.fullName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          const SizedBox(height: 4),
+                          DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              isExpanded: true,
+                              value: selectedRepId,
+                              items: [
+                                DropdownMenuItem(
+                                  value: session.userId.value,
+                                  child: const Text('Minha Carteira (Pessoal)', style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                                ...subordinates.map((sub) => DropdownMenuItem(
+                                  value: sub.id.value,
+                                  child: Text(sub.fullName),
+                                )),
+                              ],
+                              onChanged: (newRepId) {
+                                if (newRepId != null) {
+                                  context.read<CompanyManagementCubit>().loadCompanies(
+                                    session,
+                                    targetRepresentativeId: newRepId,
+                                  );
+                                }
+                              },
                             ),
-                            subtitle: Text(
-                              '${buyer.positionTitle} • ${buyer.email.value} • ${buyer.phone.value}',
-                            ),
-                            trailing: buyer.active
-                                ? Icon(
-                                    Icons.check_circle_rounded,
-                                    color: Colors.green.shade600,
-                                    size: 18,
-                                  )
-                                : const Icon(
-                                    Icons.cancel_rounded,
-                                    color: Colors.grey,
-                                    size: 18,
-                                  ),
                           ),
-                        ),
+                        ],
                       ),
+                    ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
-        );
-      },
+        mainContent,
+      ],
     );
   }
 

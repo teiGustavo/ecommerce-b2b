@@ -4,6 +4,10 @@ import 'package:ecommerce_b2b/modules/customer_management/company/application/re
 import 'package:ecommerce_b2b/modules/customer_management/company/domain/company.dart';
 import 'package:ecommerce_b2b/modules/identity_access/domain/user_session.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/company_id.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/repositories/sales_representative_repository.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/sales_representative.dart';
+import 'package:ecommerce_b2b/modules/sales_team/sales_representative/domain/services/sales_hierarchy_domain_service.dart';
+import 'package:ecommerce_b2b/modules/shared_kernel/domain/common/ids/representative_id.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -13,20 +17,50 @@ class CompanyManagementCubit extends Cubit<CompanyManagementState> {
   final GetCompaniesUseCase _getCompaniesUseCase;
   final RegisterCompanyUseCase _registerCompanyUseCase;
   final AddAuthorizedBuyerUseCase _addAuthorizedBuyerUseCase;
+  final SalesRepresentativeRepository _representativeRepository;
 
   CompanyManagementCubit({
     required this._getCompaniesUseCase,
     required this._registerCompanyUseCase,
     required this._addAuthorizedBuyerUseCase,
+    required this._representativeRepository,
   }) : super(CompanyManagementInitial());
 
-  Future<void> loadCompanies(UserSession session) async {
+  Future<void> loadCompanies(UserSession session, {String? targetRepresentativeId}) async {
     emit(CompanyManagementLoading());
-    final result = await _getCompaniesUseCase.execute(session);
+    final result = await _getCompaniesUseCase.execute(
+      session,
+      targetRepresentativeId: targetRepresentativeId,
+    );
+
+    // Fetch subordinates if supervisor
+    List<SalesRepresentative> subordinates = [];
+    if (session.isSupervisor) {
+      final currentRepId = RepresentativeId(session.userId.value);
+      final supervisor = await _representativeRepository.findById(currentRepId);
+      if (supervisor != null) {
+        final allReps = await _representativeRepository.findAll();
+        final hierarchyService = SalesHierarchyDomainService();
+        subordinates = allReps.where((rep) {
+          if (rep.id == currentRepId) return false;
+          return hierarchyService.canSupervisorAccessSubordinate(
+            supervisor: supervisor,
+            subordinateId: rep.id,
+            allSubordinatesInContext: allReps,
+          );
+        }).toList();
+      }
+    }
 
     result.fold(
       (error) => emit(CompanyManagementFailure(error.message)),
-      (companies) => emit(CompanyManagementLoaded(companies: companies)),
+      (companies) => emit(
+        CompanyManagementLoaded(
+          companies: companies,
+          subordinates: subordinates,
+          selectedRepresentativeId: targetRepresentativeId ?? session.userId.value,
+        ),
+      ),
     );
   }
 
@@ -91,7 +125,10 @@ class CompanyManagementCubit extends Cubit<CompanyManagementState> {
       },
       (company) {
         emit(const CompanyManagementSuccess('Empresa cadastrada com sucesso!'));
-        loadCompanies(currentSession);
+        final lastRepId = originalState is CompanyManagementLoaded
+            ? originalState.selectedRepresentativeId
+            : null;
+        loadCompanies(currentSession, targetRepresentativeId: lastRepId);
       },
     );
   }
@@ -125,7 +162,10 @@ class CompanyManagementCubit extends Cubit<CompanyManagementState> {
       },
       (company) {
         emit(const CompanyManagementSuccess('Comprador autorizado adicionado com sucesso!'));
-        loadCompanies(currentSession);
+        final lastRepId = originalState is CompanyManagementLoaded
+            ? originalState.selectedRepresentativeId
+            : null;
+        loadCompanies(currentSession, targetRepresentativeId: lastRepId);
       },
     );
   }

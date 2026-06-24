@@ -61,7 +61,8 @@ final appRouter = GoRouter(
               if (authState.session.role == UserRole.buyer) {
                 return const BuyerHomePage();
               }
-              if (authState.session.role == UserRole.representative) {
+              if (authState.session.role == UserRole.representative ||
+                  authState.session.role == UserRole.supervisor) {
                 return const RepresentativeHomePage();
               }
               if (authState.session.role == UserRole.finance) {

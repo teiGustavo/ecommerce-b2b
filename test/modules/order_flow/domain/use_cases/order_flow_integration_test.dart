@@ -26,18 +26,56 @@ import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/contact/value_objects/phone_number.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/money.dart';
 import 'package:ecommerce_b2b/modules/shared_kernel/domain/finance/value_objects/quantity.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/sales_order.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/application/process_finance_review/process_finance_review_use_case.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/finance_review.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/enums/finance_decision.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/services/order_state_machine_domain_service.dart';
+import 'package:ecommerce_b2b/modules/order_flow/sales_order/domain/repositories/sales_order_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+class FakeSalesOrderRepository implements SalesOrderRepository {
+  final Map<OrderId, SalesOrder> _orders = {};
+
+  @override
+  Future<void> save(SalesOrder order) async {
+    _orders[order.id] = order;
+  }
+
+  @override
+  Future<SalesOrder?> getById(OrderId id) async {
+    return _orders[id];
+  }
+
+  @override
+  Future<List<SalesOrder>> getAll() async {
+    return _orders.values.toList();
+  }
+
+  @override
+  Future<List<SalesOrder>> findByCompanyId(CompanyId companyId) async {
+    return _orders.values.where((o) => o.companyId == companyId.value).toList();
+  }
+
+  @override
+  Future<List<SalesOrder>> findByStatus(String status) async {
+    return _orders.values.where((o) => o.status.name == status).toList();
+  }
+}
 
 void main() {
   group('Order Flow Integration', () {
     /// deve realizar fluxo completo de orçamento até pedido com aprovação de crédito
-    test('should perform complete flow from quote to order with credit approval', () {
+    test('should perform complete flow from quote to order with credit approval', () async {
       // 1. Setup
       final pricingService = OrderPricingDomainService();
       final creditPolicy = CreditPolicyDomainService();
       final inventoryAllocator = InventoryAllocatorDomainService();
       final createQuote = CreateQuoteUseCase(pricingService);
       final convertQuote = ConvertQuoteToOrderUseCase(creditPolicy, inventoryAllocator);
+      final orderRepository = FakeSalesOrderRepository();
+      final stateMachine = OrderStateMachineDomainService();
+      final processFinanceReview = ProcessFinanceReviewUseCase(stateMachine, inventoryAllocator, orderRepository);
 
       final company = Company(
         id: const CompanyId('c1'),
@@ -111,8 +149,27 @@ void main() {
         warehouses: [warehouse],
       );
 
-      // 4. Verify Results
-      expect(order.status, OrderStatus.pickingPacking); // Credit approved and stock allocated
+      // 4. Verify status is pending finance approval and stock is NOT allocated yet
+      expect(order.status, OrderStatus.pendingFinanceApproval);
+      expect(warehouse.getStockItem(product.id)!.reservedQuantity.value, 0);
+      expect(warehouse.getStockItem(product.id)!.availableQuantity.value, 50);
+
+      // 5. Finance Department approves the order
+      final review = FinanceReview(
+        decision: FinanceDecision.approved,
+        reviewerId: 'finance-1',
+        reviewedAt: DateTime.now(),
+        justification: 'Automatic credit policy pre-approved. Manual review confirmed.',
+      );
+
+      await processFinanceReview.execute(
+        order: order,
+        review: review,
+        warehouses: [warehouse],
+      );
+
+      // 6. Verify order status transitions to picking/packing and stock is allocated
+      expect(order.status, OrderStatus.pickingPacking);
       expect(warehouse.getStockItem(product.id)!.reservedQuantity.value, 10);
       expect(warehouse.getStockItem(product.id)!.availableQuantity.value, 40);
     });

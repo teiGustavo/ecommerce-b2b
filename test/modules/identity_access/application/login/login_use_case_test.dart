@@ -22,6 +22,14 @@ void main() {
       expect(session.isBuyer, isTrue);
     });
 
+    test('should login successfully with valid supervisor credentials', () async {
+      final result = await loginUseCase.execute('supervisor@test.com', 'password123');
+
+      expect(result.isSuccess, isTrue);
+      final session = result.getOrThrow();
+      expect(session.isSupervisor, isTrue);
+    });
+
     // Deve retornar falha para senha inválida.
     test('should return failure for invalid password', () async {
       final result = await loginUseCase.execute('buyer@test.com', 'wrongpassword');
